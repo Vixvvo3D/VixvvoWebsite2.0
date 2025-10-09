@@ -604,6 +604,38 @@
 </style>
 </head>
 <body>
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--dark-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: opacity 0.3s ease;
+  ">
+    <div style="
+      width: 60px;
+      height: 60px;
+      border: 4px solid var(--border);
+      border-top: 4px solid var(--purple);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    "></div>
+    <p style="margin-top: 20px; color: var(--text-muted); font-size: 14px;">Going home...</p>
+    <style>
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </div>
+
   <nav>
     <div class="logo-section">
       <img src="images/Transparent Vixvvo Logo 2.0 Top left.png" alt="Vixvvo Logo">
@@ -1046,8 +1078,41 @@
       });
   });
 
+  // Hide loading overlay
+  function hideLoadingOverlay() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) {
+      loadingOverlay.style.opacity = '0';
+      setTimeout(() => {
+        loadingOverlay.style.display = 'none';
+      }, 300);
+    }
+  }
+
+  // Track initialization
+  let authInitialized = false;
+  let firebaseConnected = false;
+
+  function checkInitComplete() {
+    if (authInitialized && firebaseConnected) {
+      hideLoadingOverlay();
+    }
+  }
+
+  // Check Firebase connection
+  db.ref('.info/connected').on('value', snapshot => {
+    if (snapshot.val() === true) {
+      console.log('✅ Connected to Firebase');
+      firebaseConnected = true;
+      checkInitComplete();
+    }
+  });
+
   // Handle auth state changes (persists across page refreshes)
   auth.onAuthStateChanged(user => {
+    authInitialized = true;
+    checkInitComplete();
+    
     if (user) {
       // Update settings dropdown
       btnLoginSettings.style.display = 'none';
@@ -1103,6 +1168,11 @@
       btnLoginNav.style.display = 'block';
     }
   });
+
+  // Fallback: Hide loading overlay after max 5 seconds
+  setTimeout(() => {
+    hideLoadingOverlay();
+  }, 5000);
 
   // Force scroll to top and prevent auto-scroll
   history.scrollRestoration = 'manual';
