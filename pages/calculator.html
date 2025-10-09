@@ -12,6 +12,9 @@
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Load shared navbar -->
+<script src="../js/navbar-loader.js"></script>
 <style>
   :root{
     --dark-bg: #1a1625;
@@ -1106,82 +1109,8 @@
     </style>
   </div>
   
-  <nav>
-    <div class="logo-section">
-      <img src="../images/Transparent Vixvvo Logo 2.0 Top left.png" alt="Vixvvo Logo">
-    </div>
-    <div class="nav-links">
-      <a href="../index.html">Home</a>
-      <a href="#calculator">Calculator</a>
-      <a href="../index.html#features">Features</a>
-      <a href="../index.html#about">About</a>
-    </div>
-    <div class="nav-buttons">
-      <button id="btnLoginNav" class="btn btn-ghost" style="display:none;">Login</button>
-      <div class="settings-container">
-        <button id="btnSettings" class="btn-settings" title="Menu">☰</button>
-        <div id="settingsDropdown" class="settings-dropdown">
-          
-          <!-- User Section -->
-          <div class="settings-section" id="userSection">
-            <span class="settings-label">Account</span>
-            <div id="userInfoDisplay" style="display:none;">
-              <div class="settings-user-info">
-                <div class="settings-user-avatar" id="userAvatar">U</div>
-                <div class="settings-user-details">
-                  <div class="settings-username" id="settingsUsername">Username</div>
-                  <div class="settings-role" id="settingsRole">Member</div>
-                </div>
-              </div>
-            </div>
-            <button id="btnLoginSettings" class="btn btn-primary" style="width: 100%;">Login</button>
-            <button id="btnLogoutSettings" class="btn btn-ghost" style="width: 100%; display:none;">Logout</button>
-          </div>
-
-          <!-- Currency Section -->
-          <div class="settings-section">
-            <span class="settings-label">Currency</span>
-            <div class="settings-currency-row">
-              <select id="currencySelect" class="currency-select">
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-                <option value="JPY">JPY (¥)</option>
-                <option value="CNY">CNY (¥)</option>
-                <option value="CAD">CAD ($)</option>
-                <option value="AUD">AUD ($)</option>
-                <option value="CHF">CHF (Fr)</option>
-                <option value="INR">INR (₹)</option>
-                <option value="MXN">MXN ($)</option>
-                <option value="BRL">BRL (R$)</option>
-                <option value="ZAR">ZAR (R)</option>
-                <option value="KRW">KRW (₩)</option>
-                <option value="SGD">SGD ($)</option>
-                <option value="NZD">NZD ($)</option>
-                <option value="SEK">SEK (kr)</option>
-                <option value="NOK">NOK (kr)</option>
-                <option value="DKK">DKK (kr)</option>
-                <option value="PLN">PLN (zł)</option>
-                <option value="THB">THB (฿)</option>
-                <option value="IDR">IDR (Rp)</option>
-                <option value="HUF">HUF (Ft)</option>
-                <option value="CZK">CZK (Kč)</option>
-                <option value="ILS">ILS (₪)</option>
-                <option value="CLP">CLP ($)</option>
-                <option value="PHP">PHP (₱)</option>
-                <option value="AED">AED (د.إ)</option>
-                <option value="SAR">SAR (﷼)</option>
-                <option value="MYR">MYR (RM)</option>
-                <option value="RON">RON (lei)</option>
-              </select>
-              <button id="btnSaveCurrency" class="btn btn-primary btn-save-currency">Save</button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  </nav>
+  <!-- Navbar will be loaded here dynamically -->
+  <div id="navbar-container"></div>
 
   <section class="calculator-section">
     <div class="page-header">
@@ -1741,24 +1670,30 @@
   const printerModal = document.getElementById('printerModal');
   const filamentModal = document.getElementById('filamentModal');
 
-  /* Settings Dropdown */
-  const btnSettings = document.getElementById('btnSettings');
-  const settingsDropdown = document.getElementById('settingsDropdown');
-  const btnLoginSettings = document.getElementById('btnLoginSettings');
-  const btnLogoutSettings = document.getElementById('btnLogoutSettings');
-  const userInfoDisplay = document.getElementById('userInfoDisplay');
-  const settingsUsername = document.getElementById('settingsUsername');
-  const settingsRole = document.getElementById('settingsRole');
-  const userAvatar = document.getElementById('userAvatar');
-  const btnLoginNav = document.getElementById('btnLoginNav');
+  /* Settings Dropdown - Wait for navbar to load */
+  function initializeNavbarHandlers() {
+    const btnSettings = document.getElementById('btnSettings');
+    const settingsDropdown = document.getElementById('settingsDropdown');
+    const btnLoginSettings = document.getElementById('btnLoginSettings');
+    const btnLogoutSettings = document.getElementById('btnLogoutSettings');
+    const userInfoDisplay = document.getElementById('userInfoDisplay');
+    const settingsUsername = document.getElementById('settingsUsername');
+    const settingsRole = document.getElementById('settingsRole');
+    const userAvatar = document.getElementById('userAvatar');
+    const btnLoginNav = document.getElementById('btnLoginNav');
 
-  // Login button in nav (visible when logged out)
-  btnLoginNav.addEventListener('click', () => {
-    showModal(loginModal);
-  });
+    if (!btnSettings || !settingsDropdown) {
+      console.error('Navbar elements not found');
+      return;
+    }
 
-  // Toggle settings dropdown
-  btnSettings.addEventListener('click', (e) => {
+    // Login button in nav (visible when logged out)
+    btnLoginNav.addEventListener('click', () => {
+      showModal(loginModal);
+    });
+
+    // Toggle settings dropdown
+    btnSettings.addEventListener('click', (e) => {
     e.stopPropagation();
     const isActive = settingsDropdown.classList.contains('active');
     if (isActive) {
@@ -1795,6 +1730,25 @@
     settingsDropdown.classList.remove('active');
     btnSettings.classList.remove('active');
     auth.signOut();
+  });
+
+    // Return references for auth state handler
+    return {
+      btnLoginSettings,
+      btnLogoutSettings,
+      userInfoDisplay,
+      settingsUsername,
+      settingsRole,
+      userAvatar,
+      btnLoginNav
+    };
+  }
+
+  // Wait for navbar to load before initializing handlers
+  let navbarElements = null;
+  document.addEventListener('navbarLoaded', function() {
+    console.log('Navbar loaded, initializing handlers...');
+    navbarElements = initializeNavbarHandlers();
   });
 
   /* Presets System */
@@ -2462,78 +2416,99 @@
   auth.onAuthStateChanged(async user => {
     console.log('Auth state changed. User:', user ? user.uid : 'logged out');
     
-    if (user) {
-      // DEBUG: Show user info
-      console.log('======================');
-      console.log('USER DEBUG INFO:');
-      console.log('Email:', user.email);
-      console.log('UID:', user.uid);
-      console.log('Display Name:', user.displayName);
-      console.log('======================');
-      
-      // Check if user is admin
-      isAdmin = await checkAdminStatus(user);
-      console.log('User role returned:', isAdmin ? 'admin' : 'not admin');
-      console.log('Is admin:', isAdmin);
-      
-      // Get username from displayName first, then from database, fallback to email
-      let username = user.displayName;
-      
-      if (!username) {
-        // Try to get username from database
-        try {
-          const userSnapshot = await db.ref(`users/${user.uid}/username`).once('value');
-          username = userSnapshot.val();
-        } catch (error) {
-          console.error('Error fetching username from database:', error);
-        }
+    // Wait for navbar elements to be available
+    async function updateAuthUI() {
+      if (!navbarElements) {
+        // Retry after a short delay if navbar isn't ready yet
+        setTimeout(updateAuthUI, 100);
+        return;
       }
-      
-      // Fallback to email username if still no username
-      if (!username) {
-        username = user.email.split('@')[0];
-      }
-      
-      // Fetch role from Firebase Database
-      db.ref('users/' + user.uid + '/role').once('value')
-        .then(snapshot => {
-          const roleFromDb = snapshot.val() || 'member';
-          console.log('User role from Firebase:', roleFromDb);
-          
-          // Display role with proper capitalization
-          if (roleFromDb.toLowerCase() === 'admin' || roleFromDb.toLowerCase() === 'administrator') {
-            settingsRole.textContent = 'Administrator';
-          } else {
-            settingsRole.textContent = 'Member';
+
+      const {
+        btnLoginSettings,
+        btnLogoutSettings,
+        userInfoDisplay,
+        settingsUsername,
+        settingsRole,
+        userAvatar,
+        btnLoginNav
+      } = navbarElements;
+
+      if (user) {
+        // DEBUG: Show user info
+        console.log('======================');
+        console.log('USER DEBUG INFO:');
+        console.log('Email:', user.email);
+        console.log('UID:', user.uid);
+        console.log('Display Name:', user.displayName);
+        console.log('======================');
+        
+        // Check if user is admin
+        isAdmin = await checkAdminStatus(user);
+        console.log('User role returned:', isAdmin ? 'admin' : 'not admin');
+        console.log('Is admin:', isAdmin);
+        
+        // Get username from displayName first, then from database, fallback to email
+        let username = user.displayName;
+        
+        if (!username) {
+          // Try to get username from database
+          try {
+            const userSnapshot = await db.ref(`users/${user.uid}/username`).once('value');
+            username = userSnapshot.val();
+          } catch (error) {
+            console.error('Error fetching username from database:', error);
           }
-        })
-        .catch(error => {
-          console.error('Error fetching role:', error);
-          settingsRole.textContent = isAdmin ? 'Administrator' : 'Member';
-        });
-      
-      // Update settings dropdown UI
-      userInfoDisplay.style.display = 'block';
-      settingsUsername.textContent = username;
-      
-      // Set avatar initial (first letter of username)
-      const avatarInitial = username.charAt(0).toUpperCase();
-      userAvatar.textContent = avatarInitial;
-      
-      // Show/hide buttons
-      btnLoginSettings.style.display = 'none';
-      btnLogoutSettings.style.display = 'block';
-      btnLoginNav.style.display = 'none';
-      
-    } else {
-      isAdmin = false;
-      
-      // Update settings dropdown UI for logged out state
-      userInfoDisplay.style.display = 'none';
-      btnLoginSettings.style.display = 'block';
-      btnLogoutSettings.style.display = 'none';
-      btnLoginNav.style.display = 'block';
+        }
+        
+        // Fallback to email username if still no username
+        if (!username) {
+          username = user.email.split('@')[0];
+        }
+        
+        // Fetch role from Firebase Database
+        db.ref('users/' + user.uid + '/role').once('value')
+          .then(snapshot => {
+            const roleFromDb = snapshot.val() || 'member';
+            console.log('User role from Firebase:', roleFromDb);
+            
+            // Display role with proper capitalization
+            if (roleFromDb.toLowerCase() === 'admin' || roleFromDb.toLowerCase() === 'administrator') {
+              settingsRole.textContent = 'Administrator';
+            } else {
+              settingsRole.textContent = 'Member';
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching role:', error);
+            settingsRole.textContent = isAdmin ? 'Administrator' : 'Member';
+          });
+        
+        // Update settings dropdown UI
+        userInfoDisplay.style.display = 'block';
+        settingsUsername.textContent = username;
+        
+        // Set avatar initial (first letter of username)
+        const avatarInitial = username.charAt(0).toUpperCase();
+        userAvatar.textContent = avatarInitial;
+        
+        // Show/hide buttons
+        btnLoginSettings.style.display = 'none';
+        btnLogoutSettings.style.display = 'block';
+        btnLoginNav.style.display = 'none';
+        
+      } else {
+        isAdmin = false;
+        
+        // Update settings dropdown UI for logged out state
+        userInfoDisplay.style.display = 'none';
+        btnLoginSettings.style.display = 'block';
+        btnLogoutSettings.style.display = 'none';
+        btnLoginNav.style.display = 'block';
+      }
     }
+
+    await updateAuthUI();
     
     // Show/hide admin buttons
     document.getElementById('btnAddPrinter').style.display = isAdmin ? 'inline-block' : 'none';

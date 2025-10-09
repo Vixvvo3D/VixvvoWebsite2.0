@@ -1,0 +1,149 @@
+<!-- 
+  QUICK START GUIDE: Implementing Shared Navbar
+  
+  Follow these steps to add the shared navbar to any page
+-->
+
+<!-- 
+  STEP 1: Add this script tag in the <head> section
+  Place it BEFORE the closing </head> tag but AFTER your Firebase scripts
+-->
+
+<!-- For root-level pages (index.html, etc.) -->
+<script src="js/navbar-loader.js"></script>
+
+<!-- For pages in subdirectories (pages/calculator.html, etc.) -->
+<script src="../js/navbar-loader.js"></script>
+
+
+<!-- 
+  STEP 2: Add a container div at the start of your <body>
+  This is where the navbar will be inserted
+-->
+
+<body>
+  <div id="navbar-container"></div>
+  
+  <!-- Your page content goes here -->
+</body>
+
+
+<!-- 
+  STEP 3: Remove your existing <nav> element
+  Delete the entire <nav>...</nav> block from your page
+  It will now be loaded from components/navbar.html
+-->
+
+
+<!-- 
+  STEP 4 (Optional): Update scripts that use navbar elements
+  If you have JavaScript that interacts with navbar elements,
+  make sure it waits for the navbar to load
+-->
+
+<script>
+  // Wait for navbar to be ready before initializing handlers
+  document.addEventListener('navbarLoaded', function() {
+    // Initialize navbar-dependent code here
+    console.log('Navbar is ready!');
+    
+    // Example: Now you can safely access navbar elements
+    const settingsBtn = document.getElementById('btnSettings');
+    if (settingsBtn) {
+      // Set up event listeners, etc.
+    }
+  });
+</script>
+
+
+<!-- 
+  COMPLETE EXAMPLE FOR index.html HEAD SECTION:
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vixvvo Tools - 3D Printing Calculator</title>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Load shared navbar - ADD THIS LINE -->
+  <script src="js/navbar-loader.js"></script>
+  
+  <style>
+    /* Your existing styles */
+  </style>
+</head>
+<body>
+  <!-- Navbar container - ADD THIS DIV -->
+  <div id="navbar-container"></div>
+  
+  <!-- Your existing content continues here -->
+  <!-- DELETE the old <nav>...</nav> block -->
+  
+  <section class="hero" id="home">
+    <!-- ... -->
+  </section>
+  
+  <!-- ... rest of your page ... -->
+</body>
+</html>
+
+
+<!-- 
+  COMPLETE EXAMPLE FOR pages/calculator.html HEAD SECTION:
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculator - Vixvvo Tools</title>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Load shared navbar - NOTICE THE ../ PREFIX FOR SUBDIRECTORIES -->
+  <script src="../js/navbar-loader.js"></script>
+  
+  <style>
+    /* Your existing styles */
+  </style>
+</head>
+<body>
+  <!-- Navbar container - ADD THIS DIV -->
+  <div id="navbar-container"></div>
+  
+  <!-- Your existing content continues here -->
+  <!-- DELETE the old <nav>...</nav> block -->
+  
+  <!-- ... rest of your page ... -->
+</body>
+</html>
+
+
+<!-- 
+  THAT'S IT! 
+  
+  Now whenever you want to add/edit navigation items:
+  1. Open components/navbar.html
+  2. Make your changes
+  3. Save
+  4. All pages will automatically use the updated navbar!
+-->

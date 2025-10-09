@@ -12,6 +12,9 @@
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Load shared navbar -->
+<script src="js/navbar-loader.js"></script>
 <style>
   :root{
     --dark-bg: #1a1625;
@@ -636,82 +639,8 @@
     </style>
   </div>
 
-  <nav>
-    <div class="logo-section">
-      <img src="images/Transparent Vixvvo Logo 2.0 Top left.png" alt="Vixvvo Logo">
-    </div>
-    <div class="nav-links">
-      <a href="#home">Home</a>
-      <a href="#features">Features</a>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
-    </div>
-    <div class="nav-buttons">
-      <button id="btnLoginNav" class="btn btn-ghost" style="display:none;">Login</button>
-      <div class="settings-container">
-        <button id="btnSettings" class="btn-settings" title="Menu">☰</button>
-        <div id="settingsDropdown" class="settings-dropdown">
-          
-          <!-- User Section -->
-          <div class="settings-section" id="userSection">
-            <span class="settings-label">Account</span>
-            <div id="userInfoDisplay" style="display:none;">
-              <div class="settings-user-info">
-                <div class="settings-user-avatar" id="userAvatar">U</div>
-                <div class="settings-user-details">
-                  <div class="settings-username" id="settingsUsername">Username</div>
-                  <div class="settings-role" id="settingsRole">Member</div>
-                </div>
-              </div>
-            </div>
-            <button id="btnLoginSettings" class="btn btn-primary" style="width: 100%;">Login</button>
-            <button id="btnLogoutSettings" class="btn btn-ghost" style="width: 100%; display:none;">Logout</button>
-          </div>
-
-          <!-- Currency Section -->
-          <div class="settings-section">
-            <span class="settings-label">Currency</span>
-            <div class="settings-currency-row">
-              <select id="currencySelect" class="currency-select">
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-                <option value="JPY">JPY (¥)</option>
-                <option value="CNY">CNY (¥)</option>
-                <option value="CAD">CAD ($)</option>
-                <option value="AUD">AUD ($)</option>
-                <option value="CHF">CHF (Fr)</option>
-                <option value="INR">INR (₹)</option>
-                <option value="MXN">MXN ($)</option>
-                <option value="BRL">BRL (R$)</option>
-                <option value="ZAR">ZAR (R)</option>
-                <option value="KRW">KRW (₩)</option>
-                <option value="SGD">SGD ($)</option>
-                <option value="NZD">NZD ($)</option>
-                <option value="SEK">SEK (kr)</option>
-                <option value="NOK">NOK (kr)</option>
-                <option value="DKK">DKK (kr)</option>
-                <option value="PLN">PLN (zł)</option>
-                <option value="THB">THB (฿)</option>
-                <option value="IDR">IDR (Rp)</option>
-                <option value="HUF">HUF (Ft)</option>
-                <option value="CZK">CZK (Kč)</option>
-                <option value="ILS">ILS (₪)</option>
-                <option value="CLP">CLP ($)</option>
-                <option value="PHP">PHP (₱)</option>
-                <option value="AED">AED (د.إ)</option>
-                <option value="SAR">SAR (﷼)</option>
-                <option value="MYR">MYR (RM)</option>
-                <option value="RON">RON (lei)</option>
-              </select>
-              <button id="btnSaveCurrency" class="btn btn-primary btn-save-currency">Save</button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  </nav>
+  <!-- Navbar will be loaded here dynamically -->
+  <div id="navbar-container"></div>
 
   <section class="hero" id="home">
     <div class="bg-decoration decoration-1"></div>
@@ -962,26 +891,32 @@
       });
   };
 
-  /* Settings Dropdown */
-  const btnSettings = document.getElementById('btnSettings');
-  const settingsDropdown = document.getElementById('settingsDropdown');
-  const btnLoginSettings = document.getElementById('btnLoginSettings');
-  const btnLogoutSettings = document.getElementById('btnLogoutSettings');
-  const userInfoDisplay = document.getElementById('userInfoDisplay');
-  const settingsUsername = document.getElementById('settingsUsername');
-  const settingsRole = document.getElementById('settingsRole');
-  const userAvatar = document.getElementById('userAvatar');
-  const btnLoginNav = document.getElementById('btnLoginNav');
+  /* Settings Dropdown - Wait for navbar to load */
+  function initializeNavbarHandlers() {
+    const btnSettings = document.getElementById('btnSettings');
+    const settingsDropdown = document.getElementById('settingsDropdown');
+    const btnLoginSettings = document.getElementById('btnLoginSettings');
+    const btnLogoutSettings = document.getElementById('btnLogoutSettings');
+    const userInfoDisplay = document.getElementById('userInfoDisplay');
+    const settingsUsername = document.getElementById('settingsUsername');
+    const settingsRole = document.getElementById('settingsRole');
+    const userAvatar = document.getElementById('userAvatar');
+    const btnLoginNav = document.getElementById('btnLoginNav');
 
-  // Login button in nav (visible when logged out)
-  btnLoginNav.addEventListener('click', () => {
-    document.getElementById('loginErr').textContent = '';
-    overlay.style.display = 'block';
-    modal.style.display = 'grid';
-  });
+    if (!btnSettings || !settingsDropdown) {
+      console.error('Navbar elements not found');
+      return;
+    }
 
-  // Toggle settings dropdown
-  btnSettings.addEventListener('click', (e) => {
+    // Login button in nav (visible when logged out)
+    btnLoginNav.addEventListener('click', () => {
+      document.getElementById('loginErr').textContent = '';
+      overlay.style.display = 'block';
+      modal.style.display = 'grid';
+    });
+
+    // Toggle settings dropdown
+    btnSettings.addEventListener('click', (e) => {
     e.stopPropagation();
     const isActive = settingsDropdown.classList.contains('active');
     if (isActive) {
@@ -1027,12 +962,12 @@
   // Currency handling
   const currencySelect = document.getElementById('currencySelect');
   const btnSaveCurrency = document.getElementById('btnSaveCurrency');
-  let currentCurrency = 'USD';
-  let lastSavedCurrency = 'USD';
+  window.currentCurrency = 'USD';
+  window.lastSavedCurrency = 'USD';
 
   // Function to update the save button state
   function updateSaveButton() {
-    if (currencySelect.value !== lastSavedCurrency) {
+    if (currencySelect.value !== window.lastSavedCurrency) {
       btnSaveCurrency.disabled = false;
       btnSaveCurrency.style.opacity = '1';
     } else {
@@ -1052,13 +987,13 @@
       return;
     }
 
-    currentCurrency = currencySelect.value;
+    window.currentCurrency = currencySelect.value;
     
     // Save to Firebase
-    db.ref('users/' + user.uid + '/currency').set(currentCurrency)
+    db.ref('users/' + user.uid + '/currency').set(window.currentCurrency)
       .then(() => {
-        console.log('Currency saved to Firebase:', currentCurrency);
-        lastSavedCurrency = currentCurrency;
+        console.log('Currency saved to Firebase:', window.currentCurrency);
+        window.lastSavedCurrency = window.currentCurrency;
         
         // Show success feedback
         const originalText = btnSaveCurrency.textContent;
@@ -1076,6 +1011,27 @@
         console.error('Error saving currency:', error);
         alert('Failed to save currency. Please try again.');
       });
+  });
+
+    // Return references for auth state handler
+    return {
+      btnLoginSettings,
+      btnLogoutSettings,
+      userInfoDisplay,
+      settingsUsername,
+      settingsRole,
+      userAvatar,
+      btnLoginNav,
+      currencySelect,
+      updateSaveButton
+    };
+  }
+
+  // Wait for navbar to load before initializing handlers
+  let navbarElements = null;
+  document.addEventListener('navbarLoaded', function() {
+    console.log('Navbar loaded, initializing handlers...');
+    navbarElements = initializeNavbarHandlers();
   });
 
   // Hide loading overlay
@@ -1113,60 +1069,83 @@
     authInitialized = true;
     checkInitComplete();
     
-    if (user) {
-      // Update settings dropdown
-      btnLoginSettings.style.display = 'none';
-      btnLogoutSettings.style.display = 'block';
-      userInfoDisplay.style.display = 'block';
-      
-      // Set user info
-      const email = user.email || 'User';
-      const username = user.displayName || email.split('@')[0];
-      
-      // Fetch role from Firebase Database
-      db.ref('users/' + user.uid + '/role').once('value')
-        .then(snapshot => {
-          const roleFromDb = snapshot.val() || 'member';
-          console.log('User role from Firebase:', roleFromDb);
-          
-          // Display role with proper capitalization
-          if (roleFromDb.toLowerCase() === 'admin' || roleFromDb.toLowerCase() === 'administrator') {
-            settingsRole.textContent = 'Administrator';
-          } else {
+    // Wait for navbar elements to be available
+    function updateAuthUI() {
+      if (!navbarElements) {
+        // Retry after a short delay if navbar isn't ready yet
+        setTimeout(updateAuthUI, 100);
+        return;
+      }
+
+      const {
+        btnLoginSettings,
+        btnLogoutSettings,
+        userInfoDisplay,
+        settingsUsername,
+        settingsRole,
+        userAvatar,
+        btnLoginNav,
+        currencySelect,
+        updateSaveButton
+      } = navbarElements;
+
+      if (user) {
+        // Update settings dropdown
+        btnLoginSettings.style.display = 'none';
+        btnLogoutSettings.style.display = 'block';
+        userInfoDisplay.style.display = 'block';
+        
+        // Set user info
+        const email = user.email || 'User';
+        const username = user.displayName || email.split('@')[0];
+        
+        // Fetch role from Firebase Database
+        db.ref('users/' + user.uid + '/role').once('value')
+          .then(snapshot => {
+            const roleFromDb = snapshot.val() || 'member';
+            console.log('User role from Firebase:', roleFromDb);
+            
+            // Display role with proper capitalization
+            if (roleFromDb.toLowerCase() === 'admin' || roleFromDb.toLowerCase() === 'administrator') {
+              settingsRole.textContent = 'Administrator';
+            } else {
+              settingsRole.textContent = 'Member';
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching role:', error);
             settingsRole.textContent = 'Member';
+          });
+        
+        // Listen for real-time currency changes from Firebase
+        db.ref('users/' + user.uid + '/currency').on('value', snapshot => {
+          const savedCurrency = snapshot.val();
+          if (savedCurrency && currencySelect && updateSaveButton) {
+            window.currentCurrency = savedCurrency;
+            window.lastSavedCurrency = savedCurrency;
+            currencySelect.value = savedCurrency;
+            console.log('Currency updated from Firebase:', savedCurrency);
+            updateSaveButton();
           }
-        })
-        .catch(error => {
-          console.error('Error fetching role:', error);
-          settingsRole.textContent = 'Member';
         });
-      
-      // Listen for real-time currency changes from Firebase
-      db.ref('users/' + user.uid + '/currency').on('value', snapshot => {
-        const savedCurrency = snapshot.val();
-        if (savedCurrency) {
-          currentCurrency = savedCurrency;
-          lastSavedCurrency = savedCurrency;
-          currencySelect.value = savedCurrency;
-          console.log('Currency updated from Firebase:', savedCurrency);
-          updateSaveButton();
-        }
-      });
-      
-      settingsUsername.textContent = username;
-      userAvatar.textContent = username.charAt(0).toUpperCase();
-      
-      // Hide nav login button when logged in
-      btnLoginNav.style.display = 'none';
-    } else {
-      // Update settings dropdown
-      btnLoginSettings.style.display = 'block';
-      btnLogoutSettings.style.display = 'none';
-      userInfoDisplay.style.display = 'none';
-      
-      // Show nav login button when logged out
-      btnLoginNav.style.display = 'block';
+        
+        settingsUsername.textContent = username;
+        userAvatar.textContent = username.charAt(0).toUpperCase();
+        
+        // Hide nav login button when logged in
+        btnLoginNav.style.display = 'none';
+      } else {
+        // Update settings dropdown
+        btnLoginSettings.style.display = 'block';
+        btnLogoutSettings.style.display = 'none';
+        userInfoDisplay.style.display = 'none';
+        
+        // Show nav login button when logged out
+        btnLoginNav.style.display = 'block';
+      }
     }
+
+    updateAuthUI();
   });
 
   // Fallback: Hide loading overlay after max 5 seconds

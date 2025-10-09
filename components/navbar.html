@@ -1,0 +1,76 @@
+<nav>
+  <div class="logo-section">
+    <img src="images/Transparent Vixvvo Logo 2.0 Top left.png" alt="Vixvvo Logo" data-logo-path="images/Transparent Vixvvo Logo 2.0 Top left.png">
+  </div>
+  <div class="nav-links">
+    <a href="index.html" data-href="index.html">Home</a>
+    <a href="pages/calculator.html" data-href="pages/calculator.html">Calculator</a>
+    <a href="index.html#features" data-href="index.html#features">Features</a>
+    <a href="index.html#about" data-href="index.html#about">About</a>
+  </div>
+  <div class="nav-buttons">
+    <button id="btnLoginNav" class="btn btn-ghost" style="display:none;">Login</button>
+    <div class="settings-container">
+      <button id="btnSettings" class="btn-settings" title="Menu">☰</button>
+      <div id="settingsDropdown" class="settings-dropdown">
+        
+        <!-- User Section -->
+        <div class="settings-section" id="userSection">
+          <span class="settings-label">Account</span>
+          <div id="userInfoDisplay" style="display:none;">
+            <div class="settings-user-info">
+              <div class="settings-user-avatar" id="userAvatar">U</div>
+              <div class="settings-user-details">
+                <div class="settings-username" id="settingsUsername">Username</div>
+                <div class="settings-role" id="settingsRole">Member</div>
+              </div>
+            </div>
+          </div>
+          <button id="btnLoginSettings" class="btn btn-primary" style="width: 100%;">Login</button>
+          <button id="btnLogoutSettings" class="btn btn-ghost" style="width: 100%; display:none;">Logout</button>
+        </div>
+
+        <!-- Currency Section -->
+        <div class="settings-section">
+          <span class="settings-label">Currency</span>
+          <div class="settings-currency-row">
+            <select id="currencySelect" class="currency-select">
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="JPY">JPY (¥)</option>
+              <option value="CNY">CNY (¥)</option>
+              <option value="CAD">CAD ($)</option>
+              <option value="AUD">AUD ($)</option>
+              <option value="CHF">CHF (Fr)</option>
+              <option value="INR">INR (₹)</option>
+              <option value="MXN">MXN ($)</option>
+              <option value="BRL">BRL (R$)</option>
+              <option value="ZAR">ZAR (R)</option>
+              <option value="KRW">KRW (₩)</option>
+              <option value="SGD">SGD ($)</option>
+              <option value="NZD">NZD ($)</option>
+              <option value="SEK">SEK (kr)</option>
+              <option value="NOK">NOK (kr)</option>
+              <option value="DKK">DKK (kr)</option>
+              <option value="PLN">PLN (zł)</option>
+              <option value="THB">THB (฿)</option>
+              <option value="IDR">IDR (Rp)</option>
+              <option value="HUF">HUF (Ft)</option>
+              <option value="CZK">CZK (Kč)</option>
+              <option value="ILS">ILS (₪)</option>
+              <option value="CLP">CLP ($)</option>
+              <option value="PHP">PHP (₱)</option>
+              <option value="AED">AED (د.إ)</option>
+              <option value="SAR">SAR (﷼)</option>
+              <option value="MYR">MYR (RM)</option>
+              <option value="RON">RON (lei)</option>
+            </select>
+            <button id="btnSaveCurrency" class="btn btn-primary btn-save-currency">Save</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</nav>
