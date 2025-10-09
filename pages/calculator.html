@@ -1240,6 +1240,16 @@
                 </select>
               </div>
             </div>
+            <div class="form-row">
+              <div class="form-group" id="printerCostBox" style="display: none;">
+                <label>Printer Cost</label>
+                <div id="printerCostInfo" style="padding: 10px; background: rgba(168, 85, 247, 0.1); border-radius: 8px; color: var(--text); font-size: 14px;">-</div>
+              </div>
+              <div class="form-group" id="filamentCostBox" style="display: none;">
+                <label>Filament Cost</label>
+                <div id="filamentCostInfo" style="padding: 10px; background: rgba(168, 85, 247, 0.1); border-radius: 8px; color: var(--text); font-size: 14px;">-</div>
+              </div>
+            </div>
           </div>
 
           <!-- Print Parameters -->
@@ -1284,6 +1294,10 @@
               <label>Additional Work</label>
               <input type="number" id="additionalWork" placeholder="0" min="0" step="0.1" value="0">
             </div>
+            <div class="form-group">
+              <label>Post-Processing Labor Rate ($/h)</label>
+              <input type="number" id="postProcessingRate" placeholder="20" min="0" step="0.5" value="20">
+            </div>
           </div>
 
           <!-- Preparation -->
@@ -1308,6 +1322,10 @@
                 <label>Transfer & Start</label>
                 <input type="number" id="transferStart" placeholder="0" min="0" step="0.1" value="0">
               </div>
+            </div>
+            <div class="form-group">
+              <label>Preparation Labor Rate ($/h)</label>
+              <input type="number" id="preparationRate" placeholder="20" min="0" step="0.5" value="20">
             </div>
           </div>
 
@@ -1351,6 +1369,13 @@
                 <div class="result-sublabel" id="electricityDetails"></div>
               </div>
               <span class="result-value" id="electricityCost">$0.00</span>
+            </div>
+            <div class="result-item">
+              <div>
+                <div class="result-label">Labor Cost</div>
+                <div class="result-sublabel" id="laborDetails"></div>
+              </div>
+              <span class="result-value" id="laborCost">$0.00</span>
             </div>
             <div class="result-item">
               <span class="result-label">Subtotal (before markup)</span>
@@ -1799,7 +1824,16 @@
       selectedFilament: getValueSafe('filamentSelect'),
       filamentMarkup: getValueSafe('filamentMarkup'),
       generalMarkup: getValueSafe('generalMarkup'),
-      failureRate: getValueSafe('failureRate')
+      failureRate: getValueSafe('failureRate'),
+      postProcessingRate: getValueSafe('postProcessingRate'),
+      preparationRate: getValueSafe('preparationRate'),
+      jobRemoval: getValueSafe('jobRemoval'),
+      supportRemoval: getValueSafe('supportRemoval'),
+      additionalWork: getValueSafe('additionalWork'),
+      modelPrep: getValueSafe('modelPrep'),
+      slicing: getValueSafe('slicing'),
+      materialChange: getValueSafe('materialChange'),
+      transferStart: getValueSafe('transferStart')
     };
   }
 
@@ -1821,6 +1855,15 @@
     setValueSafe('filamentMarkup', preset.filamentMarkup, 0);
     setValueSafe('generalMarkup', preset.generalMarkup, 50);
     setValueSafe('failureRate', preset.failureRate, 10);
+    setValueSafe('postProcessingRate', preset.postProcessingRate, 20);
+    setValueSafe('preparationRate', preset.preparationRate, 20);
+    setValueSafe('jobRemoval', preset.jobRemoval, 0);
+    setValueSafe('supportRemoval', preset.supportRemoval, 0);
+    setValueSafe('additionalWork', preset.additionalWork, 0);
+    setValueSafe('modelPrep', preset.modelPrep, 0);
+    setValueSafe('slicing', preset.slicing, 0);
+    setValueSafe('materialChange', preset.materialChange, 0);
+    setValueSafe('transferStart', preset.transferStart, 0);
     
     compute();
   }
@@ -2788,6 +2831,7 @@
       
       renderPrinterSelect();
       renderPrintersList();
+      updatePriceInfo();
       calculateCost();
       
       // Apply filter after rendering
@@ -2811,7 +2855,7 @@
     Object.entries(printersData).forEach(([name, printer]) => {
       const option = document.createElement('option');
       option.value = name;
-      option.textContent = `${printer.brand} ${name} (${formatMoney(printer.costPerHour)}/h)`;
+      option.textContent = `${printer.brand} ${name}`;
       select.appendChild(option);
     });
     
@@ -2819,6 +2863,7 @@
       select.value = currentValue;
     }
     
+    updatePriceInfo();
     console.log('Printer select updated with', Object.keys(printersData).length, 'options');
   }
 
@@ -3113,6 +3158,7 @@
       if (!data) {
         renderFilamentSelect();
         renderFilamentsList();
+        updatePriceInfo();
         calculateCost();
         return;
       }
@@ -3138,6 +3184,7 @@
       
       renderFilamentSelect();
       renderFilamentsList();
+      updatePriceInfo();
       calculateCost();
       
       // Apply filter after rendering
@@ -3155,8 +3202,7 @@
     Object.entries(filamentsData).forEach(([type, filament]) => {
       const option = document.createElement('option');
       option.value = type;
-      const perKg = filament.costPerG * 1000;
-      option.textContent = `${type} (${filament.brand}) (${formatMoney(perKg)}/kg)`;
+      option.textContent = `${type} (${filament.brand})`;
       select.appendChild(option);
     });
     
@@ -3164,6 +3210,7 @@
       select.value = currentValue;
     }
     
+    updatePriceInfo();
     console.log('Filament select updated with', Object.keys(filamentsData).length, 'options');
   }
 
@@ -3698,13 +3745,43 @@
        } catch(e) {}
   }
 
+  function updatePriceInfo() {
+    const printerName = document.getElementById('printerSelect').value;
+    const filamentType = document.getElementById('filamentSelect').value;
+    const printerCostBox = document.getElementById('printerCostBox');
+    const filamentCostBox = document.getElementById('filamentCostBox');
+    const printerCostInfo = document.getElementById('printerCostInfo');
+    const filamentCostInfo = document.getElementById('filamentCostInfo');
+    
+    // Show/hide printer cost info independently
+    if (printerName && printersData[printerName]) {
+      const printer = printersData[printerName];
+      printerCostInfo.textContent = `${formatMoney(printer.costPerHour)}/h`;
+      printerCostBox.style.display = 'block';
+    } else {
+      printerCostBox.style.display = 'none';
+    }
+    
+    // Show/hide filament cost info independently
+    if (filamentType && filamentsData[filamentType]) {
+      const filament = filamentsData[filamentType];
+      const perKg = filament.costPerG * 1000;
+      filamentCostInfo.textContent = `${formatMoney(perKg)}/kg`;
+      filamentCostBox.style.display = 'block';
+    } else {
+      filamentCostBox.style.display = 'none';
+    }
+  }
+
   document.getElementById('printerSelect').addEventListener('change', () => {
     savePrefs();
+    updatePriceInfo();
     calculateCost();
   });
   
   document.getElementById('filamentSelect').addEventListener('change', () => {
     savePrefs();
+    updatePriceInfo();
     calculateCost();
   });
 
@@ -3717,12 +3794,14 @@
       document.getElementById('printerCost').textContent = formatMoney(0);
       document.getElementById('filamentCost').textContent = formatMoney(0);
       document.getElementById('electricityCost').textContent = formatMoney(0);
+      document.getElementById('laborCost').textContent = formatMoney(0);
       document.getElementById('subtotal').textContent = formatMoney(0);
       document.getElementById('markupAmount').textContent = formatMoney(0);
       document.getElementById('failureCostDisplay').textContent = formatMoney(0);
       document.getElementById('totalCost').textContent = formatMoney(0);
       document.getElementById('filamentDetails').textContent = '';
       document.getElementById('electricityDetails').textContent = '';
+      document.getElementById('laborDetails').textContent = '';
       document.getElementById('handTimeNote').textContent = 'Unbilled hand time: 0.00 hours';
       return;
     }
@@ -3742,14 +3821,22 @@
     const jobRemoval = (parseFloat(document.getElementById('jobRemoval').value) || 0) / 60;
     const supportRemoval = (parseFloat(document.getElementById('supportRemoval').value) || 0) / 60;
     const additionalWork = (parseFloat(document.getElementById('additionalWork').value) || 0) / 60;
+    const postProcessingTime = jobRemoval + supportRemoval + additionalWork;
 
     // Preparation (minutes to hours)
     const modelPrep = (parseFloat(document.getElementById('modelPrep').value) || 0) / 60;
     const slicing = (parseFloat(document.getElementById('slicing').value) || 0) / 60;
     const materialChange = (parseFloat(document.getElementById('materialChange').value) || 0) / 60;
     const transferStart = (parseFloat(document.getElementById('transferStart').value) || 0) / 60;
+    const preparationTime = modelPrep + slicing + materialChange + transferStart;
 
-    const totalHandTime = jobRemoval + supportRemoval + additionalWork + modelPrep + slicing + materialChange + transferStart;
+    const totalHandTime = postProcessingTime + preparationTime;
+
+    // Labor rates (convert from user's currency to USD for calculation)
+    const postProcessingRateInput = parseFloat(document.getElementById('postProcessingRate').value) || 0;
+    const preparationRateInput = parseFloat(document.getElementById('preparationRate').value) || 0;
+    const postProcessingRate = convertToUSD(postProcessingRateInput);
+    const preparationRate = convertToUSD(preparationRateInput);
 
     // Markups
     const filamentMarkup = parseFloat(document.getElementById('filamentMarkup').value) || 1;
@@ -3760,13 +3847,21 @@
     const costPrinter = printer.costPerHour * pt;
     const costElectric = pt * electricityUsagePerHour * electricityPrice;
     const costFilament = filament.costPerG * weight * filamentMarkup;
+    const costPostProcessing = postProcessingTime * postProcessingRate;
+    const costPreparation = preparationTime * preparationRate;
+    const costLabor = costPostProcessing + costPreparation;
     
-    const subtotal = costPrinter + costFilament + costElectric;
-    const subtotalWithMarkup = subtotal * (1 + generalMarkup);
-    const finalPrice = subtotalWithMarkup / (1 - failureRate);
-
-    const markupApplied = subtotalWithMarkup - subtotal;
-    const failureAdjustment = finalPrice - subtotalWithMarkup;
+    // Subtotal WITHOUT labor (labor is added after markup/failure rate)
+    const subtotalBeforeLabor = costPrinter + costFilament + costElectric;
+    const subtotalWithMarkup = subtotalBeforeLabor * (1 + generalMarkup);
+    const priceAfterFailureRate = subtotalWithMarkup / (1 - failureRate);
+    
+    // Add labor AFTER markup and failure rate
+    const finalPrice = priceAfterFailureRate + costLabor;
+    
+    const subtotal = subtotalBeforeLabor; // Display subtotal without labor
+    const markupApplied = subtotalWithMarkup - subtotalBeforeLabor;
+    const failureAdjustment = priceAfterFailureRate - subtotalWithMarkup;
 
     // Update UI with converted currency
     document.getElementById('printerCost').textContent = formatMoney(costPrinter);
@@ -3774,11 +3869,27 @@
     document.getElementById('filamentDetails').textContent = `${weight.toFixed(0)} g @ ${formatMoney(filament.costPerG)}/g × ${filamentMarkup.toFixed(2)}`;
     document.getElementById('electricityCost').textContent = formatMoney(costElectric);
     document.getElementById('electricityDetails').textContent = `${electricityUsagePerHour} kWh/h`;
+    
+    // Update labor cost display
+    const laborCostElem = document.getElementById('laborCost');
+    const laborDetailsElem = document.getElementById('laborDetails');
+    if (laborCostElem && laborDetailsElem) {
+      laborCostElem.textContent = formatMoney(costLabor);
+      // Display the rates in user's current currency (the input values they entered)
+      const symbol = currencySymbols[currentCurrency] || currentCurrency + ' ';
+      const postProcText = postProcessingTime > 0 ? `Post-Proc: ${postProcessingTime.toFixed(2)}h @ ${symbol}${postProcessingRateInput.toFixed(2)}/h` : '';
+      const prepText = preparationTime > 0 ? `Prep: ${preparationTime.toFixed(2)}h @ ${symbol}${preparationRateInput.toFixed(2)}/h` : '';
+      const separator = postProcText && prepText ? ' | ' : '';
+      laborDetailsElem.textContent = postProcText + separator + prepText || 'No labor time';
+    }
+    
     document.getElementById('subtotal').textContent = formatMoney(subtotal);
     document.getElementById('markupAmount').textContent = formatMoney(markupApplied);
     document.getElementById('failureCostDisplay').textContent = formatMoney(failureAdjustment);
     document.getElementById('totalCost').textContent = formatMoney(finalPrice);
-    document.getElementById('handTimeNote').textContent = `Unbilled hand time: ${totalHandTime.toFixed(2)} hours (set a labor $/h to include it)`;
+    
+    const hasLabor = (postProcessingRate > 0 && postProcessingTime > 0) || (preparationRate > 0 && preparationTime > 0);
+    document.getElementById('handTimeNote').textContent = hasLabor ? `Total labor: ${totalHandTime.toFixed(2)} hours` : `Hand time: ${totalHandTime.toFixed(2)} hours (set labor rates to bill)`;
   }
 
   // Add event listeners for real-time calculation
@@ -3786,7 +3897,7 @@
     'printerSelect', 'filamentSelect', 'printTime', 'weight', 'elec',
     'jobRemoval', 'supportRemoval', 'additionalWork',
     'modelPrep', 'slicing', 'materialChange', 'transferStart',
-    'filamentMarkup', 'generalMarkup', 'failureRate'
+    'filamentMarkup', 'generalMarkup', 'failureRate', 'postProcessingRate', 'preparationRate'
   ];
   
   calcInputs.forEach(id => {
