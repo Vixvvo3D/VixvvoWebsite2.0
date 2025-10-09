@@ -52,6 +52,13 @@
       const originalHref = link.getAttribute('data-href');
       link.href = pathPrefix + originalHref;
     });
+
+    // Adjust settings link in dropdown
+    const settingsLink = document.querySelector('#btnSettingsPage[data-href]');
+    if (settingsLink) {
+      const originalHref = settingsLink.getAttribute('data-href');
+      settingsLink.href = pathPrefix + originalHref;
+    }
   }
 
   // Initialize navbar interactivity

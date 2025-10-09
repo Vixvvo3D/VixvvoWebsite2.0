@@ -902,6 +902,7 @@
     const settingsRole = document.getElementById('settingsRole');
     const userAvatar = document.getElementById('userAvatar');
     const btnLoginNav = document.getElementById('btnLoginNav');
+    const btnSettingsPage = document.getElementById('btnSettingsPage');
 
     if (!btnSettings || !settingsDropdown) {
       console.error('Navbar elements not found');
@@ -909,11 +910,13 @@
     }
 
     // Login button in nav (visible when logged out)
-    btnLoginNav.addEventListener('click', () => {
-      document.getElementById('loginErr').textContent = '';
-      overlay.style.display = 'block';
-      modal.style.display = 'grid';
-    });
+    if (btnLoginNav) {
+      btnLoginNav.addEventListener('click', () => {
+        document.getElementById('loginErr').textContent = '';
+        overlay.style.display = 'block';
+        modal.style.display = 'grid';
+      });
+    }
 
     // Toggle settings dropdown
     btnSettings.addEventListener('click', (e) => {
@@ -1022,6 +1025,7 @@
       settingsRole,
       userAvatar,
       btnLoginNav,
+      btnSettingsPage,
       currencySelect,
       updateSaveButton
     };
@@ -1070,11 +1074,20 @@
     checkInitComplete();
     
     // Wait for navbar elements to be available
+    let retryCount = 0;
+    const maxRetries = 50; // Max 5 seconds (50 * 100ms)
+    
     function updateAuthUI() {
       if (!navbarElements) {
         // Retry after a short delay if navbar isn't ready yet
-        setTimeout(updateAuthUI, 100);
-        return;
+        if (retryCount < maxRetries) {
+          retryCount++;
+          setTimeout(updateAuthUI, 100);
+          return;
+        } else {
+          console.error('Navbar elements failed to load after max retries');
+          return;
+        }
       }
 
       const {
@@ -1085,6 +1098,7 @@
         settingsRole,
         userAvatar,
         btnLoginNav,
+        btnSettingsPage,
         currencySelect,
         updateSaveButton
       } = navbarElements;
@@ -1093,6 +1107,7 @@
         // Update settings dropdown
         btnLoginSettings.style.display = 'none';
         btnLogoutSettings.style.display = 'block';
+        if (btnSettingsPage) btnSettingsPage.style.display = 'block';
         userInfoDisplay.style.display = 'block';
         
         // Set user info
@@ -1133,15 +1148,16 @@
         userAvatar.textContent = username.charAt(0).toUpperCase();
         
         // Hide nav login button when logged in
-        btnLoginNav.style.display = 'none';
+        if (btnLoginNav) btnLoginNav.style.display = 'none';
       } else {
         // Update settings dropdown
         btnLoginSettings.style.display = 'block';
         btnLogoutSettings.style.display = 'none';
+        if (btnSettingsPage) btnSettingsPage.style.display = 'none';
         userInfoDisplay.style.display = 'none';
         
         // Show nav login button when logged out
-        btnLoginNav.style.display = 'block';
+        if (btnLoginNav) btnLoginNav.style.display = 'block';
       }
     }
 

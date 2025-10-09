@@ -1681,6 +1681,7 @@
     const settingsRole = document.getElementById('settingsRole');
     const userAvatar = document.getElementById('userAvatar');
     const btnLoginNav = document.getElementById('btnLoginNav');
+    const btnSettingsPage = document.getElementById('btnSettingsPage');
 
     if (!btnSettings || !settingsDropdown) {
       console.error('Navbar elements not found');
@@ -1740,7 +1741,8 @@
       settingsUsername,
       settingsRole,
       userAvatar,
-      btnLoginNav
+      btnLoginNav,
+      btnSettingsPage
     };
   }
 
@@ -2417,11 +2419,20 @@
     console.log('Auth state changed. User:', user ? user.uid : 'logged out');
     
     // Wait for navbar elements to be available
+    let retryCount = 0;
+    const maxRetries = 50; // Max 5 seconds (50 * 100ms)
+    
     async function updateAuthUI() {
       if (!navbarElements) {
         // Retry after a short delay if navbar isn't ready yet
-        setTimeout(updateAuthUI, 100);
-        return;
+        if (retryCount < maxRetries) {
+          retryCount++;
+          setTimeout(updateAuthUI, 100);
+          return;
+        } else {
+          console.error('Navbar elements failed to load after max retries');
+          return;
+        }
       }
 
       const {
@@ -2431,7 +2442,8 @@
         settingsUsername,
         settingsRole,
         userAvatar,
-        btnLoginNav
+        btnLoginNav,
+        btnSettingsPage
       } = navbarElements;
 
       if (user) {
@@ -2495,7 +2507,8 @@
         // Show/hide buttons
         btnLoginSettings.style.display = 'none';
         btnLogoutSettings.style.display = 'block';
-        btnLoginNav.style.display = 'none';
+        if (btnSettingsPage) btnSettingsPage.style.display = 'block';
+        if (btnLoginNav) btnLoginNav.style.display = 'none';
         
       } else {
         isAdmin = false;
@@ -2504,7 +2517,8 @@
         userInfoDisplay.style.display = 'none';
         btnLoginSettings.style.display = 'block';
         btnLogoutSettings.style.display = 'none';
-        btnLoginNav.style.display = 'block';
+        if (btnSettingsPage) btnSettingsPage.style.display = 'none';
+        if (btnLoginNav) btnLoginNav.style.display = 'block';
       }
     }
 
