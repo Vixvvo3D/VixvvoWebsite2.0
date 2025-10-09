@@ -1,0 +1,3900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Calculator - Vixvvo Tools</title>
+
+<!-- Add Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark-bg: #1a1625;
+    --darker-bg: #0f0b16;
+    --card-bg: #241d35;
+    --purple: #a855f7;
+    --purple-hover: #9333ea;
+    --purple-light: #c084fc;
+    --text: #f0e9ff;
+    --text-muted: #9ca3af;
+    --border: rgba(168, 85, 247, .15);
+  }
+  * {margin:0; padding:0; box-sizing:border-box}
+  
+  html {
+    scroll-behavior: smooth;
+    background: linear-gradient(135deg, #1a1625 0%, #0f0b16 50%, #1d1530 100%);
+    overscroll-behavior-y: none;
+  }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: 
+      radial-gradient(ellipse at 20% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(192, 132, 252, 0.1) 0%, transparent 50%),
+      linear-gradient(135deg, #1a1625 0%, #0f0b16 50%, #1d1530 100%);
+    color: var(--text);
+    overflow-x: hidden;
+    min-height: 100vh;
+    overscroll-behavior-y: none;
+  }
+  
+  /* Navigation */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 60px;
+    position: relative;
+    z-index: 100;
+  }
+  
+  .logo-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex: 1;
+  }
+  
+  .logo-section img {
+    height: 120px;
+    width: auto;
+    object-fit: contain;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color .3s;
+  }
+  
+  .nav-links a:hover {
+    color: var(--text);
+  }
+  
+  .nav-buttons {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  /* Settings Dropdown */
+  .settings-container {
+    position: relative;
+  }
+
+  .btn-settings {
+    padding: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 32px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-settings:hover {
+    color: var(--purple-light);
+    transform: scale(1.1);
+  }
+
+  .btn-settings.active {
+    color: var(--purple-light);
+  }
+
+  .settings-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    min-width: 280px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    display: none;
+    z-index: 1000;
+    animation: slideDown 0.2s ease;
+  }
+
+  .settings-dropdown.active {
+    display: block;
+  }
+
+  .settings-section {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .settings-section:last-child {
+    border-bottom: none;
+  }
+
+  .settings-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--purple-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .settings-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: rgba(168, 85, 247, 0.05);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+
+  .settings-user-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .settings-user-details {
+    flex: 1;
+  }
+
+  .settings-username {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .settings-role {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .settings-currency-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .settings-dropdown .currency-select {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+    background: rgba(168, 85, 247, 0.1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .settings-dropdown .btn-save-currency {
+    display: inline-block;
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+  
+  .currency-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(168, 85, 247, 0.03);
+    border: 1px solid rgba(168, 85, 247, 0.08);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+  
+  .currency-selector:hover {
+    background: rgba(168, 85, 247, 0.08);
+    border-color: rgba(168, 85, 247, 0.15);
+  }
+  
+  .currency-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0.7;
+  }
+  
+  .currency-select {
+    padding: 6px 10px;
+    background: rgba(15, 11, 22, 0.4);
+    border: 1px solid rgba(168, 85, 247, 0.1);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 90px;
+    transition: all 0.3s ease;
+    opacity: 0.85;
+  }
+  
+  .currency-select:hover {
+    border-color: rgba(168, 85, 247, 0.25);
+    background: rgba(15, 11, 22, 0.6);
+    opacity: 1;
+  }
+  
+  .currency-select:focus {
+    outline: none;
+    border-color: var(--purple);
+    box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.1);
+    opacity: 1;
+  }
+  
+  .btn-save-currency {
+    padding: 6px 14px;
+    font-size: 12px;
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: none;
+    white-space: nowrap;
+  }
+  
+  .btn-save-currency:hover {
+    background: linear-gradient(135deg, var(--purple-hover), var(--purple));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+  }
+  
+  .btn-save-currency.saved {
+    background: linear-gradient(135deg, #10b981, #059669);
+  }
+  
+  .btn-save-currency:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .btn {
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all .3s;
+    cursor: pointer;
+    border: none;
+    font-size: 15px;
+  }
+  
+  .btn-ghost {
+    background: rgba(168, 85, 247, .08);
+    border: 1px solid rgba(168, 85, 247, .2);
+    color: var(--text);
+  }
+  
+  .btn-ghost:hover {
+    background: rgba(168, 85, 247, .15);
+    border-color: rgba(168, 85, 247, .3);
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--purple-hover), var(--purple));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(168, 85, 247, .4);
+  }
+  
+  /* Calculator Section */
+  .calculator-section {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 60px 60px 80px;
+  }
+  
+  .page-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  
+  .page-title {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+  
+  .page-title .highlight {
+    background: linear-gradient(135deg, #a855f7, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .page-subtitle {
+    color: var(--text-muted);
+    font-size: 18px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .tab {
+    padding: 12px 24px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .3s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+  }
+
+  .tab:hover {
+    color: var(--text);
+  }
+
+  .tab.active {
+    color: var(--purple-light);
+    border-bottom-color: var(--purple-light);
+  }
+
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+  
+  .calculator-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 32px;
+    margin-top: 40px;
+  }
+  
+  .card {
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+  }
+  
+  .card h3 {
+    font-size: 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  .form-section {
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .section-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--purple-light);
+    margin-bottom: 16px;
+    display: block;
+  }
+  
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  
+  input, select {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(15, 11, 22, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  input[readonly] {
+    background: rgba(15, 11, 22, 0.3);
+    cursor: not-allowed;
+  }
+  
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--purple);
+  }
+  
+  .results-card {
+    position: sticky;
+    top: 20px;
+  }
+  
+  .result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .result-item:last-child {
+    border-bottom: none;
+    padding-top: 20px;
+    margin-top: 8px;
+    border-top: 2px solid var(--purple);
+  }
+  
+  .result-label {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .result-sublabel {
+    color: var(--text-muted);
+    font-size: 11px;
+    opacity: 0.7;
+  }
+  
+  .result-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  
+  .result-item:last-child .result-value {
+    font-size: 32px;
+    color: var(--purple-light);
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .btn-small {
+    padding: 8px 20px;
+    font-size: 13px;
+  }
+  
+  .list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: rgba(15, 11, 22, 0.4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    transition: all .3s;
+  }
+  
+  .list-item:hover {
+    border-color: var(--purple);
+    background: rgba(15, 11, 22, 0.6);
+  }
+  
+  .item-info {
+    flex: 1;
+  }
+  
+  .item-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 16px;
+  }
+  
+  .item-details {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  
+  .btn-delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    padding: 8px 16px;
+    font-size: 13px;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  
+  .btn-delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: none;
+    box-shadow: none;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+  }
+
+  .empty-state-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  .note {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 12px;
+  }
+
+  /* Mass Delete Styles */
+  .btn-toggle-mass-delete {
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+    padding: 8px 16px;
+    font-size: 13px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .btn-toggle-mass-delete:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .btn-toggle-mass-delete.active {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+
+  .mass-delete-controls {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    animation: slideDown 0.3s ease;
+  }
+
+  .mass-delete-controls.active {
+    display: flex;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .select-all-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mass-delete-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--purple);
+    cursor: pointer;
+  }
+
+  .select-all-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .btn-mass-delete {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    padding: 8px 16px;
+    font-size: 13px;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .btn-mass-delete.enabled {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .btn-mass-delete.enabled:hover {
+    background: rgba(239, 68, 68, 0.25);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  }
+
+  .list-item.with-checkbox {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .item-checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--purple);
+    cursor: pointer;
+    display: none;
+  }
+
+  .mass-delete-mode .item-checkbox {
+    display: block;
+  }
+
+  .selected-count {
+    font-size: 13px;
+    color: var(--purple-light);
+    font-weight: 600;
+  }
+
+  .btn-cancel-mass-delete {
+    background: transparent;
+    color: var(--text-muted);
+    padding: 8px 16px;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .btn-cancel-mass-delete:hover {
+    background: rgba(168, 85, 247, 0.1);
+    color: var(--text);
+    border-color: var(--purple);
+  }
+  
+  /* Modal styles */
+  #overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.7);
+    display: none;
+    z-index: 200;
+    backdrop-filter: blur(4px);
+  }
+  
+  .modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    z-index: 300;
+    place-items: center;
+  }
+  
+  .modal-card {
+    width: min(450px, 95vw);
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  
+  .modal-card h3 {
+    font-size: 24px;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+  
+  .err {
+    color: #ff7b7b;
+    font-size: 13px;
+    margin: 12px 0;
+    min-height: 18px;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  
+  .modal-buttons .btn {
+    flex: 1;
+    padding: 14px;
+  }
+
+  .btn-actions {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .btn-edit {
+    background: rgba(105, 183, 255, 0.1);
+    color: #69b7ff;
+    padding: 8px 16px;
+    font-size: 13px;
+    border: 1px solid rgba(105, 183, 255, 0.3);
+  }
+  
+  .btn-edit:hover {
+    background: rgba(105, 183, 255, 0.2);
+    transform: none;
+    box-shadow: none;
+  }
+  
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .calculator-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .results-card {
+      position: static;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    nav {
+      padding: 20px 24px;
+    }
+    
+    .nav-links {
+      display: none;
+    }
+    
+    .calculator-section {
+      padding: 40px 24px;
+    }
+    
+    .page-title {
+      font-size: 32px;
+    }
+    
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .tabs {
+      overflow-x: auto;
+    }
+
+    .tab {
+      white-space: nowrap;
+    }
+    
+    .currency-selector {
+      padding: 8px 12px;
+    }
+    
+    .currency-label {
+      display: none;
+    }
+    
+    .currency-select {
+      min-width: 75px;
+      font-size: 12px;
+    }
+  }
+
+  /* Filter styles */
+  .filter-section {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: rgba(15, 11, 22, 0.4);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  
+  .filter-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  .filter-input {
+    flex: 1;
+    padding: 10px 16px;
+    background: rgba(15, 11, 22, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+  }
+  
+  .filter-input:focus {
+    outline: none;
+    border-color: var(--purple);
+  }
+  
+  .filter-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.6;
+  }
+  
+  .filter-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    display: block;
+  }
+  
+  .filter-stats {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 8px;
+  }
+  
+  .no-results {
+    text-align: center;
+    padding: 40px 24px;
+    color: var(--text-muted);
+  }
+  
+  .no-results-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+  }
+  
+  .list-item.hidden {
+    display: none;
+  }
+
+  /* Custom Notification Styles */
+  .notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 2px solid var(--purple);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.8);
+    z-index: 400;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    display: block;
+  }
+
+  .notification.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+  }
+
+  .notification-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .notification-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .notification-message {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .notification-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .notification-buttons .btn {
+    padding: 12px 32px;
+  }
+
+  /* Confirmation Dialog Styles */
+  .confirm-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 2px solid var(--purple);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.8);
+    z-index: 400;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    max-width: 420px;
+    width: 90%;
+    display: block;
+  }
+
+  .confirm-dialog.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+  }
+
+  .confirm-icon {
+    font-size: 56px;
+    text-align: center;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .confirm-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .confirm-message {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .confirm-buttons {
+    display: flex;
+    gap: 12px;
+  }
+
+  .confirm-buttons .btn {
+    flex: 1;
+    padding: 14px;
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, .4);
+  }
+</style>
+</head>
+<body>
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--dark-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: opacity 0.3s ease;
+  ">
+    <div style="
+      width: 60px;
+      height: 60px;
+      border: 4px solid var(--border);
+      border-top: 4px solid var(--purple);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    "></div>
+    <p style="margin-top: 20px; color: var(--text-muted); font-size: 14px;">Loading calculator...</p>
+    <style>
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </div>
+  
+  <nav>
+    <div class="logo-section">
+      <img src="../images/Transparent Vixvvo Logo 2.0 Top left.png" alt="Vixvvo Logo">
+    </div>
+    <div class="nav-links">
+      <a href="../index.html">Home</a>
+      <a href="#calculator">Calculator</a>
+      <a href="../index.html#features">Features</a>
+      <a href="../index.html#about">About</a>
+    </div>
+    <div class="nav-buttons">
+      <button id="btnLoginNav" class="btn btn-ghost" style="display:none;">Login</button>
+      <div class="settings-container">
+        <button id="btnSettings" class="btn-settings" title="Menu">☰</button>
+        <div id="settingsDropdown" class="settings-dropdown">
+          
+          <!-- User Section -->
+          <div class="settings-section" id="userSection">
+            <span class="settings-label">Account</span>
+            <div id="userInfoDisplay" style="display:none;">
+              <div class="settings-user-info">
+                <div class="settings-user-avatar" id="userAvatar">U</div>
+                <div class="settings-user-details">
+                  <div class="settings-username" id="settingsUsername">Username</div>
+                  <div class="settings-role" id="settingsRole">Member</div>
+                </div>
+              </div>
+            </div>
+            <button id="btnLoginSettings" class="btn btn-primary" style="width: 100%;">Login</button>
+            <button id="btnLogoutSettings" class="btn btn-ghost" style="width: 100%; display:none;">Logout</button>
+          </div>
+
+          <!-- Currency Section -->
+          <div class="settings-section">
+            <span class="settings-label">Currency</span>
+            <div class="settings-currency-row">
+              <select id="currencySelect" class="currency-select">
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="JPY">JPY (¥)</option>
+                <option value="CNY">CNY (¥)</option>
+                <option value="CAD">CAD ($)</option>
+                <option value="AUD">AUD ($)</option>
+                <option value="CHF">CHF (Fr)</option>
+                <option value="INR">INR (₹)</option>
+                <option value="MXN">MXN ($)</option>
+                <option value="BRL">BRL (R$)</option>
+                <option value="ZAR">ZAR (R)</option>
+                <option value="KRW">KRW (₩)</option>
+                <option value="SGD">SGD ($)</option>
+                <option value="NZD">NZD ($)</option>
+                <option value="SEK">SEK (kr)</option>
+                <option value="NOK">NOK (kr)</option>
+                <option value="DKK">DKK (kr)</option>
+                <option value="PLN">PLN (zł)</option>
+                <option value="THB">THB (฿)</option>
+                <option value="IDR">IDR (Rp)</option>
+                <option value="HUF">HUF (Ft)</option>
+                <option value="CZK">CZK (Kč)</option>
+                <option value="ILS">ILS (₪)</option>
+                <option value="CLP">CLP ($)</option>
+                <option value="PHP">PHP (₱)</option>
+                <option value="AED">AED (د.إ)</option>
+                <option value="SAR">SAR (﷼)</option>
+                <option value="MYR">MYR (RM)</option>
+                <option value="RON">RON (lei)</option>
+              </select>
+              <button id="btnSaveCurrency" class="btn btn-primary btn-save-currency">Save</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="calculator-section">
+    <div class="page-header">
+      <h1 class="page-title">
+        3D Printing <span class="highlight">Cost Calculator</span>
+      </h1>
+      <p class="page-subtitle">Calculate accurate costs for your 3D printing projects</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('calculator')">Calculator</button>
+      <button class="tab" onclick="switchTab('printers')">Printers</button>
+      <button class="tab" onclick="switchTab('filaments')">Filaments</button>
+    </div>
+
+    <!-- Calculator Tab -->
+    <div id="calculatorTab" class="tab-content active">
+      <div class="calculator-grid">
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0;">Print Details</h3>
+            <button id="btnResetCalculator" class="btn btn-ghost" style="padding: 8px 16px;">Reset to Default</button>
+          </div>
+          
+          <!-- Presets Section -->
+          <div class="form-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <span class="section-label">Print Detail Presets</span>
+              <span id="presetLimitInfo" style="font-size: 11px; color: var(--text-muted);"></span>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+              <button id="btnSavePreset" class="btn btn-primary" style="flex: 1;">Save Current Settings</button>
+              <button id="btnManagePresets" class="btn btn-ghost" style="flex: 1;">Manage Presets</button>
+            </div>
+            <div id="presetQuickAccess" style="display: none;">
+              <label style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: block;">Quick Load:</label>
+              <div id="presetButtons" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+            </div>
+          </div>
+
+          <!-- Printer & Filament -->
+          <div class="form-section">
+            <span class="section-label">Printer & Filament</span>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Select Printer</label>
+                <select id="printerSelect">
+                  <option value="">Choose a printer...</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Select Filament</label>
+                <select id="filamentSelect">
+                  <option value="">Choose filament...</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Print Parameters -->
+          <div class="form-section">
+            <span class="section-label">Print Parameters</span>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Print Time (hours)</label>
+                <input type="number" id="printTime" placeholder="0" min="0" step="0.01" value="0">
+              </div>
+              <div class="form-group">
+                <label>Filament Weight (g)</label>
+                <input type="number" id="weight" placeholder="0" min="0" step="0.1" value="0">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Time to Print (duplicate)</label>
+                <input type="number" id="printTimeDuplicate" placeholder="0" min="0" step="0.01" readonly>
+              </div>
+              <div class="form-group">
+                <label>Electricity Cost ($/kWh)</label>
+                <input type="number" id="elec" placeholder="0.12" min="0" step="0.01" value="0.12">
+              </div>
+            </div>
+          </div>
+
+          <!-- Post-Processing -->
+          <div class="form-section">
+            <span class="section-label">Post-Processing (minutes)</span>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Job Removal</label>
+                <input type="number" id="jobRemoval" placeholder="0" min="0" step="0.1" value="0">
+              </div>
+              <div class="form-group">
+                <label>Support Removal</label>
+                <input type="number" id="supportRemoval" placeholder="0" min="0" step="0.1" value="0">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Additional Work</label>
+              <input type="number" id="additionalWork" placeholder="0" min="0" step="0.1" value="0">
+            </div>
+          </div>
+
+          <!-- Preparation -->
+          <div class="form-section">
+            <span class="section-label">Preparation (minutes)</span>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Model Prep</label>
+                <input type="number" id="modelPrep" placeholder="0" min="0" step="0.1" value="0">
+              </div>
+              <div class="form-group">
+                <label>Slicing</label>
+                <input type="number" id="slicing" placeholder="0" min="0" step="0.1" value="0">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Material Change</label>
+                <input type="number" id="materialChange" placeholder="0" min="0" step="0.1" value="0">
+              </div>
+              <div class="form-group">
+                <label>Transfer & Start</label>
+                <input type="number" id="transferStart" placeholder="0" min="0" step="0.1" value="0">
+              </div>
+            </div>
+          </div>
+
+          <!-- Markups & Failures -->
+          <div class="form-section">
+            <span class="section-label">Markups & Failures</span>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Filament Markup (×)</label>
+                <input type="number" id="filamentMarkup" placeholder="2.7" min="1" step="0.1" value="2.7">
+              </div>
+              <div class="form-group">
+                <label>General Markup (%)</label>
+                <input type="number" id="generalMarkup" placeholder="50" min="0" step="1" value="50">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Failure Rate (%)</label>
+              <input type="number" id="failureRate" placeholder="10" min="0" max="100" step="1" value="10">
+            </div>
+          </div>
+        </div>
+
+        <div class="card results-card">
+          <h3>Cost Breakdown</h3>
+          <div id="resultsContent">
+            <div class="result-item">
+              <span class="result-label">Printer Depreciation</span>
+              <span class="result-value" id="printerCost">$0.00</span>
+            </div>
+            <div class="result-item">
+              <div>
+                <div class="result-label">Filament Cost</div>
+                <div class="result-sublabel" id="filamentDetails"></div>
+              </div>
+              <span class="result-value" id="filamentCost">$0.00</span>
+            </div>
+            <div class="result-item">
+              <div>
+                <div class="result-label">Electricity Cost</div>
+                <div class="result-sublabel" id="electricityDetails"></div>
+              </div>
+              <span class="result-value" id="electricityCost">$0.00</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Subtotal (before markup)</span>
+              <span class="result-value" id="subtotal">$0.00</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">General Markup Applied</span>
+              <span class="result-value" id="markupAmount">$0.00</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Failure Rate Adjustment</span>
+              <span class="result-value" id="failureCostDisplay">$0.00</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Total Price</span>
+              <span class="result-value" id="totalCost">$0.00</span>
+            </div>
+          </div>
+          <p class="note" id="handTimeNote">Unbilled hand time: 0.00 hours</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Printers Tab -->
+    <div id="printersTab" class="tab-content">
+      <div class="card">
+        <div class="section-header">
+          <h3>Printers Library</h3>
+          <div style="display: flex; gap: 8px;">
+            <button id="btnTogglePrinterMassDelete" class="btn btn-toggle-mass-delete" style="display:none;">Mass Delete</button>
+            <button id="btnAddPrinter" class="btn btn-primary btn-small" style="display:none;">+ Add Printer</button>
+          </div>
+        </div>
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+          All available printers with their brands, purchase prices and calculated depreciation costs per hour.
+        </p>
+        
+        <!-- Filter Section -->
+        <div class="filter-section">
+          <label class="filter-label">🔍 Filter Printers</label>
+          <div class="filter-row">
+            <input 
+              type="text" 
+              id="printerFilter" 
+              class="filter-input" 
+              placeholder="Search by printer name or brand..."
+            >
+            <button class="btn btn-ghost btn-small" onclick="clearPrinterFilter()">Clear</button>
+          </div>
+          <div class="filter-stats" id="printerFilterStats">
+            Showing all printers
+          </div>
+        </div>
+
+        <!-- Mass Delete Controls -->
+        <div id="printerMassDeleteControls" class="mass-delete-controls">
+          <div class="select-all-container">
+            <input type="checkbox" id="selectAllPrinters" class="mass-delete-checkbox">
+            <label for="selectAllPrinters" class="select-all-label">Select All</label>
+            <span class="selected-count" id="printerSelectedCount">0 selected</span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button id="btnDeleteSelectedPrinters" class="btn-mass-delete">Delete Selected</button>
+            <button id="btnCancelPrinterMassDelete" class="btn-cancel-mass-delete">Cancel</button>
+          </div>
+        </div>
+        
+        <div id="printersListContainer">
+          <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+            Loading printers...
+          </div>
+        </div>
+        <div id="printersList"></div>
+        <div id="printersNoResults" class="no-results" style="display: none;">
+          <div class="no-results-icon">🔍</div>
+          <p style="font-size: 16px; margin-bottom: 8px;">No printers found</p>
+          <p style="font-size: 14px;">Try adjusting your search terms</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filaments Tab -->
+    <div id="filamentsTab" class="tab-content">
+      <div class="card">
+        <div class="section-header">
+          <h3>Filaments Library</h3>
+          <div style="display: flex; gap: 8px;">
+            <button id="btnToggleFilamentMassDelete" class="btn btn-toggle-mass-delete" style="display:none;">Mass Delete</button>
+            <button id="btnAddFilament" class="btn btn-primary btn-small" style="display:none;">+ Add Filament</button>
+          </div>
+        </div>
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+          All available filaments with detailed pricing information per spool, kilogram, and gram.
+        </p>
+        
+        <!-- Filter Section -->
+        <div class="filter-section">
+          <label class="filter-label">🔍 Filter Filaments</label>
+          <div class="filter-row">
+            <input 
+              type="text" 
+              id="filamentFilter" 
+              class="filter-input" 
+              placeholder="Search by type or brand..."
+            >
+            <button class="btn btn-ghost btn-small" onclick="clearFilamentFilter()">Clear</button>
+          </div>
+          <div class="filter-stats" id="filamentFilterStats">
+            Showing all filaments
+          </div>
+        </div>
+
+        <!-- Mass Delete Controls -->
+        <div id="filamentMassDeleteControls" class="mass-delete-controls">
+          <div class="select-all-container">
+            <input type="checkbox" id="selectAllFilaments" class="mass-delete-checkbox">
+            <label for="selectAllFilaments" class="select-all-label">Select All</label>
+            <span class="selected-count" id="filamentSelectedCount">0 selected</span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button id="btnDeleteSelectedFilaments" class="btn-mass-delete">Delete Selected</button>
+            <button id="btnCancelFilamentMassDelete" class="btn-cancel-mass-delete">Cancel</button>
+          </div>
+        </div>
+        
+        <div id="filamentsListContainer">
+          <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+            Loading filaments...
+          </div>
+        </div>
+        <div id="filamentsList"></div>
+        <div id="filamentsNoResults" class="no-results" style="display: none;">
+          <div class="no-results-icon">🔍</div>
+          <p style="font-size: 16px; margin-bottom: 8px;">No filaments found</p>
+          <p style="font-size: 14px;">Try adjusting your search terms</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Login Modal -->
+  <div id="overlay"></div>
+  <div id="loginModal" class="modal">
+    <div class="modal-card">
+      <h3>Login</h3>
+      <label>Email</label>
+      <input id="loginEmail" type="email" placeholder="your@email.com">
+      <label>Password</label>
+      <input id="loginPass" type="password" placeholder="••••••••">
+      <div id="loginErr" class="err"></div>
+      <div class="modal-buttons">
+        <button id="doLogin" class="btn btn-primary">Login</button>
+        <button id="closeLogin" class="btn btn-ghost">Cancel</button>
+      </div>
+      <div style="text-align: center; margin-top: 16px;">
+        <span style="color: var(--text-muted); font-size: 14px;">Don't have an account? </span>
+        <button id="switchToSignup" style="background: none; border: none; color: var(--purple-light); cursor: pointer; font-weight: 600; font-size: 14px;">Sign Up</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signup Modal -->
+  <div id="signupModal" class="modal">
+    <div class="modal-card">
+      <h3>Create Account</h3>
+      <label>Username</label>
+      <input id="signupUsername" type="text" placeholder="Choose a username">
+      <label>Email</label>
+      <input id="signupEmail" type="email" placeholder="your@email.com">
+      <label>Password</label>
+      <input id="signupPass" type="password" placeholder="••••••••">
+      <label>Confirm Password</label>
+      <input id="signupPassConfirm" type="password" placeholder="••••••••">
+      <div id="signupErr" class="err"></div>
+      <div class="modal-buttons">
+        <button id="doSignup" class="btn btn-primary">Create Account</button>
+        <button id="closeSignup" class="btn btn-ghost">Cancel</button>
+      </div>
+      <div style="text-align: center; margin-top: 16px;">
+        <span style="color: var(--text-muted); font-size: 14px;">Already have an account? </span>
+        <button id="switchToLogin" style="background: none; border: none; color: var(--purple-light); cursor: pointer; font-weight: 600; font-size: 14px;">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Printer Modal -->
+  <div id="printerModal" class="modal">
+    <div class="modal-card">
+      <h3 id="printerModalTitle">Add Printer</h3>
+      
+      <!-- Manual Input Section -->
+      <label>Printer Name</label>
+      <input id="printerName" type="text" placeholder="e.g., i3 MK3">
+      <label>Brand</label>
+      <input id="printerBrand" type="text" placeholder="e.g., Prusa">
+      <label>Printer Price ($)</label>
+      <input id="printerPrice" type="number" placeholder="e.g., 999" min="0" step="0.01">
+      <label>Expected Lifespan (hours)</label>
+      <input id="printerLifespan" type="number" placeholder="e.g., 5000" min="1" step="1" value="5000">
+      <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+        Depreciation will be calculated as: Price ÷ Lifespan
+      </div>
+      
+      <!-- Quick Add Section -->
+      <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);">
+        <label>Batch Add (paste multiple, separate with semicolon)</label>
+        <textarea id="printerQuickAdd" 
+          placeholder='["X-Smart 1", "QIDI", 299, 5000]; ["X-Smart 2", "QIDI", 299, 5000]; ["X-Smart 3", "QIDI", 299, 5000]' 
+          style="width: 100%; padding: 12px; background: rgba(15, 11, 22, 0.6); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; font-family: 'Courier New', monospace; min-height: 80px; resize: vertical;"></textarea>
+        <button id="btnParseQuickAdd" class="btn btn-primary" style="width: 100%; margin-top: 8px; padding: 10px;">
+          Add All Printers
+        </button>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px; line-height: 1.4;">
+          <strong>Format:</strong> ["Name", "Brand", Price, Lifespan]; ["Name", "Brand", Price, Lifespan]<br>
+          <strong>Example:</strong> ["i3 MK3S+", "Prusa", 1099, 5000]; ["Ender 3", "Creality", 259, 3000]
+        </div>
+      </div>
+      
+      <div id="printerErr" class="err"></div>
+      <div class="modal-buttons">
+        <button id="savePrinter" class="btn btn-primary">Save Printer</button>
+        <button id="closePrinter" class="btn btn-ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Filament Modal -->
+  <div id="filamentModal" class="modal">
+    <div class="modal-card">
+      <h3 id="filamentModalTitle">Add Filament</h3>
+      
+      <!-- Manual Input Section -->
+      <label>Filament Type</label>
+      <input id="filamentType" type="text" placeholder="e.g., PLA">
+      <label>Brand</label>
+      <input id="filamentBrand" type="text" placeholder="e.g., Hatchbox">
+      <label>Spool Weight (g)</label>
+      <input id="filamentSpoolWeight" type="number" placeholder="1000" min="1" step="1" value="1000">
+      <label>Cost Per Spool ($)</label>
+      <input id="filamentCostSpool" type="number" placeholder="20.00" min="0" step="0.01">
+      <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">
+        Cost per gram will be calculated as: Spool Cost ÷ Spool Weight
+      </div>
+      
+      <!-- Quick Add Section -->
+      <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);">
+        <label>Batch Add (paste multiple, separate with semicolon)</label>
+        <textarea id="filamentQuickAdd" 
+          placeholder='["PLA", "Hatchbox", 1000, 19.99]; ["PETG", "eSUN", 1000, 22.50]; ["ABS", "Prusament", 1000, 24.99]' 
+          style="width: 100%; padding: 12px; background: rgba(15, 11, 22, 0.6); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; font-family: 'Courier New', monospace; min-height: 80px; resize: vertical;"></textarea>
+        <button id="btnParseFilamentQuickAdd" class="btn btn-primary" style="width: 100%; margin-top: 8px; padding: 10px;">
+          Add All Filaments
+        </button>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px; line-height: 1.4;">
+          <strong>Format:</strong> ["Type", "Brand", Weight, Cost]; ["Type", "Brand", Weight, Cost]<br>
+          <strong>Example:</strong> ["PLA", "Hatchbox", 1000, 19.99]; ["PETG", "eSUN", 1000, 22.50]
+        </div>
+      </div>
+      
+      <div id="filamentErr" class="err"></div>
+      <div class="modal-buttons">
+        <button id="saveFilament" class="btn btn-primary">Save Filament</button>
+        <button id="closeFilament" class="btn btn-ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Notification -->
+  <div id="customNotification" class="notification">
+    <div class="notification-icon">✓</div>
+    <div class="notification-title">Success!</div>
+    <div class="notification-message"></div>
+    <div class="notification-buttons">
+      <button class="btn btn-primary" onclick="hideNotification()">Got it!</button>
+    </div>
+  </div>
+
+  <!-- Custom Confirm Dialog -->
+  <div id="customConfirm" class="confirm-dialog">
+    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-title">Are you sure?</div>
+    <div class="confirm-message"></div>
+    <div class="confirm-buttons">
+      <button id="confirmYes" class="btn btn-danger">Delete</button>
+      <button id="confirmNo" class="btn btn-ghost">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Save Preset Modal -->
+  <div id="savePresetModal" class="modal">
+    <div class="modal-card">
+      <h3>Save Preset</h3>
+      <label>Preset Name</label>
+      <input id="presetName" type="text" placeholder="e.g., Standard Mini Print" maxlength="30">
+      <div id="presetSaveErr" class="err"></div>
+      <div id="presetSaveInfo" style="font-size: 12px; color: var(--text-muted); margin-top: 8px;"></div>
+      <div class="modal-buttons">
+        <button id="doSavePreset" class="btn btn-primary">Save Preset</button>
+        <button id="closeSavePreset" class="btn btn-ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manage Presets Modal -->
+  <div id="managePresetsModal" class="modal">
+    <div class="modal-card" style="max-width: 600px;">
+      <h3>Manage Presets</h3>
+      <div id="presetsList" style="max-height: 400px; overflow-y: auto;"></div>
+      <div id="noPresetsMessage" style="text-align: center; padding: 32px; color: var(--text-muted); display: none;">
+        <p style="font-size: 16px; margin-bottom: 8px;">No presets saved yet</p>
+        <p style="font-size: 13px;">Save your first preset to quickly load print settings!</p>
+      </div>
+      <div class="modal-buttons">
+        <button id="closeManagePresets" class="btn btn-ghost">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generic Confirmation Modal -->
+  <div id="confirmModal" class="modal">
+    <div class="modal-card" style="max-width: 500px;">
+      <h3 id="confirmTitle">Confirm Action</h3>
+      <p id="confirmMessage" style="color: var(--text-muted); font-size: 15px; line-height: 1.6; margin: 16px 0 24px 0;">Are you sure?</p>
+      <div class="modal-buttons">
+        <button id="confirmOK" class="btn btn-primary">OK</button>
+        <button id="confirmCancel" class="btn btn-ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* Firebase Config */
+  const firebaseConfig = {
+    apiKey: "AIzaSyDwEDp5SfrxeEntOJg_XzbiBoGc9ADbX5g",
+    authDomain: "vixvvowebsite.firebaseapp.com",
+    projectId: "vixvvowebsite",
+    storageBucket: "vixvvowebsite.appspot.com",
+    messagingSenderId: "862620702799",
+    appId: "1:862620702799:web:d06c0ec4e7b0f3010d323a",
+    measurementId: "G-VX36JF6PTT",
+    databaseURL: "https://vixvvowebsite-default-rtdb.firebaseio.com"
+  };
+  
+  console.log('Initializing Firebase...');
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+  const printersRef = db.ref('printers');
+  const filamentsRef = db.ref('filaments');
+
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+  /* DOM Elements */
+  const overlay = document.getElementById('overlay');
+  const loginModal = document.getElementById('loginModal');
+  const signupModal = document.getElementById('signupModal');
+  const printerModal = document.getElementById('printerModal');
+  const filamentModal = document.getElementById('filamentModal');
+
+  /* Settings Dropdown */
+  const btnSettings = document.getElementById('btnSettings');
+  const settingsDropdown = document.getElementById('settingsDropdown');
+  const btnLoginSettings = document.getElementById('btnLoginSettings');
+  const btnLogoutSettings = document.getElementById('btnLogoutSettings');
+  const userInfoDisplay = document.getElementById('userInfoDisplay');
+  const settingsUsername = document.getElementById('settingsUsername');
+  const settingsRole = document.getElementById('settingsRole');
+  const userAvatar = document.getElementById('userAvatar');
+  const btnLoginNav = document.getElementById('btnLoginNav');
+
+  // Login button in nav (visible when logged out)
+  btnLoginNav.addEventListener('click', () => {
+    showModal(loginModal);
+  });
+
+  // Toggle settings dropdown
+  btnSettings.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isActive = settingsDropdown.classList.contains('active');
+    if (isActive) {
+      settingsDropdown.classList.remove('active');
+      btnSettings.classList.remove('active');
+    } else {
+      settingsDropdown.classList.add('active');
+      btnSettings.classList.add('active');
+    }
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!settingsDropdown.contains(e.target) && e.target !== btnSettings) {
+      settingsDropdown.classList.remove('active');
+      btnSettings.classList.remove('active');
+    }
+  });
+
+  // Prevent dropdown from closing when clicking inside
+  settingsDropdown.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  // Login button in settings
+  btnLoginSettings.addEventListener('click', () => {
+    settingsDropdown.classList.remove('active');
+    btnSettings.classList.remove('active');
+    showModal(loginModal);
+  });
+
+  // Logout button in settings
+  btnLogoutSettings.addEventListener('click', () => {
+    settingsDropdown.classList.remove('active');
+    btnSettings.classList.remove('active');
+    auth.signOut();
+  });
+
+  /* Presets System */
+  const savePresetModal = document.getElementById('savePresetModal');
+  const managePresetsModal = document.getElementById('managePresetsModal');
+  const btnSavePreset = document.getElementById('btnSavePreset');
+  const btnManagePresets = document.getElementById('btnManagePresets');
+  const btnCloseSavePreset = document.getElementById('closeSavePreset');
+  const btnCloseManagePresets = document.getElementById('closeManagePresets');
+  const btnDoSavePreset = document.getElementById('doSavePreset');
+  const presetNameInput = document.getElementById('presetName');
+  const presetSaveErr = document.getElementById('presetSaveErr');
+  const presetSaveInfo = document.getElementById('presetSaveInfo');
+  const presetsList = document.getElementById('presetsList');
+  const noPresetsMessage = document.getElementById('noPresetsMessage');
+  const presetLimitInfo = document.getElementById('presetLimitInfo');
+  const presetQuickAccess = document.getElementById('presetQuickAccess');
+  const presetButtons = document.getElementById('presetButtons');
+
+  let userPresets = [];
+  const MAX_PRESETS_MEMBER = 2;
+  const MAX_PRESETS_ADMIN = 10;
+
+  // Get current form data for saving as preset
+  function getCurrentPrintDetails() {
+    const getValueSafe = (id) => {
+      const elem = document.getElementById(id);
+      return elem ? elem.value : '';
+    };
+    
+    return {
+      selectedPrinter: getValueSafe('printerSelect'),
+      selectedFilament: getValueSafe('filamentSelect'),
+      filamentMarkup: getValueSafe('filamentMarkup'),
+      generalMarkup: getValueSafe('generalMarkup'),
+      failureRate: getValueSafe('failureRate')
+    };
+  }
+
+  // Load preset data into form
+  function loadPresetData(preset) {
+    const setValueSafe = (id, value, defaultValue) => {
+      const elem = document.getElementById(id);
+      if (elem) {
+        elem.value = value || defaultValue;
+      }
+    };
+    
+    if (preset.selectedPrinter) {
+      setValueSafe('printerSelect', preset.selectedPrinter, '');
+    }
+    if (preset.selectedFilament) {
+      setValueSafe('filamentSelect', preset.selectedFilament, '');
+    }
+    setValueSafe('filamentMarkup', preset.filamentMarkup, 0);
+    setValueSafe('generalMarkup', preset.generalMarkup, 50);
+    setValueSafe('failureRate', preset.failureRate, 10);
+    
+    compute();
+  }
+
+  // Save preset button
+  btnSavePreset.addEventListener('click', () => {
+    const user = auth.currentUser;
+    if (!user) {
+      alert('Please login to save presets');
+      return;
+    }
+    
+    const maxPresets = isAdmin ? MAX_PRESETS_ADMIN : MAX_PRESETS_MEMBER;
+    presetSaveInfo.textContent = `You have ${userPresets.length} of ${maxPresets} presets saved`;
+    
+    if (userPresets.length >= maxPresets) {
+      presetSaveErr.textContent = `You've reached the maximum of ${maxPresets} presets. Delete one to save a new preset.`;
+    } else {
+      presetSaveErr.textContent = '';
+    }
+    
+    presetNameInput.value = '';
+    showModal(savePresetModal);
+  });
+
+  // Reset calculator button
+  const btnResetCalculator = document.getElementById('btnResetCalculator');
+  btnResetCalculator.addEventListener('click', async () => {
+    const confirmed = await showConfirmModal(
+      'Reset Calculator', 
+      'Are you sure you want to reset all fields to default values?'
+    );
+    
+    if (confirmed) {
+      // Reset printer and filament selection
+      document.getElementById('printerSelect').value = '';
+      document.getElementById('filamentSelect').value = '';
+      
+      // Reset print parameters
+      document.getElementById('printTime').value = '0';
+      document.getElementById('weight').value = '0';
+      document.getElementById('printTimeDuplicate').value = '';
+      document.getElementById('elec').value = '0.12';
+      
+      // Reset post-processing
+      document.getElementById('jobRemoval').value = '0';
+      document.getElementById('supportRemoval').value = '0';
+      document.getElementById('additionalWork').value = '0';
+      
+      // Reset preparation
+      document.getElementById('modelPrep').value = '0';
+      document.getElementById('slicing').value = '0';
+      document.getElementById('materialChange').value = '0';
+      document.getElementById('transferStart').value = '0';
+      
+      // Reset markups & failures
+      document.getElementById('filamentMarkup').value = '2.7';
+      document.getElementById('generalMarkup').value = '50';
+      document.getElementById('failureRate').value = '10';
+      
+      // Recompute with default values
+      compute();
+    }
+  });
+
+  // Close save preset modal
+  btnCloseSavePreset.addEventListener('click', () => {
+    hideModal(savePresetModal);
+  });
+
+  // Do save preset
+  btnDoSavePreset.addEventListener('click', async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    const name = presetNameInput.value.trim();
+    if (!name) {
+      presetSaveErr.textContent = 'Please enter a preset name';
+      return;
+    }
+    
+    const maxPresets = isAdmin ? MAX_PRESETS_ADMIN : MAX_PRESETS_MEMBER;
+    if (userPresets.length >= maxPresets) {
+      presetSaveErr.textContent = `Maximum ${maxPresets} presets reached`;
+      return;
+    }
+    
+    const presetData = getCurrentPrintDetails();
+    const presetId = Date.now().toString();
+    
+    try {
+      await db.ref(`users/${user.uid}/presets/${presetId}`).set({
+        name: name,
+        data: presetData,
+        createdAt: Date.now()
+      });
+      
+      console.log('Preset saved successfully');
+      hideModal(savePresetModal);
+      loadUserPresets();
+    } catch (error) {
+      console.error('Error saving preset:', error);
+      presetSaveErr.textContent = 'Error saving preset. Please try again.';
+    }
+  });
+
+  // Manage presets button
+  btnManagePresets.addEventListener('click', () => {
+    const user = auth.currentUser;
+    if (!user) {
+      alert('Please login to manage presets');
+      return;
+    }
+    renderPresetsList();
+    showModal(managePresetsModal);
+  });
+
+  // Close manage presets modal
+  btnCloseManagePresets.addEventListener('click', () => {
+    hideModal(managePresetsModal);
+  });
+
+  // Load user presets from Firebase
+  async function loadUserPresets() {
+    const user = auth.currentUser;
+    if (!user) {
+      userPresets = [];
+      updatePresetsUI();
+      return;
+    }
+    
+    try {
+      const snapshot = await db.ref(`users/${user.uid}/presets`).once('value');
+      const data = snapshot.val();
+      
+      if (data) {
+        userPresets = Object.keys(data).map(id => ({
+          id: id,
+          ...data[id]
+        }));
+      } else {
+        userPresets = [];
+      }
+      
+      updatePresetsUI();
+    } catch (error) {
+      console.error('Error loading presets:', error);
+      userPresets = [];
+      updatePresetsUI();
+    }
+  }
+
+  // Update presets UI
+  function updatePresetsUI() {
+    const maxPresets = isAdmin ? MAX_PRESETS_ADMIN : MAX_PRESETS_MEMBER;
+    presetLimitInfo.textContent = `${userPresets.length}/${maxPresets} presets`;
+    
+    // Update quick access buttons
+    if (userPresets.length > 0) {
+      presetQuickAccess.style.display = 'block';
+      presetButtons.innerHTML = '';
+      
+      userPresets.forEach(preset => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-ghost';
+        btn.style.fontSize = '12px';
+        btn.style.padding = '6px 12px';
+        btn.textContent = preset.name;
+        btn.onclick = () => loadPresetData(preset.data);
+        presetButtons.appendChild(btn);
+      });
+    } else {
+      presetQuickAccess.style.display = 'none';
+    }
+  }
+
+  // Render presets list in manage modal
+  function renderPresetsList() {
+    if (userPresets.length === 0) {
+      presetsList.style.display = 'none';
+      noPresetsMessage.style.display = 'block';
+      return;
+    }
+    
+    presetsList.style.display = 'block';
+    noPresetsMessage.style.display = 'none';
+    
+    presetsList.innerHTML = userPresets.map(preset => `
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: rgba(168, 85, 247, 0.05); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px;">
+        <div>
+          <div style="font-weight: 600; margin-bottom: 4px;">${preset.name}</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Saved ${new Date(preset.createdAt).toLocaleDateString()}</div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-primary" style="padding: 8px 16px; font-size: 13px;" onclick="loadPresetAndClose('${preset.id}')">Load</button>
+          <button class="btn btn-danger" style="padding: 8px 16px; font-size: 13px;" onclick="deletePreset('${preset.id}')">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Load preset and close modal (global function for onclick)
+  window.loadPresetAndClose = function(presetId) {
+    const preset = userPresets.find(p => p.id === presetId);
+    if (preset) {
+      loadPresetData(preset.data);
+      hideModal(managePresetsModal);
+    }
+  };
+
+  // Delete preset (global function for onclick)
+  window.deletePreset = async function(presetId) {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    const confirmed = await showConfirmModal(
+      'Delete Preset',
+      'Are you sure you want to delete this preset?'
+    );
+    if (!confirmed) return;
+    
+    try {
+      await db.ref(`users/${user.uid}/presets/${presetId}`).remove();
+      console.log('Preset deleted successfully');
+      await loadUserPresets();
+      renderPresetsList();
+    } catch (error) {
+      console.error('Error deleting preset:', error);
+      await showConfirmModal('Error', 'Error deleting preset. Please try again.');
+    }
+  };
+
+  /* Helpers */
+  function money(n) { return `$${(Math.round(n * 100) / 100).toFixed(2)}`; }
+
+  /* Currency System */
+  let currentCurrency = 'USD';
+  let exchangeRates = {};
+  let lastSavedCurrency = 'USD';
+  const currencySymbols = {
+    USD: '$', EUR: '€', GBP: '£', JPY: '¥', CNY: '¥', CAD: 'C$', AUD: 'A$',
+    CHF: 'Fr', INR: '₹', MXN: 'MX$', BRL: 'R$', ZAR: 'R', KRW: '₩',
+    SGD: 'S$', NZD: 'NZ$', SEK: 'kr', NOK: 'kr', DKK: 'kr', PLN: 'zł',
+    THB: '฿', IDR: 'Rp', HUF: 'Ft', CZK: 'Kč', ILS: '₪', CLP: 'CLP$',
+    PHP: '₱', AED: 'د.إ', SAR: '﷼', MYR: 'RM', RON: 'lei'
+  };
+
+  // Fetch exchange rates from API
+  async function fetchExchangeRates() {
+    try {
+      const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+      const data = await response.json();
+      exchangeRates = data.rates;
+      console.log('Exchange rates loaded:', exchangeRates);
+      return true;
+    } catch (error) {
+      console.error('Error fetching exchange rates:', error);
+      // Fallback rates if API fails
+      exchangeRates = {
+        USD: 1, EUR: 0.92, GBP: 0.79, JPY: 149.50, CNY: 7.24, CAD: 1.36,
+        AUD: 1.53, CHF: 0.88, INR: 83.12, MXN: 17.15, BRL: 4.97, ZAR: 18.65,
+        KRW: 1319.50, SGD: 1.34, NZD: 1.65, SEK: 10.38, NOK: 10.68, DKK: 6.87,
+        PLN: 3.98, THB: 35.15, IDR: 15625, HUF: 356.50, CZK: 22.85, ILS: 3.68,
+        CLP: 973.50, PHP: 56.45, AED: 3.67, SAR: 3.75, MYR: 4.72, RON: 4.57
+      };
+      return false;
+    }
+  }
+
+  // Convert USD to selected currency
+  function convertCurrency(usdAmount) {
+    if (!exchangeRates[currentCurrency]) return usdAmount;
+    return usdAmount * exchangeRates[currentCurrency];
+  }
+
+  // Convert selected currency to USD (for storage)
+  function convertToUSD(amount) {
+    if (!exchangeRates[currentCurrency]) return amount;
+    return amount / exchangeRates[currentCurrency];
+  }
+
+  // Format money with current currency
+  function formatMoney(usdAmount) {
+    const amount = convertCurrency(usdAmount);
+    const symbol = currencySymbols[currentCurrency] || currentCurrency + ' ';
+    const decimals = ['JPY', 'KRW', 'IDR', 'CLP'].includes(currentCurrency) ? 0 : 2;
+    return `${symbol}${amount.toFixed(decimals)}`;
+  }
+
+  // Currency selector change handler
+  document.getElementById('currencySelect').addEventListener('change', function() {
+    currentCurrency = this.value;
+    console.log('Currency changed to:', currentCurrency);
+    updateAllPrices();
+    updateSaveButton();
+  });
+
+  // Save button click handler
+  document.getElementById('btnSaveCurrency').addEventListener('click', function() {
+    saveCurrencyPreference();
+  });
+
+  // Update save button visibility and state
+  function updateSaveButton() {
+    const user = auth.currentUser;
+    const saveBtn = document.getElementById('btnSaveCurrency');
+    
+    if (user) {
+      // Show button only if logged in
+      saveBtn.style.display = 'block';
+      
+      // Check if current currency is different from saved
+      if (currentCurrency !== lastSavedCurrency) {
+        saveBtn.textContent = 'Save';
+        saveBtn.classList.remove('saved');
+        saveBtn.disabled = false;
+      } else {
+        saveBtn.textContent = 'Saved ✓';
+        saveBtn.classList.add('saved');
+        saveBtn.disabled = true;
+      }
+    } else {
+      // Hide button if not logged in
+      saveBtn.style.display = 'none';
+    }
+  }
+
+  // Save currency preference to Firebase (only if logged in)
+  function saveCurrencyPreference() {
+    const user = auth.currentUser;
+    const saveBtn = document.getElementById('btnSaveCurrency');
+    
+    if (!user) {
+      console.log('⚠️ Not logged in, currency not saved');
+      return;
+    }
+    
+    console.log('Saving currency preference:', currentCurrency, 'User:', user.uid);
+    console.log('User authenticated:', user.email);
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+    
+    // Try to save to Firebase
+    const userCurrencyRef = db.ref(`users/${user.uid}/currency`);
+    console.log('Attempting to write to path:', `users/${user.uid}/currency`);
+    
+    userCurrencyRef.set(currentCurrency).then(() => {
+      console.log('✅ Currency preference saved to Firebase:', currentCurrency);
+      lastSavedCurrency = currentCurrency;
+      saveBtn.textContent = 'Saved ✓';
+      saveBtn.classList.add('saved');
+      
+      // Reset button after 2 seconds
+      setTimeout(() => {
+        updateSaveButton();
+      }, 2000);
+    }).catch(error => {
+      console.error('❌ Error saving currency to Firebase:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      
+      // Check if it's a permission error
+      if (error.code === 'PERMISSION_DENIED') {
+        saveBtn.textContent = 'Permission Error';
+        alert('Permission denied. Firebase security rules may need to be updated.\n\nPlease update your Firebase Realtime Database rules to:\n\n{\n  "rules": {\n    "users": {\n      "$uid": {\n        ".read": "$uid === auth.uid",\n        ".write": "$uid === auth.uid"\n      }\n    },\n    "printers": {\n      ".read": true,\n      ".write": "auth != null"\n    },\n    "filaments": {\n      ".read": true,\n      ".write": "auth != null"\n    }\n  }\n}');
+      } else {
+        saveBtn.textContent = 'Error';
+        alert('Error saving currency: ' + error.message);
+      }
+      
+      saveBtn.disabled = false;
+      
+      // Reset button after 3 seconds
+      setTimeout(() => {
+        updateSaveButton();
+      }, 3000);
+    });
+  }
+
+  // Listen for real-time currency changes from Firebase
+  let currencyListener = null;
+
+  function setupCurrencyListener(user) {
+    // Remove old listener if exists
+    if (currencyListener) {
+      db.ref(`users/${user.uid}/currency`).off('value', currencyListener);
+    }
+
+    // Set up new listener
+    currencyListener = db.ref(`users/${user.uid}/currency`).on('value', snapshot => {
+      const savedCurrency = snapshot.val();
+      console.log('Currency updated from Firebase:', savedCurrency);
+      
+      if (savedCurrency && exchangeRates[savedCurrency]) {
+        currentCurrency = savedCurrency;
+        lastSavedCurrency = savedCurrency;
+        document.getElementById('currencySelect').value = savedCurrency;
+        console.log('✅ Applied currency from Firebase:', savedCurrency);
+        updateAllPrices();
+        updateSaveButton();
+      }
+    });
+  }
+
+  // Load currency preference from Firebase (only if logged in)
+  async function loadCurrencyPreference() {
+    const user = auth.currentUser;
+    console.log('Loading currency preference. User:', user ? user.uid : 'not logged in');
+    
+    if (user) {
+      // Set up real-time listener
+      setupCurrencyListener(user);
+    } else {
+      // Not logged in - reset to USD
+      console.log('Not logged in, resetting to USD');
+      currentCurrency = 'USD';
+      lastSavedCurrency = 'USD';
+      document.getElementById('currencySelect').value = 'USD';
+      updateAllPrices();
+      updateSaveButton();
+      
+      // Remove listener if exists
+      if (currencyListener) {
+        db.ref().off('value', currencyListener);
+        currencyListener = null;
+      }
+    }
+  }
+
+  // Convert all prices to the current currency
+  function updateAllPrices() {
+    console.log('Updating all prices with currency:', currentCurrency);
+    renderPrinterSelect();
+    renderPrintersList();
+    renderFilamentSelect();
+    renderFilamentsList();
+    calculateCost();
+  }
+
+  /* Custom Notification System */
+  function showNotification(message, icon = '✓', title = 'Success!') {
+    const notification = document.getElementById('customNotification');
+    const overlay = document.getElementById('overlay');
+    
+    notification.querySelector('.notification-icon').textContent = icon;
+    notification.querySelector('.notification-title').textContent = title;
+    notification.querySelector('.notification-message').textContent = message;
+    
+    overlay.style.display = 'block';
+    notification.classList.add('show');
+  }
+
+  function hideNotification() {
+    const notification = document.getElementById('customNotification');
+    const overlay = document.getElementById('overlay');
+    
+    notification.classList.remove('show');
+    setTimeout(() => {
+      overlay.style.display = 'none';
+    }, 300);
+  }
+
+  /* Custom Confirm Dialog */
+  function showConfirm(message, icon = '⚠️', title = 'Are you sure?') {
+    return new Promise((resolve) => {
+      const confirmDialog = document.getElementById('customConfirm');
+      const overlay = document.getElementById('overlay');
+      const yesBtn = document.getElementById('confirmYes');
+      const noBtn = document.getElementById('confirmNo');
+      
+      confirmDialog.querySelector('.confirm-icon').textContent = icon;
+      confirmDialog.querySelector('.confirm-title').textContent = title;
+      confirmDialog.querySelector('.confirm-message').textContent = message;
+      
+      overlay.style.display = 'block';
+      confirmDialog.classList.add('show');
+      
+      const cleanup = () => {
+        confirmDialog.classList.remove('show');
+        setTimeout(() => {
+          overlay.style.display = 'none';
+        }, 300);
+      };
+      
+      yesBtn.onclick = () => {
+        cleanup();
+        resolve(true);
+      };
+      
+      noBtn.onclick = () => {
+        cleanup();
+        resolve(false);
+      };
+    });
+  }
+
+  /* Auth State */
+  let isAdmin = false;
+  let printersData = {};
+  let filamentsData = {};
+  let dataLoaded = false;
+  let editingPrinterId = null;
+  let editingFilamentId = null;
+
+  // Check if user is admin
+  async function checkAdminStatus(user) {
+    if (!user) {
+      return false;
+    }
+    
+    try {
+      const snapshot = await db.ref(`users/${user.uid}/role`).once('value');
+      const role = snapshot.val();
+      console.log('User role:', role);
+      return role === 'admin';
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      return false;
+    }
+  }
+
+  auth.onAuthStateChanged(async user => {
+    console.log('Auth state changed. User:', user ? user.uid : 'logged out');
+    
+    if (user) {
+      // DEBUG: Show user info
+      console.log('======================');
+      console.log('USER DEBUG INFO:');
+      console.log('Email:', user.email);
+      console.log('UID:', user.uid);
+      console.log('Display Name:', user.displayName);
+      console.log('======================');
+      
+      // Check if user is admin
+      isAdmin = await checkAdminStatus(user);
+      console.log('User role returned:', isAdmin ? 'admin' : 'not admin');
+      console.log('Is admin:', isAdmin);
+      
+      // Get username from displayName first, then from database, fallback to email
+      let username = user.displayName;
+      
+      if (!username) {
+        // Try to get username from database
+        try {
+          const userSnapshot = await db.ref(`users/${user.uid}/username`).once('value');
+          username = userSnapshot.val();
+        } catch (error) {
+          console.error('Error fetching username from database:', error);
+        }
+      }
+      
+      // Fallback to email username if still no username
+      if (!username) {
+        username = user.email.split('@')[0];
+      }
+      
+      // Fetch role from Firebase Database
+      db.ref('users/' + user.uid + '/role').once('value')
+        .then(snapshot => {
+          const roleFromDb = snapshot.val() || 'member';
+          console.log('User role from Firebase:', roleFromDb);
+          
+          // Display role with proper capitalization
+          if (roleFromDb.toLowerCase() === 'admin' || roleFromDb.toLowerCase() === 'administrator') {
+            settingsRole.textContent = 'Administrator';
+          } else {
+            settingsRole.textContent = 'Member';
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching role:', error);
+          settingsRole.textContent = isAdmin ? 'Administrator' : 'Member';
+        });
+      
+      // Update settings dropdown UI
+      userInfoDisplay.style.display = 'block';
+      settingsUsername.textContent = username;
+      
+      // Set avatar initial (first letter of username)
+      const avatarInitial = username.charAt(0).toUpperCase();
+      userAvatar.textContent = avatarInitial;
+      
+      // Show/hide buttons
+      btnLoginSettings.style.display = 'none';
+      btnLogoutSettings.style.display = 'block';
+      btnLoginNav.style.display = 'none';
+      
+    } else {
+      isAdmin = false;
+      
+      // Update settings dropdown UI for logged out state
+      userInfoDisplay.style.display = 'none';
+      btnLoginSettings.style.display = 'block';
+      btnLogoutSettings.style.display = 'none';
+      btnLoginNav.style.display = 'block';
+    }
+    
+    // Show/hide admin buttons
+    document.getElementById('btnAddPrinter').style.display = isAdmin ? 'inline-block' : 'none';
+    document.getElementById('btnAddFilament').style.display = isAdmin ? 'inline-block' : 'none';
+    
+    // Load currency preference when auth state changes
+    if (Object.keys(exchangeRates).length > 0) {
+      setTimeout(() => {
+        loadCurrencyPreference();
+      }, 150);
+    }
+    
+    // Load user presets
+    loadUserPresets();
+    
+    // Re-render lists after admin status is confirmed
+    if (dataLoaded) {
+      console.log('Re-rendering lists with admin status:', isAdmin);
+      renderPrintersList();
+      renderFilamentsList();
+    }
+  });
+
+  /* Tab Switching */
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(content => {
+      content.classList.remove('active');
+    });
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.classList.remove('active');
+    });
+
+    if (tabName === 'calculator') {
+      document.getElementById('calculatorTab').classList.add('active');
+      document.querySelector('.tabs .tab:nth-child(1)').classList.add('active');
+    } else if (tabName === 'printers') {
+      document.getElementById('printersTab').classList.add('active');
+      document.querySelector('.tabs .tab:nth-child(2)').classList.add('active');
+      console.log('Switched to Printers tab');
+      renderPrintersList();
+    } else if (tabName === 'filaments') {
+      document.getElementById('filamentsTab').classList.add('active');
+      document.querySelector('.tabs .tab:nth-child(3)').classList.add('active');
+      console.log('Switched to Filaments tab');
+      renderFilamentsList();
+    }
+  }
+
+  /* Modal Functions */
+  function showModal(modal) {
+    overlay.style.display = 'block';
+    modal.style.display = 'grid';
+  }
+
+  function hideModal(modal) {
+    overlay.style.display = 'none';
+    modal.style.display = 'none';
+  }
+
+  /* Confirmation Modal Function */
+  function showConfirmModal(title, message) {
+    return new Promise((resolve) => {
+      const confirmModal = document.getElementById('confirmModal');
+      const confirmTitle = document.getElementById('confirmTitle');
+      const confirmMessage = document.getElementById('confirmMessage');
+      const confirmOK = document.getElementById('confirmOK');
+      const confirmCancel = document.getElementById('confirmCancel');
+      
+      confirmTitle.textContent = title;
+      confirmMessage.textContent = message;
+      
+      showModal(confirmModal);
+      
+      const handleOK = () => {
+        hideModal(confirmModal);
+        confirmOK.removeEventListener('click', handleOK);
+        confirmCancel.removeEventListener('click', handleCancel);
+        resolve(true);
+      };
+      
+      const handleCancel = () => {
+        hideModal(confirmModal);
+        confirmOK.removeEventListener('click', handleOK);
+        confirmCancel.removeEventListener('click', handleCancel);
+        resolve(false);
+      };
+      
+      confirmOK.addEventListener('click', handleOK);
+      confirmCancel.addEventListener('click', handleCancel);
+    });
+  }
+
+  /* Login */
+  document.getElementById('closeLogin').onclick = () => hideModal(loginModal);
+  
+  document.getElementById('doLogin').onclick = () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    
+    if (!email || !pass) {
+      document.getElementById('loginErr').textContent = 'Please enter email and password.';
+      return;
+    }
+    
+    auth.signInWithEmailAndPassword(email, pass)
+      .then(() => {
+        hideModal(loginModal);
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPass').value = '';
+        document.getElementById('loginErr').textContent = '';
+        console.log('User logged in successfully');
+        
+        if (Object.keys(exchangeRates).length > 0) {
+          setTimeout(() => {
+            loadCurrencyPreference();
+          }, 250);
+        }
+      })
+      .catch((error) => {
+        console.error('Login error:', error);
+        if (error.code === 'auth/user-not-found') {
+          document.getElementById('loginErr').textContent = 'No account found with this email.';
+        } else if (error.code === 'auth/wrong-password') {
+          document.getElementById('loginErr').textContent = 'Incorrect password.';
+        } else if (error.code === 'auth/invalid-email') {
+          document.getElementById('loginErr').textContent = 'Invalid email address.';
+        } else {
+          document.getElementById('loginErr').textContent = 'Login failed. Please try again.';
+        }
+      });
+  };
+
+  /* Signup */
+  document.getElementById('closeSignup').onclick = () => hideModal(signupModal);
+  
+  document.getElementById('doSignup').onclick = () => {
+    const username = document.getElementById('signupUsername').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const pass = document.getElementById('signupPass').value;
+    const passConfirm = document.getElementById('signupPassConfirm').value;
+    
+    if (!username || !email || !pass || !passConfirm) {
+      document.getElementById('signupErr').textContent = 'Please fill all fields.';
+      return;
+    }
+
+    if (username.length < 3) {
+      document.getElementById('signupErr').textContent = 'Username must be at least 3 characters.';
+      return;
+    }
+
+    if (username.length > 20) {
+      document.getElementById('signupErr').textContent = 'Username must be less than 20 characters.';
+      return;
+    }
+    
+    if (pass !== passConfirm) {
+      document.getElementById('signupErr').textContent = 'Passwords do not match.';
+      return;
+    }
+    
+    if (pass.length < 6) {
+      document.getElementById('signupErr').textContent = 'Password must be at least 6 characters.';
+      return;
+    }
+    
+    // Create the user account
+    auth.createUserWithEmailAndPassword(email, pass)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log('User created:', user.uid);
+        
+        // Update Firebase Auth display name
+        return user.updateProfile({
+          displayName: username
+        }).then(() => {
+          // Also save username to database with role
+          return db.ref(`users/${user.uid}`).set({
+            username: username,
+            email: email,
+            role: 'member',
+            createdAt: new Date().toISOString()
+          });
+        });
+      })
+      .then(() => {
+        console.log('✅ User created with username and role set to "member"');
+        hideModal(signupModal);
+        document.getElementById('signupUsername').value = '';
+        document.getElementById('signupEmail').value = '';
+        document.getElementById('signupPass').value = '';
+        document.getElementById('signupPassConfirm').value = '';
+        document.getElementById('signupErr').textContent = '';
+        
+        // Show custom notification instead of alert
+        showNotification(
+          'Your account has been created successfully! Welcome to Vixvvo.',
+          '🎉',
+          'Welcome!'
+        );
+        
+        if (Object.keys(exchangeRates).length > 0) {
+          setTimeout(() => {
+            loadCurrencyPreference();
+          }, 250);
+        }
+      })
+      .catch((error) => {
+        console.error('Signup error:', error);
+        if (error.code === 'auth/email-already-in-use') {
+          document.getElementById('signupErr').textContent = 'Email already registered. Please login.';
+        } else if (error.code === 'auth/invalid-email') {
+          document.getElementById('signupErr').textContent = 'Invalid email address.';
+        } else if (error.code === 'auth/weak-password') {
+          document.getElementById('signupErr').textContent = 'Password is too weak.';
+        } else {
+          document.getElementById('signupErr').textContent = 'Signup failed: ' + error.message;
+        }
+      });
+  };
+
+  /* Modal Switching */
+  document.getElementById('switchToSignup').onclick = () => {
+    hideModal(loginModal);
+    document.getElementById('loginErr').textContent = '';
+    showModal(signupModal);
+  };
+
+  document.getElementById('switchToLogin').onclick = () => {
+    hideModal(signupModal);
+    document.getElementById('signupErr').textContent = '';
+    showModal(loginModal);
+  };
+
+  /* Filter Functions */
+  function clearPrinterFilter() {
+    document.getElementById('printerFilter').value = '';
+    filterPrinters();
+  }
+
+  function clearFilamentFilter() {
+    document.getElementById('filamentFilter').value = '';
+    filterFilaments();
+  }
+
+  function filterPrinters() {
+    const filterValue = document.getElementById('printerFilter').value.toLowerCase().trim();
+    const items = document.querySelectorAll('#printersList .list-item');
+    let visibleCount = 0;
+    const totalCount = items.length;
+
+    items.forEach(item => {
+      const textContent = item.textContent.toLowerCase();
+      const matches = textContent.includes(filterValue);
+      
+      if (matches) {
+        item.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        item.classList.add('hidden');
+      }
+    });
+
+    // Update stats
+    const stats = document.getElementById('printerFilterStats');
+    const noResults = document.getElementById('printersNoResults');
+    const list = document.getElementById('printersList');
+
+    if (visibleCount === 0 && totalCount > 0) {
+      noResults.style.display = 'block';
+      list.style.display = 'none';
+      stats.textContent = `No matches found (0 of ${totalCount})`;
+    } else {
+      noResults.style.display = 'none';
+      list.style.display = 'block';
+      if (filterValue) {
+        stats.textContent = `Showing ${visibleCount} of ${totalCount} printers`;
+      } else {
+        stats.textContent = `Showing all ${totalCount} printers`;
+      }
+    }
+  }
+
+  function filterFilaments() {
+    const filterValue = document.getElementById('filamentFilter').value.toLowerCase().trim();
+    const items = document.querySelectorAll('#filamentsList .list-item');
+    let visibleCount = 0;
+    const totalCount = items.length;
+
+    items.forEach(item => {
+      const name = item.querySelector('.item-name').textContent.toLowerCase();
+      const matches = name.includes(filterValue);
+      
+      if (matches) {
+        item.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        item.classList.add('hidden');
+      }
+    });
+
+    // Update stats
+    const stats = document.getElementById('filamentFilterStats');
+    const noResults = document.getElementById('filamentsNoResults');
+    const list = document.getElementById('filamentsList');
+
+    if (visibleCount === 0 && totalCount > 0) {
+      noResults.style.display = 'block';
+      list.style.display = 'none';
+      stats.textContent = `No matches found (0 of ${totalCount})`;
+    } else {
+      noResults.style.display = 'none';
+      list.style.display = 'block';
+      if (filterValue) {
+        stats.textContent = `Showing ${visibleCount} of ${totalCount} filaments`;
+      } else {
+        stats.textContent = `Showing all ${totalCount} filaments`;
+      }
+    }
+  }
+
+  // Add event listeners for filter inputs
+  document.getElementById('printerFilter').addEventListener('input', filterPrinters);
+  document.getElementById('filamentFilter').addEventListener('input', filterFilaments);
+
+  /* Printers - Load from Firebase with Brand */
+  function loadPrinters() {
+    console.log('Loading printers from Firebase...');
+    printersRef.on('value', snapshot => {
+      console.log('Printers snapshot received');
+      const data = snapshot.val();
+      console.log('Raw printers data:', data);
+      
+      printersData = {};
+      
+      if (!data) {
+        console.log('No printers in database');
+        renderPrinterSelect();
+        renderPrintersList();
+        return;
+      }
+      
+      // Convert Firebase data structure
+      Object.entries(data).forEach(([key, value]) => {
+        console.log('Processing printer:', key, value);
+        const name = value.name;
+        const brand = value.brand || 'Unknown';
+        const price = Number(value.price || 0);
+        const lifespan = Number(value.lifespan || 5000);
+        const costPerHour = price / lifespan;
+        
+        printersData[name] = {
+          id: key,
+          name: name,
+          brand: brand,
+          price: price,
+          lifespan: lifespan,
+          costPerHour: costPerHour
+        };
+      });
+      
+      console.log('Processed printers data:', printersData);
+      console.log('Total printers:', Object.keys(printersData).length);
+      
+      dataLoaded = true;
+      
+      const container = document.getElementById('printersListContainer');
+      if (container) container.style.display = 'none';
+      
+      renderPrinterSelect();
+      renderPrintersList();
+      calculateCost();
+      
+      // Apply filter after rendering
+      setTimeout(() => filterPrinters(), 100);
+    }, error => {
+      console.error('Error loading printers:', error);
+      const container = document.getElementById('printersListContainer');
+      if (container) {
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #ff7b7b;">Error loading printers: ' + error.message + '</div>';
+      }
+    });
+  }
+
+  function renderPrinterSelect() {
+    const select = document.getElementById('printerSelect');
+    if (!select) return;
+    
+    const currentValue = select.value;
+    select.innerHTML = '<option value="">Choose a printer...</option>';
+    
+    Object.entries(printersData).forEach(([name, printer]) => {
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = `${printer.brand} ${name} (${formatMoney(printer.costPerHour)}/h)`;
+      select.appendChild(option);
+    });
+    
+    if (currentValue && printersData[currentValue]) {
+      select.value = currentValue;
+    }
+    
+    console.log('Printer select updated with', Object.keys(printersData).length, 'options');
+  }
+
+  function renderPrintersList() {
+    const list = document.getElementById('printersList');
+    const toggleBtn = document.getElementById('btnTogglePrinterMassDelete');
+    if (!list) {
+      console.error('printersList element not found');
+      return;
+    }
+    
+    console.log('Rendering printers list. isAdmin:', isAdmin);
+    
+    list.innerHTML = '';
+    
+    const printerCount = Object.keys(printersData).length;
+    console.log('Rendering', printerCount, 'printers');
+    
+    // Show/hide mass delete toggle button based on admin status and printer count
+    if (isAdmin && printerCount > 0) {
+      toggleBtn.style.display = 'block';
+    } else {
+      toggleBtn.style.display = 'none';
+    }
+    
+    if (printerCount === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon"></div>
+          <p style="font-size: 16px; margin-bottom: 8px;">No printers in the library yet.</p>
+          ${isAdmin ? '<p style="margin-top: 8px; font-size: 14px;">Click "Add Printer" above to add your first printer.</p>' : '<p style="margin-top: 8px; font-size: 14px;">Login as admin to add printers.</p>'}
+        </div>
+      `;
+      document.getElementById('printerFilterStats').textContent = 'No printers available';
+      return;
+    }
+
+    const countHeader = document.createElement('div');
+    countHeader.style.cssText = 'font-size: 14px; color: var(--text-muted); margin-bottom: 16px; font-weight: 600;';
+    countHeader.textContent = `📋 Total: ${printerCount} printer${printerCount !== 1 ? 's' : ''}`;
+    list.appendChild(countHeader);
+    
+    // Sort printers by brand then name
+    const sortedPrinters = Object.entries(printersData).sort((a, b) => {
+      const brandCompare = a[1].brand.localeCompare(b[1].brand);
+      if (brandCompare !== 0) return brandCompare;
+      return a[1].name.localeCompare(b[1].name);
+    });
+    
+    sortedPrinters.forEach(([name, printer]) => {
+      const item = document.createElement('div');
+      item.className = isAdmin ? 'list-item with-checkbox' : 'list-item';
+      
+      console.log('Rendering printer with admin buttons:', isAdmin);
+      
+      item.innerHTML = `
+        ${isAdmin ? `<input type="checkbox" class="item-checkbox printer-checkbox" data-printer-id="${printer.id}" onchange="updatePrinterSelection()">` : ''}
+        <div class="item-info">
+          <div class="item-name">🖨️ ${printer.brand} ${printer.name}</div>
+          <div class="item-details">
+            <strong>Price:</strong> ${formatMoney(printer.price)} • 
+            <strong>Lifespan:</strong> ${printer.lifespan.toLocaleString()} hours • 
+            <strong>Depreciation:</strong> ${formatMoney(printer.costPerHour)}/hour
+          </div>
+        </div>
+        ${isAdmin ? `
+          <div class="btn-actions">
+            <button class="btn btn-edit btn-small" onclick="editPrinter('${printer.id}')">Edit</button>
+            <button class="btn btn-delete btn-small" onclick="deletePrinter('${printer.id}')">Delete</button>
+          </div>
+        ` : ''}
+      `;
+      list.appendChild(item);
+    });
+    
+    // Reset mass delete mode when re-rendering
+    if (isAdmin) {
+      exitPrinterMassDeleteMode();
+    }
+       
+    console.log('Printers list rendered successfully');
+  }
+
+  document.getElementById('btnAddPrinter').onclick = () => {
+    editingPrinterId = null;
+    document.getElementById('printerModalTitle').textContent = 'Add Printer';
+    document.getElementById('printerName').value = '';
+    document.getElementById('printerName').readOnly = false;
+    document.getElementById('printerBrand').value = '';
+    document.getElementById('printerBrand').readOnly = false;
+    document.getElementById('printerPrice').value = '';
+    document.getElementById('printerLifespan').value = '5000';
+    document.getElementById('printerQuickAdd').value = '';
+    document.getElementById('printerErr').textContent = '';
+    showModal(printerModal);
+  };
+
+  // Quick Add Parser for Printers - BATCH SAVE
+  document.getElementById('btnParseQuickAdd').onclick = () => {
+    const input = document.getElementById('printerQuickAdd').value.trim();
+    
+    if (!input) {
+      document.getElementById('printerErr').textContent = 'Please enter printer data in array format.';
+      return;
+    }
+    
+    try {
+      // Split by semicolon to handle multiple entries
+      const entries = input.split(';').map(e => e.trim()).filter(e => e.length > 0);
+      
+      if (entries.length === 0) {
+        throw new Error('No valid entries found');
+      }
+      
+      console.log(`Found ${entries.length} printer entries to add`);
+      
+      const printersToAdd = [];
+      
+      // Parse and validate each entry
+      entries.forEach((entry, index) => {
+        const data = JSON.parse(entry);
+        
+        // Validate array structure
+        if (!Array.isArray(data) || data.length !== 4) {
+          throw new Error(`Entry ${index + 1}: Array must have exactly 4 elements: [Name, Brand, Price, Lifespan]`);
+        }
+        
+        const [name, brand, price, lifespan] = data;
+        
+        // Validate data types
+        if (typeof name !== 'string' || !name.trim()) {
+          throw new Error(`Entry ${index + 1}: Name must be a non-empty string`);
+        }
+        if (typeof brand !== 'string' || !brand.trim()) {
+          throw new Error(`Entry ${index + 1}: Brand must be a non-empty string`);
+        }
+        if (typeof price !== 'number' || price <= 0) {
+          throw new Error(`Entry ${index + 1}: Price must be a positive number`);
+        }
+        if (typeof lifespan !== 'number' || lifespan <= 0) {
+          throw new Error(`Entry ${index + 1}: Lifespan must be a positive number`);
+        }
+        
+        printersToAdd.push({
+          name: name.trim(),
+          brand: brand.trim(),
+          price: price,
+          lifespan: lifespan
+        });
+      });
+      
+      // Show processing message
+      document.getElementById('printerErr').style.color = '#c084fc';
+      document.getElementById('printerErr').textContent = `Adding ${printersToAdd.length} printer${printersToAdd.length > 1 ? 's' : ''}...`;
+      
+      // Add all printers to Firebase
+      let addedCount = 0;
+      const addPromises = printersToAdd.map(printer => {
+        return printersRef.push(printer).then(() => {
+          addedCount++;
+          console.log(`Added printer ${addedCount}/${printersToAdd.length}:`, printer.name);
+        });
+      });
+      
+      // Wait for all adds to complete
+      Promise.all(addPromises)
+        .then(() => {
+          // Clear the input
+          document.getElementById('printerQuickAdd').value = '';
+          
+          // Show success message
+          document.getElementById('printerErr').style.color = '#10b981';
+          document.getElementById('printerErr').textContent = `✓ Successfully added ${addedCount} printer${addedCount > 1 ? 's' : ''}!`;
+          
+          setTimeout(() => {
+            document.getElementById('printerErr').style.color = '#ff7b7b';
+            document.getElementById('printerErr').textContent = '';
+          }, 3000);
+        })
+        .catch(error => {
+          document.getElementById('printerErr').style.color = '#ff7b7b';
+          document.getElementById('printerErr').textContent = 'Error saving printers: ' + error.message;
+          console.error('Error saving printers:', error);
+        });
+      
+    } catch (error) {
+      document.getElementById('printerErr').textContent = 'Parse error: ' + error.message;
+      console.error('Parse error:', error);
+    }
+  };
+
+  function editPrinter(id) {
+    editingPrinterId = id;
+    const printer = Object.values(printersData).find(p => p.id === id);
+    if (!printer) return;
+    
+    document.getElementById('printerModalTitle').textContent = 'Edit Printer';
+    document.getElementById('printerName').value = printer.name;
+    document.getElementById('printerName').readOnly = false;
+    document.getElementById('printerBrand').value = printer.brand;
+    document.getElementById('printerBrand').readOnly = false;
+    document.getElementById('printerPrice').value = printer.price;
+    document.getElementById('printerLifespan').value = printer.lifespan;
+    document.getElementById('printerQuickAdd').value = '';
+    document.getElementById('printerErr').textContent = '';
+    showModal(printerModal);
+  }
+
+  document.getElementById('closePrinter').onclick = () => {
+    editingPrinterId = null;
+    hideModal(printerModal);
+  };
+
+  document.getElementById('savePrinter').onclick = () => {
+    const name = document.getElementById('printerName').value.trim();
+    const brand = document.getElementById('printerBrand').value.trim();
+    const price = parseFloat(document.getElementById('printerPrice').value);
+    const lifespan = parseInt(document.getElementById('printerLifespan').value);
+    
+    if (!name || !brand || !price || price < 0 || !lifespan || lifespan < 1) {
+      document.getElementById('printerErr').textContent = 'Please fill all fields correctly.';
+      return;
+    }
+    
+    if (editingPrinterId) {
+      // Update existing printer - now includes name and brand
+      console.log('Updating printer:', editingPrinterId);
+      printersRef.child(editingPrinterId).update({ name, brand, price, lifespan }) // Added name
+        .then(() => {
+          editingPrinterId = null;
+          hideModal(printerModal);
+          document.getElementById('printerErr').textContent = '';
+          console.log('Printer updated successfully');
+        })
+        .catch((error) => {
+          console.error('Error updating printer:', error);
+          document.getElementById('printerErr').textContent = 'Error updating printer: ' + error.message;
+        });
+    } else {
+      // Add new printer
+      console.log('Adding printer:', name, brand, price, lifespan);
+      printersRef.push({ name, brand, price, lifespan })
+        .then(() => {
+          hideModal(printerModal);
+          document.getElementById('printerErr').textContent = '';
+        })
+        .catch((error) => {
+          console.error('Error adding printer:', error);
+          document.getElementById('printerErr').textContent = 'Error saving printer: ' + error.message;
+        });
+    }
+  };
+
+  function deletePrinter(id) {
+    const printer = Object.values(printersData).find(p => p.id === id);
+    if (!printer) return;
+    
+    showConfirm(
+      `Delete "${printer.brand} ${printer.name}"? This action cannot be undone.`,
+      '🗑️',
+      'Delete Printer?'
+    ).then((confirmed) => {
+      if (confirmed) {
+        console.log('Deleting printer:', id);
+        printersRef.child(id).remove()
+          .then(() => {
+            console.log('Printer deleted successfully');
+            showNotification(
+              `"${printer.brand} ${printer.name}" has been deleted.`,
+              '✓',
+              'Deleted!'
+            );
+          })
+          .catch(error => {
+            console.error('Error deleting printer:', error);
+            showNotification(
+              'Error deleting printer: ' + error.message,
+              '❌',
+              'Error'
+            );
+          });
+      }
+    });
+  }
+
+  /* Filaments - Load from Firebase */
+  function loadFilaments() {
+    filamentsRef.on('value', snapshot => {
+      filamentsData = {};
+      const data = snapshot.val();
+      
+      if (!data) {
+        renderFilamentSelect();
+        renderFilamentsList();
+        calculateCost();
+        return;
+      }
+      
+      Object.entries(data).forEach(([key, value]) => {
+        const type = value.type;
+        const spoolWeight = Number(value.spoolWeight || 1000);
+        const spoolCost = Number(value.spoolCost || 0);
+        const costPerG = spoolCost / spoolWeight;
+        
+        filamentsData[type] = {
+          id: key,
+          type: type,
+          brand: value.brand,
+          spoolWeight: spoolWeight,
+          spoolCost: spoolCost,
+          costPerG: costPerG
+        };
+      });
+      
+      const container = document.getElementById('filamentsListContainer');
+      if (container) container.style.display = 'none';
+      
+      renderFilamentSelect();
+      renderFilamentsList();
+      calculateCost();
+      
+      // Apply filter after rendering
+      setTimeout(() => filterFilaments(), 100);
+    });
+  }
+
+  function renderFilamentSelect() {
+    const select = document.getElementById('filamentSelect');
+    if (!select) return;
+    
+    const currentValue = select.value;
+    select.innerHTML = '<option value="">Choose filament...</option>';
+    
+    Object.entries(filamentsData).forEach(([type, filament]) => {
+      const option = document.createElement('option');
+      option.value = type;
+      const perKg = filament.costPerG * 1000;
+      option.textContent = `${type} (${filament.brand}) (${formatMoney(perKg)}/kg)`;
+      select.appendChild(option);
+    });
+    
+    if (currentValue && filamentsData[currentValue]) {
+      select.value = currentValue;
+    }
+    
+    console.log('Filament select updated with', Object.keys(filamentsData).length, 'options');
+  }
+
+  function renderFilamentsList() {
+    const list = document.getElementById('filamentsList');
+    const toggleBtn = document.getElementById('btnToggleFilamentMassDelete');
+    if (!list) return;
+    
+    console.log('Rendering filaments list. isAdmin:', isAdmin);
+    
+    list.innerHTML = '';
+    
+    const filamentCount = Object.keys(filamentsData).length;
+    
+    // Show/hide mass delete toggle button based on admin status and filament count
+    if (isAdmin && filamentCount > 0) {
+      toggleBtn.style.display = 'block';
+    } else {
+      toggleBtn.style.display = 'none';
+    }
+    
+    if (filamentCount === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🎨</div>
+          <p style="font-size: 16px; margin-bottom: 8px;">No filaments in the library yet.</p>
+          ${isAdmin ? '<p style="margin-top: 8px; font-size: 14px;">Click "Add Filament" above to add your first filament.</p>' : '<p style="margin-top: 8px; font-size: 14px;">Login as admin to add filaments.</p>'}
+        </div>
+      `;
+      document.getElementById('filamentFilterStats').textContent = 'No filaments available';
+      return;
+    }
+
+    const countHeader = document.createElement('div');
+    countHeader.style.cssText = 'font-size: 14px; color: var(--text-muted); margin-bottom: 16px; font-weight: 600;';
+    countHeader.textContent = `📋 Total: ${filamentCount} filament${filamentCount !== 1 ? 's' : ''}`;
+    list.appendChild(countHeader);
+    
+    const sortedFilaments = Object.entries(filamentsData).sort((a, b) => 
+      a[1].type.localeCompare(b[1].type)
+    );
+    
+    sortedFilaments.forEach(([type, filament]) => {
+      const item = document.createElement('div');
+      item.className = isAdmin ? 'list-item with-checkbox' : 'list-item';
+      const perKg = filament.costPerG * 1000;
+      const perG = filament.costPerG;
+      
+      console.log('Rendering filament with admin buttons:', isAdmin);
+      
+      item.innerHTML = `
+        ${isAdmin ? `<input type="checkbox" class="item-checkbox filament-checkbox" data-filament-id="${filament.id}" onchange="updateFilamentSelection()">` : ''}
+        <div class="item-info">
+          <div class="item-name">🎨 ${filament.type} - ${filament.brand}</div>
+          <div class="item-details">
+            <strong>Spool:</strong> ${formatMoney(filament.spoolCost)} (${filament.spoolWeight}g) • 
+            <strong>Per kg:</strong> ${formatMoney(perKg)} • 
+            <strong>Per gram:</strong> ${formatMoney(perG)}
+          </div>
+        </div>
+        ${isAdmin ? `
+          <div class="btn-actions">
+            <button class="btn btn-edit btn-small" onclick="editFilament('${filament.id}')">Edit</button>
+            <button class="btn btn-delete btn-small" onclick="deleteFilament('${filament.id}')">Delete</button>
+          </div>
+        ` : ''}
+      `;
+      list.appendChild(item);
+    });
+
+    // Reset mass delete mode when re-rendering
+    if (isAdmin) {
+      exitFilamentMassDeleteMode();
+    }
+  }
+
+  document.getElementById('btnAddFilament').onclick = () => {
+    editingFilamentId = null;
+    document.getElementById('filamentModalTitle').textContent = 'Add Filament';
+    document.getElementById('filamentType').value = '';
+    document.getElementById('filamentType').readOnly = false;
+    document.getElementById('filamentBrand').value = '';
+    document.getElementById('filamentBrand').readOnly = false;
+    document.getElementById('filamentSpoolWeight').value = '1000';
+    document.getElementById('filamentCostSpool').value = '';
+    document.getElementById('filamentQuickAdd').value = '';
+    document.getElementById('filamentErr').textContent = '';
+    showModal(filamentModal);
+  };
+
+  // Quick Add Parser for Filaments - BATCH SAVE
+  document.getElementById('btnParseFilamentQuickAdd').onclick = () => {
+    const input = document.getElementById('filamentQuickAdd').value.trim();
+    
+    if (!input) {
+      document.getElementById('filamentErr').textContent = 'Please enter filament data in array format.';
+      return;
+    }
+    
+    try {
+      // Split by semicolon to handle multiple entries
+      const entries = input.split(';').map(e => e.trim()).filter(e => e.length > 0);
+      
+      if (entries.length === 0) {
+        throw new Error('No valid entries found');
+      }
+      
+      console.log(`Found ${entries.length} filament entries to add`);
+      
+      const filamentsToAdd = [];
+      
+      // Parse and validate each entry
+      entries.forEach((entry, index) => {
+        const data = JSON.parse(entry);
+        
+        // Validate array structure
+        if (!Array.isArray(data) || data.length !== 4) {
+          throw new Error(`Entry ${index + 1}: Array must have exactly 4 elements: [Type, Brand, Weight, Cost]`);
+        }
+        
+        const [type, brand, weight, cost] = data;
+        
+        // Validate data types
+        if (typeof type !== 'string' || !type.trim()) {
+          throw new Error(`Entry ${index + 1}: Type must be a non-empty string`);
+        }
+        if (typeof brand !== 'string' || !brand.trim()) {
+          throw new Error(`Entry ${index + 1}: Brand must be a non-empty string`);
+        }
+        if (typeof weight !== 'number' || weight <= 0) {
+          throw new Error(`Entry ${index + 1}: Weight must be a positive number`);
+        }
+        if (typeof cost !== 'number' || cost <= 0) {
+          throw new Error(`Entry ${index + 1}: Cost must be a positive number`);
+        }
+        
+        filamentsToAdd.push({
+          type: type.trim(),
+          brand: brand.trim(),
+          spoolWeight: weight,
+          spoolCost: cost
+        });
+      });
+      
+      // Show processing message
+      document.getElementById('filamentErr').style.color = '#c084fc';
+      document.getElementById('filamentErr').textContent = `Adding ${filamentsToAdd.length} filament${filamentsToAdd.length > 1 ? 's' : ''}...`;
+      
+      // Add all filaments to Firebase
+      let addedCount = 0;
+      const addPromises = filamentsToAdd.map(filament => {
+        return filamentsRef.push(filament).then(() => {
+          addedCount++;
+          console.log(`Added filament ${addedCount}/${filamentsToAdd.length}:`, filament.type);
+        });
+      });
+      
+      // Wait for all adds to complete
+      Promise.all(addPromises)
+        .then(() => {
+          // Clear the input
+          document.getElementById('filamentQuickAdd').value = '';
+          
+          // Show success message
+          document.getElementById('filamentErr').style.color = '#10b981';
+          document.getElementById('filamentErr').textContent = `✓ Successfully added ${addedCount} filament${addedCount > 1 ? 's' : ''}!`;
+          
+          setTimeout(() => {
+            document.getElementById('filamentErr').style.color = '#ff7b7b';
+            document.getElementById('filamentErr').textContent = '';
+          }, 3000);
+        })
+        .catch(error => {
+          document.getElementById('filamentErr').style.color = '#ff7b7b';
+          document.getElementById('filamentErr').textContent = 'Error saving filaments: ' + error.message;
+          console.error('Error saving filaments:', error);
+        });
+      
+    } catch (error) {
+      document.getElementById('filamentErr').textContent = 'Parse error: ' + error.message;
+      console.error('Parse error:', error);
+    }
+  };
+
+  function editFilament(id) {
+    editingFilamentId = id;
+    const filament = Object.values(filamentsData).find(f => f.id === id);
+    if (!filament) return;
+    
+    document.getElementById('filamentModalTitle').textContent = 'Edit Filament';
+    document.getElementById('filamentType').value = filament.type;
+    document.getElementById('filamentType').readOnly = false;
+    document.getElementById('filamentBrand').value = filament.brand;
+    document.getElementById('filamentBrand').readOnly = false;
+    document.getElementById('filamentSpoolWeight').value = filament.spoolWeight;
+    document.getElementById('filamentCostSpool').value = filament.spoolCost;
+    document.getElementById('filamentQuickAdd').value = '';
+    document.getElementById('filamentErr').textContent = '';
+    showModal(filamentModal);
+  }
+
+  document.getElementById('closeFilament').onclick = () => {
+    editingFilamentId = null;
+    hideModal(filamentModal);
+  };
+
+  document.getElementById('saveFilament').onclick = () => {
+    const type = document.getElementById('filamentType').value.trim();
+    const brand = document.getElementById('filamentBrand').value.trim();
+    const spoolWeight = parseInt(document.getElementById('filamentSpoolWeight').value);
+    const spoolCost = parseFloat(document.getElementById('filamentCostSpool').value);
+    
+    if (!type || !brand || !spoolWeight || spoolWeight < 1 || !spoolCost || spoolCost < 0) {
+      document.getElementById('filamentErr').textContent = 'Please fill all fields correctly.';
+      return;
+    }
+    
+    if (editingFilamentId) {
+      // Update existing filament - now includes type and brand
+      filamentsRef.child(editingFilamentId).update({ type, brand, spoolWeight, spoolCost }) // Added type
+        .then(() => {
+          editingFilamentId = null;
+          hideModal(filamentModal);
+          document.getElementById('filamentErr').textContent = '';
+        })
+        .catch((error) => {
+          document.getElementById('filamentErr').textContent = 'Error updating filament: ' + error.message;
+        });
+    } else {
+      // Add new filament
+      filamentsRef.push({ type, brand, spoolWeight, spoolCost })
+        .then(() => {
+          hideModal(filamentModal);
+          document.getElementById('filamentErr').textContent = '';
+        })
+        .catch((error) => {
+          document.getElementById('filamentErr').textContent = 'Error saving filament: ' + error.message;
+        });
+    }
+  };
+
+  function deleteFilament(id) {
+    const filament = Object.values(filamentsData).find(f => f.id === id);
+    if (!filament) return;
+    
+    showConfirm(
+      `Delete "${filament.type} - ${filament.brand}"? This action cannot be undone.`,
+      '🗑️',
+      'Delete Filament?'
+    ).then((confirmed) => {
+      if (confirmed) {
+        filamentsRef.child(id).remove()
+          .then(() => {
+            showNotification(
+              `"${filament.type} - ${filament.brand}" has been deleted.`,
+              '✓',
+              'Deleted!'
+            );
+          })
+          .catch(error => {
+            showNotification(
+              'Error deleting filament: ' + error.message,
+              '❌',
+              'Error'
+            );
+          });
+      }
+    });
+  }
+
+  /* Mass Delete Functions for Printers */
+  function enterPrinterMassDeleteMode() {
+    document.getElementById('printersList').classList.add('mass-delete-mode');
+    document.getElementById('printerMassDeleteControls').classList.add('active');
+    document.getElementById('btnTogglePrinterMassDelete').classList.add('active');
+    document.getElementById('selectAllPrinters').checked = false;
+    updatePrinterSelection();
+  }
+
+  function exitPrinterMassDeleteMode() {
+    document.getElementById('printersList').classList.remove('mass-delete-mode');
+    document.getElementById('printerMassDeleteControls').classList.remove('active');
+    document.getElementById('btnTogglePrinterMassDelete').classList.remove('active');
+    document.getElementById('selectAllPrinters').checked = false;
+    // Uncheck all checkboxes
+    document.querySelectorAll('.printer-checkbox').forEach(cb => cb.checked = false);
+    updatePrinterSelection();
+  }
+
+  // Toggle mass delete mode button
+  document.getElementById('btnTogglePrinterMassDelete').addEventListener('click', function() {
+    if (this.classList.contains('active')) {
+      exitPrinterMassDeleteMode();
+    } else {
+      enterPrinterMassDeleteMode();
+    }
+  });
+
+  // Cancel button
+  document.getElementById('btnCancelPrinterMassDelete').addEventListener('click', function() {
+    exitPrinterMassDeleteMode();
+  });
+
+  function updatePrinterSelection() {
+    const checkboxes = document.querySelectorAll('.printer-checkbox');
+    const selectAll = document.getElementById('selectAllPrinters');
+    const deleteBtn = document.getElementById('btnDeleteSelectedPrinters');
+    const countDisplay = document.getElementById('printerSelectedCount');
+    
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    const totalCount = checkboxes.length;
+    
+    // Update select all checkbox
+    if (checkedCount === 0) {
+      selectAll.checked = false;
+      selectAll.indeterminate = false;
+    } else if (checkedCount === totalCount) {
+      selectAll.checked = true;
+      selectAll.indeterminate = false;
+    } else {
+      selectAll.checked = false;
+      selectAll.indeterminate = true;
+    }
+    
+    // Update count display
+    countDisplay.textContent = `${checkedCount} selected`;
+    
+    // Enable/disable delete button
+    if (checkedCount > 0) {
+      deleteBtn.classList.add('enabled');
+    } else {
+      deleteBtn.classList.remove('enabled');
+    }
+  }
+
+  // Select all printers
+  document.getElementById('selectAllPrinters').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.printer-checkbox');
+    checkboxes.forEach(cb => cb.checked = this.checked);
+    updatePrinterSelection();
+  });
+
+  // Mass delete printers
+  document.getElementById('btnDeleteSelectedPrinters').addEventListener('click', function() {
+    const checkboxes = document.querySelectorAll('.printer-checkbox:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => cb.dataset.printerId);
+    
+    if (selectedIds.length === 0) return;
+    
+    const printerNames = selectedIds.map(id => {
+      const printer = Object.values(printersData).find(p => p.id === id);
+      return printer ? `${printer.brand} ${printer.name}` : 'Unknown';
+    });
+    
+    const message = selectedIds.length === 1 
+      ? `Delete "${printerNames[0]}"? This action cannot be undone.`
+      : `Delete ${selectedIds.length} printers? This action cannot be undone.\n\nSelected printers:\n• ${printerNames.join('\n• ')}`;
+    
+    showConfirm(message, '🗑️', 'Delete Printers?').then((confirmed) => {
+      if (confirmed) {
+        let deletedCount = 0;
+        const deletePromises = selectedIds.map(id => 
+          printersRef.child(id).remove().then(() => {
+            deletedCount++;
+            console.log(`Deleted printer ${deletedCount}/${selectedIds.length}`);
+          })
+        );
+        
+        Promise.all(deletePromises)
+          .then(() => {
+            showNotification(
+              `Successfully deleted ${deletedCount} printer${deletedCount > 1 ? 's' : ''}!`,
+              '✓',
+              'Deleted!'
+            );
+            exitPrinterMassDeleteMode();
+          })
+          .catch(error => {
+            showNotification(
+              'Error deleting printers: ' + error.message,
+              '❌',
+              'Error'
+            );
+          });
+      }
+    });
+  });
+
+  /* Mass Delete Functions for Filaments */
+  function enterFilamentMassDeleteMode() {
+    document.getElementById('filamentsList').classList.add('mass-delete-mode');
+    document.getElementById('filamentMassDeleteControls').classList.add('active');
+    document.getElementById('btnToggleFilamentMassDelete').classList.add('active');
+    document.getElementById('selectAllFilaments').checked = false;
+    updateFilamentSelection();
+  }
+
+  function exitFilamentMassDeleteMode() {
+    document.getElementById('filamentsList').classList.remove('mass-delete-mode');
+    document.getElementById('filamentMassDeleteControls').classList.remove('active');
+    document.getElementById('btnToggleFilamentMassDelete').classList.remove('active');
+    document.getElementById('selectAllFilaments').checked = false;
+    // Uncheck all checkboxes
+    document.querySelectorAll('.filament-checkbox').forEach(cb => cb.checked = false);
+    updateFilamentSelection();
+  }
+
+  // Toggle mass delete mode button
+  document.getElementById('btnToggleFilamentMassDelete').addEventListener('click', function() {
+    if (this.classList.contains('active')) {
+      exitFilamentMassDeleteMode();
+    } else {
+      enterFilamentMassDeleteMode();
+    }
+  });
+
+  // Cancel button
+  document.getElementById('btnCancelFilamentMassDelete').addEventListener('click', function() {
+    exitFilamentMassDeleteMode();
+  });
+
+  function updateFilamentSelection() {
+    const checkboxes = document.querySelectorAll('.filament-checkbox');
+    const selectAll = document.getElementById('selectAllFilaments');
+    const deleteBtn = document.getElementById('btnDeleteSelectedFilaments');
+    const countDisplay = document.getElementById('filamentSelectedCount');
+    
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    const totalCount = checkboxes.length;
+    
+    // Update select all checkbox
+    if (checkedCount === 0) {
+      selectAll.checked = false;
+      selectAll.indeterminate = false;
+    } else if (checkedCount === totalCount) {
+      selectAll.checked = true;
+      selectAll.indeterminate = false;
+    } else {
+      selectAll.checked = false;
+      selectAll.indeterminate = true;
+    }
+    
+    // Update count display
+    countDisplay.textContent = `${checkedCount} selected`;
+    
+    // Enable/disable delete button
+    if (checkedCount > 0) {
+      deleteBtn.classList.add('enabled');
+    } else {
+      deleteBtn.classList.remove('enabled');
+    }
+  }
+
+  // Select all filaments
+  document.getElementById('selectAllFilaments').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.filament-checkbox');
+    checkboxes.forEach(cb => cb.checked = this.checked);
+    updateFilamentSelection();
+  });
+
+  // Mass delete filaments
+  document.getElementById('btnDeleteSelectedFilaments').addEventListener('click', function() {
+    const checkboxes = document.querySelectorAll('.filament-checkbox:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => cb.dataset.filamentId);
+    
+    if (selectedIds.length === 0) return;
+    
+    const filamentNames = selectedIds.map(id => {
+      const filament = Object.values(filamentsData).find(f => f.id === id);
+      return filament ? `${filament.type} - ${filament.brand}` : 'Unknown';
+    });
+    
+    const message = selectedIds.length === 1 
+      ? `Delete "${filamentNames[0]}"? This action cannot be undone.`
+      : `Delete ${selectedIds.length} filaments? This action cannot be undone.\n\nSelected filaments:\n• ${filamentNames.join('\n• ')}`;
+    
+    showConfirm(message, '🗑️', 'Delete Filaments?').then((confirmed) => {
+      if (confirmed) {
+        let deletedCount = 0;
+        const deletePromises = selectedIds.map(id => 
+          filamentsRef.child(id).remove().then(() => {
+            deletedCount++;
+            console.log(`Deleted filament ${deletedCount}/${selectedIds.length}`);
+          })
+        );
+        
+        Promise.all(deletePromises)
+          .then(() => {
+            showNotification(
+              `Successfully deleted ${deletedCount} filament${deletedCount > 1 ? 's' : ''}!`,
+              '✓',
+              'Deleted!'
+            );
+            exitFilamentMassDeleteMode();
+          })
+          .catch(error => {
+            showNotification(
+              'Error deleting filaments: ' + error.message,
+              '❌',
+              'Error'
+            );
+          });
+      }
+    });
+  });
+
+  /* Calculator functionality */
+  const printTime = document.getElementById('printTime');
+  const printTimeDuplicate = document.getElementById('printTimeDuplicate');
+  
+  // Sync print time fields
+  printTime.addEventListener('input', () => {
+    printTimeDuplicate.value = printTime.value || 0;
+    calculateCost();
+  });
+
+  // Local storage for preferences
+  const LS_KEY = 'calc.prefs.v1';
+  
+  function savePrefs() {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      printer: document.getElementById('printerSelect').value,
+      filament: document.getElementById('filamentSelect').value
+    }));
+  }
+  
+  function loadPrefs() {
+    try {
+      const prefs = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+      if (prefs.printer) document.getElementById('printerSelect').value = prefs.printer;
+      if (prefs.filament) document.getElementById('filamentSelect').value = prefs.filament;
+       } catch(e) {}
+  }
+
+  document.getElementById('printerSelect').addEventListener('change', () => {
+    savePrefs();
+    calculateCost();
+  });
+  
+  document.getElementById('filamentSelect').addEventListener('change', () => {
+    savePrefs();
+    calculateCost();
+  });
+
+  function calculateCost() {
+    const printerName = document.getElementById('printerSelect').value;
+    const filamentType = document.getElementById('filamentSelect').value;
+    
+    if (!printerName || !filamentType) {
+      // Reset display
+      document.getElementById('printerCost').textContent = formatMoney(0);
+      document.getElementById('filamentCost').textContent = formatMoney(0);
+      document.getElementById('electricityCost').textContent = formatMoney(0);
+      document.getElementById('subtotal').textContent = formatMoney(0);
+      document.getElementById('markupAmount').textContent = formatMoney(0);
+      document.getElementById('failureCostDisplay').textContent = formatMoney(0);
+      document.getElementById('totalCost').textContent = formatMoney(0);
+      document.getElementById('filamentDetails').textContent = '';
+      document.getElementById('electricityDetails').textContent = '';
+      document.getElementById('handTimeNote').textContent = 'Unbilled hand time: 0.00 hours';
+      return;
+    }
+
+    const printer = printersData[printerName];
+    const filament = filamentsData[filamentType];
+    
+    if (!printer || !filament) return;
+
+    // Get all values
+    const pt = parseFloat(document.getElementById('printTime').value) || 0;
+    const weight = parseFloat(document.getElementById('weight').value) || 0;
+    const electricityPrice = parseFloat(document.getElementById('elec').value) || 0.12;
+    const electricityUsagePerHour = 0.1; // kWh/h
+
+    // Post-processing (minutes to hours)
+    const jobRemoval = (parseFloat(document.getElementById('jobRemoval').value) || 0) / 60;
+    const supportRemoval = (parseFloat(document.getElementById('supportRemoval').value) || 0) / 60;
+    const additionalWork = (parseFloat(document.getElementById('additionalWork').value) || 0) / 60;
+
+    // Preparation (minutes to hours)
+    const modelPrep = (parseFloat(document.getElementById('modelPrep').value) || 0) / 60;
+    const slicing = (parseFloat(document.getElementById('slicing').value) || 0) / 60;
+    const materialChange = (parseFloat(document.getElementById('materialChange').value) || 0) / 60;
+    const transferStart = (parseFloat(document.getElementById('transferStart').value) || 0) / 60;
+
+    const totalHandTime = jobRemoval + supportRemoval + additionalWork + modelPrep + slicing + materialChange + transferStart;
+
+    // Markups
+    const filamentMarkup = parseFloat(document.getElementById('filamentMarkup').value) || 1;
+    const generalMarkup = (parseFloat(document.getElementById('generalMarkup').value) || 0) / 100;
+    const failureRate = (parseFloat(document.getElementById('failureRate').value) || 0) / 100;
+
+    // Calculate costs (in USD)
+    const costPrinter = printer.costPerHour * pt;
+    const costElectric = pt * electricityUsagePerHour * electricityPrice;
+    const costFilament = filament.costPerG * weight * filamentMarkup;
+    
+    const subtotal = costPrinter + costFilament + costElectric;
+    const subtotalWithMarkup = subtotal * (1 + generalMarkup);
+    const finalPrice = subtotalWithMarkup / (1 - failureRate);
+
+    const markupApplied = subtotalWithMarkup - subtotal;
+    const failureAdjustment = finalPrice - subtotalWithMarkup;
+
+    // Update UI with converted currency
+    document.getElementById('printerCost').textContent = formatMoney(costPrinter);
+    document.getElementById('filamentCost').textContent = formatMoney(costFilament);
+    document.getElementById('filamentDetails').textContent = `${weight.toFixed(0)} g @ ${formatMoney(filament.costPerG)}/g × ${filamentMarkup.toFixed(2)}`;
+    document.getElementById('electricityCost').textContent = formatMoney(costElectric);
+    document.getElementById('electricityDetails').textContent = `${electricityUsagePerHour} kWh/h`;
+    document.getElementById('subtotal').textContent = formatMoney(subtotal);
+    document.getElementById('markupAmount').textContent = formatMoney(markupApplied);
+    document.getElementById('failureCostDisplay').textContent = formatMoney(failureAdjustment);
+    document.getElementById('totalCost').textContent = formatMoney(finalPrice);
+    document.getElementById('handTimeNote').textContent = `Unbilled hand time: ${totalHandTime.toFixed(2)} hours (set a labor $/h to include it)`;
+  }
+
+  // Add event listeners for real-time calculation
+  const calcInputs = [
+    'printerSelect', 'filamentSelect', 'printTime', 'weight', 'elec',
+    'jobRemoval', 'supportRemoval', 'additionalWork',
+    'modelPrep', 'slicing', 'materialChange', 'transferStart',
+    'filamentMarkup', 'generalMarkup', 'failureRate'
+  ];
+  
+  calcInputs.forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', calculateCost);
+    el.addEventListener('change', calculateCost);
+  });
+
+  /* Initialize - Load data from Firebase */
+  console.log('Starting data load...');
+  
+  // Check Firebase connection
+  db.ref('.info/connected').on('value', snapshot => {
+    if (snapshot.val() === true) {
+      console.log('✅ Connected to Firebase');
+    } else {
+      console.log('❌ Not connected to Firebase');
+    }
+  });
+
+  // Initialize everything in correct order
+  async function initializeApp() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    
+    try {
+      console.log('Initializing app...');
+      
+      // 1. Fetch exchange rates first (with timeout)
+      const exchangeRatesPromise = Promise.race([
+        fetchExchangeRates(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Exchange rates timeout')), 5000))
+      ]);
+      
+      await exchangeRatesPromise.catch(err => {
+        console.warn('Exchange rates failed, using defaults:', err);
+      });
+      console.log('Exchange rates ready');
+      
+      // 2. Load currency preference (works for both logged in and logged out users)
+      await loadCurrencyPreference().catch(err => {
+        console.warn('Currency preference load failed:', err);
+      });
+      console.log('Currency preference loaded:', currentCurrency);
+      
+      // 3. Load printers and filaments (with timeout)
+      const dataLoadPromise = Promise.race([
+        Promise.all([
+          new Promise(resolve => {
+            loadPrinters();
+            // Wait for at least one value event
+            printersRef.once('value', () => resolve());
+          }),
+          new Promise(resolve => {
+            loadFilaments();
+            // Wait for at least one value event
+            filamentsRef.once('value', () => resolve());
+          })
+        ]),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Data load timeout')), 8000))
+      ]);
+      
+      await dataLoadPromise.catch(err => {
+        console.warn('Data load had issues:', err);
+        loadPrinters();
+        loadFilaments();
+      });
+      
+      console.log('App initialization complete');
+      
+      // Hide loading overlay with fade effect
+      if (loadingOverlay) {
+        loadingOverlay.style.opacity = '0';
+        setTimeout(() => {
+          loadingOverlay.style.display = 'none';
+        }, 300);
+      }
+      
+    } catch (error) {
+      console.error('Initialization error:', error);
+      // Always hide loading overlay even on error
+      if (loadingOverlay) {
+        loadingOverlay.style.opacity = '0';
+        setTimeout(() => {
+          loadingOverlay.style.display = 'none';
+        }, 300);
+      }
+    }
+  }
+
+  // Start initialization
+  initializeApp();
+  
+  // Fallback: Hide loading overlay after max 10 seconds no matter what
+  setTimeout(() => {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay && loadingOverlay.style.display !== 'none') {
+      console.warn('Force hiding loading overlay after timeout');
+      loadingOverlay.style.opacity = '0';
+      setTimeout(() => {
+        loadingOverlay.style.display = 'none';
+      }, 300);
+    }
+  }, 10000);
+  
+  // Prevent page reload scroll
+  history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+</script>
+</body>
+
+
+</html></body>
+</html>
+‹

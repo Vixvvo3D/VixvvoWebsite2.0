@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vixvvo Tools - 3D Printing Calculator</title>
+
+<!-- Add Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark-bg: #1a1625;
+    --darker-bg: #0f0b16;
+    --card-bg: #241d35;
+    --purple: #a855f7;
+    --purple-hover: #9333ea;
+    --purple-light: #c084fc;
+    --text: #f0e9ff;
+    --text-muted: #9ca3af;
+    --border: rgba(168, 85, 247, .15);
+  }
+  * {margin:0; padding:0; box-sizing:border-box}
+  
+  html {
+    scroll-behavior: smooth;
+    background: linear-gradient(135deg, #1a1625 0%, #0f0b16 50%, #1d1530 100%);
+    overscroll-behavior-y: none;
+  }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: 
+      radial-gradient(ellipse at 20% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(192, 132, 252, 0.1) 0%, transparent 50%),
+      linear-gradient(135deg, #1a1625 0%, #0f0b16 50%, #1d1530 100%);
+    color: var(--text);
+    overflow-x: hidden;
+    min-height: 100vh;
+    overscroll-behavior-y: none;
+  }
+  
+  /* Navigation */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 60px;
+    position: relative;
+    z-index: 100;
+  }
+  
+  .logo-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex: 1;
+  }
+  
+  .logo-section img {
+    height: 120px;
+    width: auto;
+    object-fit: contain;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color .3s;
+  }
+  
+  .nav-links a:hover {
+    color: var(--text);
+  }
+  
+  .nav-buttons {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  
+  /* Settings Dropdown */
+  .settings-container {
+    position: relative;
+  }
+
+  .btn-settings {
+    padding: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 32px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-settings:hover {
+    color: var(--purple-light);
+    transform: scale(1.1);
+  }
+
+  .btn-settings.active {
+    color: var(--purple-light);
+  }
+
+  .settings-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    min-width: 280px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    display: none;
+    z-index: 1000;
+    animation: slideDown 0.2s ease;
+  }
+
+  .settings-dropdown.active {
+    display: block;
+  }
+
+  .settings-section {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .settings-section:last-child {
+    border-bottom: none;
+  }
+
+  .settings-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--purple-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .settings-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: rgba(168, 85, 247, 0.05);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+
+  .settings-user-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .settings-user-details {
+    flex: 1;
+  }
+
+  .settings-username {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .settings-role {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .settings-currency-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .settings-dropdown .currency-select {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+    background: rgba(168, 85, 247, 0.1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .settings-dropdown .btn-save-currency {
+    display: inline-block;
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+  
+  .btn {
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all .3s;
+    cursor: pointer;
+    border: none;
+    font-size: 15px;
+  }
+  
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+  }
+  
+  .btn-ghost:hover {
+    background: rgba(168, 85, 247, .1);
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--purple-hover), var(--purple));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(168, 85, 247, .4);
+  }
+  
+  /* Hero Section */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    padding: 80px 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+    align-items: center;
+    position: relative;
+  }
+  
+  .hero-content h1 {
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 24px;
+  }
+  
+  .hero-content h1 .highlight {
+    background: linear-gradient(135deg, #a855f7, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .hero-subtitle {
+    color: var(--text-muted);
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+  
+  .hero-buttons {
+    display: flex;
+    gap: 16px;
+  }
+  
+  .btn-large {
+    padding: 16px 36px;
+    font-size: 16px;
+  }
+  
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--border);
+    color: var(--text);
+  }
+  
+  .btn-outline:hover {
+    background: rgba(168, 85, 247, .1);
+    border-color: var(--purple);
+  }
+  
+  /* Hero Visual */
+  .hero-visual {
+    position: relative;
+    height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .visual-card {
+    position: absolute;
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .card-1 {
+    top: 50px;
+    left: 0;
+    width: 260px;
+    animation-delay: 0s;
+  }
+  
+  .card-2 {
+    top: 150px;
+    right: 40px;
+    width: 280px;
+    animation-delay: 1s;
+  }
+  
+  .card-3 {
+    bottom: 100px;
+    left: 60px;
+    width: 240px;
+    animation-delay: 2s;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+  
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+  
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  
+  .card-text {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .card-stat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--purple-light);
+  }
+  
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  
+  /* Decorative elements */
+  .bg-decoration {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: .2;
+    z-index: -1;
+  }
+  
+  .decoration-1 {
+    width: 400px;
+    height: 400px;
+    background: #a855f7;
+    top: -100px;
+    right: -100px;
+  }
+  
+  .decoration-2 {
+    width: 350px;
+    height: 350px;
+    background: #7c3aed;
+    bottom: -50px;
+    left: -50px;
+  }
+  
+  /* Features Section */
+  .features {
+    padding: 80px 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 48px;
+  }
+  
+  .feature-card {
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    transition: transform .3s, box-shadow .3s, border-color .3s;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(168, 85, 247, .2);
+    border-color: var(--purple);
+  }
+  
+  .feature-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+  
+  .feature-card h3 {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  
+  .feature-card p {
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  
+  .section-title {
+    text-align: center;
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  
+  .section-subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 18px;
+  }
+  
+  /* Modal styles */
+  #overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.7);
+    display: none;
+    z-index: 200;
+  }
+  
+  #modal, #signupModal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    z-index: 300;
+    place-items: center;
+  }
+  
+  .modal-card {
+    width: min(450px, 95vw);
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  
+  .modal-card h3 {
+    font-size: 24px;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+  
+  .modal-card label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    margin-top: 16px;
+  }
+  
+  .modal-card input {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(15, 11, 22, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+  }
+  
+  .modal-card input:focus {
+    outline: none;
+    border-color: var(--purple);
+  }
+  
+  .err {
+    color: #ff7b7b;
+    font-size: 13px;
+    margin: 12px 0;
+    min-height: 18px;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  
+  .modal-buttons .btn {
+    flex: 1;
+    padding: 14px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .hero {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+    
+    .hero-visual {
+      height: 400px;
+    }
+    
+    .hero-buttons {
+      justify-content: center;
+    }
+    
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    nav {
+      padding: 20px 24px;
+    }
+    
+    .nav-links {
+      display: none;
+    }
+    
+    .hero {
+      padding: 40px 24px;
+    }
+    
+    .hero-content h1 {
+      font-size: 42px;
+    }
+    
+    .features {
+      padding: 60px 24px;
+    }
+  }
+</style>
+</head>
+<body>
+  <nav>
+    <div class="logo-section">
+      <img src="images/Transparent Vixvvo Logo 2.0 Top left.png" alt="Vixvvo Logo">
+    </div>
+    <div class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#features">Features</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="nav-buttons">
+      <button id="btnLoginNav" class="btn btn-ghost" style="display:none;">Login</button>
+      <div class="settings-container">
+        <button id="btnSettings" class="btn-settings" title="Menu">☰</button>
+        <div id="settingsDropdown" class="settings-dropdown">
+          
+          <!-- User Section -->
+          <div class="settings-section" id="userSection">
+            <span class="settings-label">Account</span>
+            <div id="userInfoDisplay" style="display:none;">
+              <div class="settings-user-info">
+                <div class="settings-user-avatar" id="userAvatar">U</div>
+                <div class="settings-user-details">
+                  <div class="settings-username" id="settingsUsername">Username</div>
+                  <div class="settings-role" id="settingsRole">Member</div>
+                </div>
+              </div>
+            </div>
+            <button id="btnLoginSettings" class="btn btn-primary" style="width: 100%;">Login</button>
+            <button id="btnLogoutSettings" class="btn btn-ghost" style="width: 100%; display:none;">Logout</button>
+          </div>
+
+          <!-- Currency Section -->
+          <div class="settings-section">
+            <span class="settings-label">Currency</span>
+            <div class="settings-currency-row">
+              <select id="currencySelect" class="currency-select">
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="JPY">JPY (¥)</option>
+                <option value="CNY">CNY (¥)</option>
+                <option value="CAD">CAD ($)</option>
+                <option value="AUD">AUD ($)</option>
+                <option value="CHF">CHF (Fr)</option>
+                <option value="INR">INR (₹)</option>
+                <option value="MXN">MXN ($)</option>
+                <option value="BRL">BRL (R$)</option>
+                <option value="ZAR">ZAR (R)</option>
+                <option value="KRW">KRW (₩)</option>
+                <option value="SGD">SGD ($)</option>
+                <option value="NZD">NZD ($)</option>
+                <option value="SEK">SEK (kr)</option>
+                <option value="NOK">NOK (kr)</option>
+                <option value="DKK">DKK (kr)</option>
+                <option value="PLN">PLN (zł)</option>
+                <option value="THB">THB (฿)</option>
+                <option value="IDR">IDR (Rp)</option>
+                <option value="HUF">HUF (Ft)</option>
+                <option value="CZK">CZK (Kč)</option>
+                <option value="ILS">ILS (₪)</option>
+                <option value="CLP">CLP ($)</option>
+                <option value="PHP">PHP (₱)</option>
+                <option value="AED">AED (د.إ)</option>
+                <option value="SAR">SAR (﷼)</option>
+                <option value="MYR">MYR (RM)</option>
+                <option value="RON">RON (lei)</option>
+              </select>
+              <button id="btnSaveCurrency" class="btn btn-primary btn-save-currency">Save</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero" id="home">
+    <div class="bg-decoration decoration-1"></div>
+    <div class="bg-decoration decoration-2"></div>
+    
+    <div class="hero-content">
+      <h1>
+        Calculate <span class="highlight">3D Printing Costs</span> with Precision
+      </h1>
+      <p class="hero-subtitle">
+        Professional cost calculator for 3D printing projects. Track filament usage, printer depreciation, electricity costs, and apply custom markups with cloud sync.
+      </p>
+      <div class="hero-buttons">
+        <a href="pages/calculator.html" class="btn btn-primary btn-large">Launch Calculator →</a>
+        <button class="btn btn-outline btn-large">▶ Watch Demo</button>
+      </div>
+    </div>
+    
+    <div class="hero-visual">
+      <div class="visual-card card-1">
+        <div class="card-icon">💰</div>
+        <div class="card-title">Cost Breakdown</div>
+        <div class="card-text">Detailed analysis of filament, electricity, and printer costs</div>
+        <div class="card-stat">
+          <div>
+            <div class="stat-value">$24.50</div>
+            <div class="stat-label">Total Cost</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="visual-card card-2">
+        <div class="card-icon">📊</div>
+        <div class="card-title">Live Tracking</div>
+        <div class="card-text">Real-time calculations with markup and failure rates</div>
+        <div class="card-stat">
+          <div>
+            <div class="stat-value">25%</div>
+            <div class="stat-label">Profit Margin</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="visual-card card-3">
+        <div class="card-icon">☁️</div>
+        <div class="card-title">Cloud Sync</div>
+        <div class="card-text">Your printers and filaments synced across devices</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <h2 class="section-title reveal">Powerful Features</h2>
+    <p class="section-subtitle reveal">Everything you need to calculate and manage 3D printing costs</p>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🧮</div>
+        <h3>Advanced Calculator</h3>
+        <p>Calculate costs including filament, electricity, post-processing time, markups, and failure rates with precision.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🖨️</div>
+        <h3>Printer Management</h3>
+        <p>Add and manage multiple printers with custom cost-per-hour rates. Switch between printers instantly.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🎨</div>
+        <h3>Filament Library</h3>
+        <p>Store unlimited filament types with brand names and costs. Automatically calculate material expenses.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">☁️</div>
+        <h3>Cloud Storage</h3>
+        <p>All your data synced securely with Firebase. Access from any device, anytime.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>Admin Controls</h3>
+        <p>Secure login system for managing printers and filaments. Public calculator access for everyone.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Responsive Design</h3>
+        <p>Works perfectly on desktop, tablet, and mobile. Calculate costs on the go.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Login Modal -->
+  <div id="overlay"></div>
+  <div id="modal">
+    <div class="modal-card">
+      <h3>Login</h3>
+      <label>Email</label>
+      <input id="loginEmail" type="email" placeholder="your@email.com">
+      <label>Password</label>
+      <input id="loginPass" type="password" placeholder="••••••••">
+      <div id="loginErr" class="err"></div>
+      <div class="modal-buttons">
+        <button id="doLogin" class="btn btn-primary">Login</button>
+        <button id="doClose" class="btn btn-ghost">Cancel</button>
+      </div>
+      <div style="text-align: center; margin-top: 16px; color: var(--text-muted); font-size: 14px;">
+        Don't have an account? <a href="#" id="signUpLink" style="color: var(--purple); text-decoration: none; font-weight: 600;">Sign Up</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sign Up Modal -->
+  <div id="signupModal" style="display: none;">
+    <div class="modal-card">
+      <h3>Sign Up</h3>
+      <label>Email</label>
+      <input id="signupEmail" type="email" placeholder="your@email.com">
+      <label>Password</label>
+      <input id="signupPass" type="password" placeholder="••••••••">
+      <label>Confirm Password</label>
+      <input id="signupPassConfirm" type="password" placeholder="••••••••">
+      <div id="signupErr" class="err"></div>
+      <div class="modal-buttons">
+        <button id="doSignup" class="btn btn-primary">Sign Up</button>
+        <button id="doSignupClose" class="btn btn-ghost">Cancel</button>
+      </div>
+      <div style="text-align: center; margin-top: 16px; color: var(--text-muted); font-size: 14px;">
+        Already have an account? <a href="#" id="backToLoginLink" style="color: var(--purple); text-decoration: none; font-weight: 600;">Login</a>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* Firebase Config */
+  const firebaseConfig = {
+    apiKey: "AIzaSyDwEDp5SfrxeEntOJg_XzbiBoGc9ADbX5g",
+    authDomain: "vixvvowebsite.firebaseapp.com",
+    projectId: "vixvvowebsite",
+    storageBucket: "vixvvowebsite.appspot.com",
+    messagingSenderId: "862620702799",
+    appId: "1:862620702799:web:d06c0ec4e7b0f3010d323a",
+    measurementId: "G-VX36JF6PTT",
+    databaseURL: "https://vixvvowebsite-default-rtdb.firebaseio.com"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  // Enable auth persistence
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+  /* Login Modal */
+  const overlay = document.getElementById('overlay');
+  const modal = document.getElementById('modal');
+  const signupModal = document.getElementById('signupModal');
+  
+  document.getElementById('doClose').onclick = () => {
+    overlay.style.display = 'none';
+    modal.style.display = 'none';
+  };
+
+  document.getElementById('signUpLink').onclick = (e) => {
+    e.preventDefault();
+    modal.style.display = 'none';
+    signupModal.style.display = 'grid';
+    document.getElementById('signupErr').textContent = '';
+    document.getElementById('signupEmail').value = '';
+    document.getElementById('signupPass').value = '';
+    document.getElementById('signupPassConfirm').value = '';
+  };
+
+  document.getElementById('backToLoginLink').onclick = (e) => {
+    e.preventDefault();
+    signupModal.style.display = 'none';
+    modal.style.display = 'grid';
+    document.getElementById('loginErr').textContent = '';
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginPass').value = '';
+  };
+
+  document.getElementById('doSignupClose').onclick = () => {
+    overlay.style.display = 'none';
+    signupModal.style.display = 'none';
+  };
+
+  document.getElementById('doSignup').onclick = () => {
+    const email = document.getElementById('signupEmail').value.trim();
+    const pass = document.getElementById('signupPass').value;
+    const passConfirm = document.getElementById('signupPassConfirm').value;
+    const errDiv = document.getElementById('signupErr');
+
+    if (!email || !pass || !passConfirm) {
+      errDiv.textContent = 'Please fill in all fields.';
+      return;
+    }
+
+    if (pass.length < 6) {
+      errDiv.textContent = 'Password must be at least 6 characters.';
+      return;
+    }
+
+    if (pass !== passConfirm) {
+      errDiv.textContent = 'Passwords do not match.';
+      return;
+    }
+
+    auth.createUserWithEmailAndPassword(email, pass)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        return db.ref('users/' + user.uid).set({
+          email: email,
+          role: 'user',
+          createdAt: new Date().toISOString()
+        });
+      })
+      .then(() => {
+        overlay.style.display = 'none';
+        signupModal.style.display = 'none';
+        alert('Account created successfully! Welcome to Vixvvo Tools.');
+      })
+      .catch((error) => {
+        if (error.code === 'auth/email-already-in-use') {
+          errDiv.textContent = 'This email is already registered.';
+        } else if (error.code === 'auth/invalid-email') {
+          errDiv.textContent = 'Invalid email address.';
+        } else if (error.code === 'auth/weak-password') {
+          errDiv.textContent = 'Password is too weak.';
+        } else {
+          errDiv.textContent = 'Error creating account: ' + error.message;
+        }
+      });
+  };
+
+  document.getElementById('doLogin').onclick = () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    
+    auth.signInWithEmailAndPassword(email, pass)
+      .then(() => {
+        overlay.style.display = 'none';
+        modal.style.display = 'none';
+      })
+      .catch(() => {
+        document.getElementById('loginErr').textContent = 'Wrong email or password.';
+      });
+  };
+
+  /* Settings Dropdown */
+  const btnSettings = document.getElementById('btnSettings');
+  const settingsDropdown = document.getElementById('settingsDropdown');
+  const btnLoginSettings = document.getElementById('btnLoginSettings');
+  const btnLogoutSettings = document.getElementById('btnLogoutSettings');
+  const userInfoDisplay = document.getElementById('userInfoDisplay');
+  const settingsUsername = document.getElementById('settingsUsername');
+  const settingsRole = document.getElementById('settingsRole');
+  const userAvatar = document.getElementById('userAvatar');
+  const btnLoginNav = document.getElementById('btnLoginNav');
+
+  // Login button in nav (visible when logged out)
+  btnLoginNav.addEventListener('click', () => {
+    document.getElementById('loginErr').textContent = '';
+    overlay.style.display = 'block';
+    modal.style.display = 'grid';
+  });
+
+  // Toggle settings dropdown
+  btnSettings.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isActive = settingsDropdown.classList.contains('active');
+    if (isActive) {
+      settingsDropdown.classList.remove('active');
+      btnSettings.classList.remove('active');
+    } else {
+      settingsDropdown.classList.add('active');
+      btnSettings.classList.add('active');
+    }
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!settingsDropdown.contains(e.target) && e.target !== btnSettings) {
+      settingsDropdown.classList.remove('active');
+      btnSettings.classList.remove('active');
+    }
+  });
+
+  // Prevent dropdown from closing when clicking inside
+  settingsDropdown.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  // Login button in settings
+  btnLoginSettings.addEventListener('click', () => {
+    settingsDropdown.classList.remove('active');
+    btnSettings.classList.remove('active');
+    document.getElementById('loginErr').textContent = '';
+    overlay.style.display = 'block';
+    modal.style.display = 'grid';
+  });
+
+  // Logout button in settings
+  btnLogoutSettings.addEventListener('click', () => {
+    settingsDropdown.classList.remove('active');
+    btnSettings.classList.remove('active');
+    auth.signOut().then(() => {
+      console.log('User logged out');
+    });
+  });
+
+  // Currency handling
+  const currencySelect = document.getElementById('currencySelect');
+  const btnSaveCurrency = document.getElementById('btnSaveCurrency');
+  let currentCurrency = 'USD';
+  let lastSavedCurrency = 'USD';
+
+  // Function to update the save button state
+  function updateSaveButton() {
+    if (currencySelect.value !== lastSavedCurrency) {
+      btnSaveCurrency.disabled = false;
+      btnSaveCurrency.style.opacity = '1';
+    } else {
+      btnSaveCurrency.disabled = true;
+      btnSaveCurrency.style.opacity = '0.5';
+    }
+  }
+
+  // Update save button when currency changes
+  currencySelect.addEventListener('change', updateSaveButton);
+
+  // Save currency to Firebase
+  btnSaveCurrency.addEventListener('click', () => {
+    const user = auth.currentUser;
+    if (!user) {
+      console.log('No user logged in');
+      return;
+    }
+
+    currentCurrency = currencySelect.value;
+    
+    // Save to Firebase
+    db.ref('users/' + user.uid + '/currency').set(currentCurrency)
+      .then(() => {
+        console.log('Currency saved to Firebase:', currentCurrency);
+        lastSavedCurrency = currentCurrency;
+        
+        // Show success feedback
+        const originalText = btnSaveCurrency.textContent;
+        btnSaveCurrency.textContent = '✓ Saved';
+        btnSaveCurrency.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        
+        // Reset button after 2 seconds
+        setTimeout(() => {
+          btnSaveCurrency.textContent = originalText;
+          btnSaveCurrency.style.background = '';
+          updateSaveButton();
+        }, 2000);
+      })
+      .catch(error => {
+        console.error('Error saving currency:', error);
+        alert('Failed to save currency. Please try again.');
+      });
+  });
+
+  // Handle auth state changes (persists across page refreshes)
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      // Update settings dropdown
+      btnLoginSettings.style.display = 'none';
+      btnLogoutSettings.style.display = 'block';
+      userInfoDisplay.style.display = 'block';
+      
+      // Set user info
+      const email = user.email || 'User';
+      const username = user.displayName || email.split('@')[0];
+      
+      // Fetch role from Firebase Database
+      db.ref('users/' + user.uid + '/role').once('value')
+        .then(snapshot => {
+          const roleFromDb = snapshot.val() || 'member';
+          console.log('User role from Firebase:', roleFromDb);
+          
+          // Display role with proper capitalization
+          if (roleFromDb.toLowerCase() === 'admin' || roleFromDb.toLowerCase() === 'administrator') {
+            settingsRole.textContent = 'Administrator';
+          } else {
+            settingsRole.textContent = 'Member';
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching role:', error);
+          settingsRole.textContent = 'Member';
+        });
+      
+      // Listen for real-time currency changes from Firebase
+      db.ref('users/' + user.uid + '/currency').on('value', snapshot => {
+        const savedCurrency = snapshot.val();
+        if (savedCurrency) {
+          currentCurrency = savedCurrency;
+          lastSavedCurrency = savedCurrency;
+          currencySelect.value = savedCurrency;
+          console.log('Currency updated from Firebase:', savedCurrency);
+          updateSaveButton();
+        }
+      });
+      
+      settingsUsername.textContent = username;
+      userAvatar.textContent = username.charAt(0).toUpperCase();
+      
+      // Hide nav login button when logged in
+      btnLoginNav.style.display = 'none';
+    } else {
+      // Update settings dropdown
+      btnLoginSettings.style.display = 'block';
+      btnLogoutSettings.style.display = 'none';
+      userInfoDisplay.style.display = 'none';
+      
+      // Show nav login button when logged out
+      btnLoginNav.style.display = 'block';
+    }
+  });
+
+  // Force scroll to top and prevent auto-scroll
+  history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+
+  // Smooth scroll for nav links only
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      const href = this.getAttribute('href');
+      
+      // Skip modal trigger links (signUpLink, backToLoginLink, etc.)
+      if (href === '#' || this.id === 'signUpLink' || this.id === 'backToLoginLink') {
+        return;
+      }
+      
+      e.preventDefault();
+      const target = document.querySelector(href);
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
