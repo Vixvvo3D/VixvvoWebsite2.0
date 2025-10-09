@@ -13,335 +13,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+<!-- Load shared styles -->
+<link rel="stylesheet" href="../css/shared-styles.css">
+
 <!-- Load shared navbar -->
 <script src="../js/navbar-loader.js"></script>
 <style>
-  :root{
-    --dark-bg: #1a1625;
-    --darker-bg: #0f0b16;
-    --card-bg: #241d35;
-    --purple: #a855f7;
-    --purple-hover: #9333ea;
-    --purple-light: #c084fc;
-    --text: #f0e9ff;
-    --text-muted: #9ca3af;
-    --border: rgba(168, 85, 247, .15);
-  }
-  * {margin:0; padding:0; box-sizing:border-box}
-  
-  html {
-    scroll-behavior: smooth;
-    background: linear-gradient(135deg, #1a1625 0%, #0f0b16 50%, #1d1530 100%);
-    overscroll-behavior-y: none;
-  }
-  
-  body {
-    font-family: 'Inter', sans-serif;
-    background: 
-      radial-gradient(ellipse at 20% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 70%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 50%, rgba(192, 132, 252, 0.1) 0%, transparent 50%),
-      linear-gradient(135deg, #1a1625 0%, #0f0b16 50%, #1d1530 100%);
-    color: var(--text);
-    overflow-x: hidden;
-    min-height: 100vh;
-    overscroll-behavior-y: none;
-  }
-  
-  /* Navigation */
-  nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 60px;
-    position: relative;
-    z-index: 100;
-  }
-  
-  .logo-section {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex: 1;
-  }
-  
-  .logo-section img {
-    height: 120px;
-    width: auto;
-    object-fit: contain;
-    margin-top: 20px;
-    margin-left: 0px;
-  }
-
-  
-  .nav-links {
-    display: flex;
-    gap: 40px;
-    align-items: center;
-    flex: 1;
-    justify-content: center;
-  }
-  
-  .nav-links a {
-    color: var(--text-muted);
-    text-decoration: none;
-    font-weight: 500;
-    transition: color .3s;
-  }
-  
-  .nav-links a:hover {
-    color: var(--text);
-  }
-  
-  .nav-buttons {
-    display: flex;
-    gap: 12px;
-    flex: 1;
-    justify-content: flex-end;
-    align-items: center;
-  }
-
-  /* Settings Dropdown */
-  .settings-container {
-    position: relative;
-  }
-
-  .btn-settings {
-    padding: 8px;
-    background: transparent;
-    border: none;
-    color: var(--text);
-    cursor: pointer;
-    font-size: 32px;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .btn-settings:hover {
-    color: var(--purple-light);
-    transform: scale(1.1);
-  }
-
-  .btn-settings.active {
-    color: var(--purple-light);
-  }
-
-  .settings-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    background: linear-gradient(135deg, #241d35, #1d1530);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px;
-    min-width: 280px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    display: none;
-    z-index: 1000;
-    animation: slideDown 0.2s ease;
-  }
-
-  .settings-dropdown.active {
-    display: block;
-  }
-
-  .settings-section {
-    padding: 12px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .settings-section:last-child {
-    border-bottom: none;
-  }
-
-  .settings-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--purple-light);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
-    display: block;
-  }
-
-  .settings-user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px;
-    background: rgba(168, 85, 247, 0.05);
-    border-radius: 8px;
-    margin-bottom: 8px;
-  }
-
-  .settings-user-avatar {
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, var(--purple), var(--purple-light));
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 700;
-  }
-
-  .settings-user-details {
-    flex: 1;
-  }
-
-  .settings-username {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 2px;
-  }
-
-  .settings-role {
-    font-size: 11px;
-    color: var(--text-muted);
-  }
-
-  .settings-currency-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .settings-dropdown .currency-select {
-    flex: 1;
-    min-width: 0;
-    padding: 8px 12px;
-    background: rgba(168, 85, 247, 0.1);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 13px;
-    font-family: 'Inter', sans-serif;
-  }
-
-  .settings-dropdown .btn-save-currency {
-    display: inline-block;
-    padding: 8px 12px;
-    font-size: 11px;
-  }
-  
-  .currency-selector {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    background: rgba(168, 85, 247, 0.03);
-    border: 1px solid rgba(168, 85, 247, 0.08);
-    border-radius: 8px;
-    transition: all 0.3s ease;
-  }
-  
-  .currency-selector:hover {
-    background: rgba(168, 85, 247, 0.08);
-    border-color: rgba(168, 85, 247, 0.15);
-  }
-  
-  .currency-label {
-    font-size: 13px;
-    color: var(--text-muted);
-    font-weight: 500;
-    white-space: nowrap;
-    opacity: 0.7;
-  }
-  
-  .currency-select {
-    padding: 6px 10px;
-    background: rgba(15, 11, 22, 0.4);
-    border: 1px solid rgba(168, 85, 247, 0.1);
-    border-radius: 6px;
-    color: var(--text);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    min-width: 90px;
-    transition: all 0.3s ease;
-    opacity: 0.85;
-  }
-  
-  .currency-select:hover {
-    border-color: rgba(168, 85, 247, 0.25);
-    background: rgba(15, 11, 22, 0.6);
-    opacity: 1;
-  }
-  
-  .currency-select:focus {
-    outline: none;
-    border-color: var(--purple);
-    box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.1);
-    opacity: 1;
-  }
-  
-  .btn-save-currency {
-    padding: 6px 14px;
-    font-size: 12px;
-    background: linear-gradient(135deg, var(--purple), var(--purple-light));
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    display: none;
-    white-space: nowrap;
-  }
-  
-  .btn-save-currency:hover {
-    background: linear-gradient(135deg, var(--purple-hover), var(--purple));
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
-  }
-  
-  .btn-save-currency.saved {
-    background: linear-gradient(135deg, #10b981, #059669);
-  }
-  
-  .btn-save-currency:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-  
-  .btn {
-    padding: 12px 28px;
-    border-radius: 8px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all .3s;
-    cursor: pointer;
-    border: none;
-    font-size: 15px;
-  }
-  
-  .btn-ghost {
-    background: rgba(168, 85, 247, .08);
-    border: 1px solid rgba(168, 85, 247, .2);
-    color: var(--text);
-  }
-  
-  .btn-ghost:hover {
-    background: rgba(168, 85, 247, .15);
-    border-color: rgba(168, 85, 247, .3);
-  }
-  
-  .btn-primary {
-    background: linear-gradient(135deg, var(--purple), var(--purple-light));
-    color: white;
-  }
-  
-  .btn-primary:hover {
-    background: linear-gradient(135deg, var(--purple-hover), var(--purple));
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(168, 85, 247, .4);
-  }
-  
   /* Calculator Section */
   .calculator-section {
     max-width: 1400px;
@@ -2148,17 +1825,31 @@
     return `${symbol}${amount.toFixed(decimals)}`;
   }
 
-  // Currency selector change handler
-  document.getElementById('currencySelect').addEventListener('change', function() {
-    currentCurrency = this.value;
-    console.log('Currency changed to:', currentCurrency);
-    updateAllPrices();
-    updateSaveButton();
-  });
+  // Currency selector change handler - Wait for navbar to load
+  function initializeCurrencyHandlers() {
+    const currencySelect = document.getElementById('currencySelect');
+    const btnSaveCurrency = document.getElementById('btnSaveCurrency');
+    
+    if (!currencySelect || !btnSaveCurrency) {
+      console.error('Currency elements not found');
+      return;
+    }
 
-  // Save button click handler
-  document.getElementById('btnSaveCurrency').addEventListener('click', function() {
-    saveCurrencyPreference();
+    currencySelect.addEventListener('change', function() {
+      currentCurrency = this.value;
+      console.log('Currency changed to:', currentCurrency);
+      updateAllPrices();
+      updateSaveButton();
+    });
+
+    btnSaveCurrency.addEventListener('click', function() {
+      saveCurrencyPreference();
+    });
+  }
+
+  // Initialize currency handlers when navbar loads
+  document.addEventListener('navbarLoaded', function() {
+    initializeCurrencyHandlers();
   });
 
   // Update save button visibility and state
