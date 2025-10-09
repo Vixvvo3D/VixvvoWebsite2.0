@@ -1250,6 +1250,12 @@
                 <div id="filamentCostInfo" style="padding: 10px; background: rgba(168, 85, 247, 0.1); border-radius: 8px; color: var(--text); font-size: 14px;">-</div>
               </div>
             </div>
+            <div class="form-row">
+              <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="includePrinterDepreciation" checked style="width: auto; cursor: pointer;">
+                <label for="includePrinterDepreciation" style="cursor: pointer; margin: 0;">Include Printer Depreciation in Cost</label>
+              </div>
+            </div>
           </div>
 
           <!-- Print Parameters -->
@@ -1819,6 +1825,11 @@
       return elem ? elem.value : '';
     };
     
+    const getCheckedSafe = (id) => {
+      const elem = document.getElementById(id);
+      return elem ? elem.checked : true;
+    };
+    
     return {
       selectedPrinter: getValueSafe('printerSelect'),
       selectedFilament: getValueSafe('filamentSelect'),
@@ -1833,7 +1844,8 @@
       modelPrep: getValueSafe('modelPrep'),
       slicing: getValueSafe('slicing'),
       materialChange: getValueSafe('materialChange'),
-      transferStart: getValueSafe('transferStart')
+      transferStart: getValueSafe('transferStart'),
+      includePrinterDepreciation: getCheckedSafe('includePrinterDepreciation')
     };
   }
 
@@ -1865,6 +1877,11 @@
     setValueSafe('materialChange', preset.materialChange, 0);
     setValueSafe('transferStart', preset.transferStart, 0);
     
+    // Load checkbox state
+    const includePrinterDepreciation = preset.includePrinterDepreciation !== undefined ? preset.includePrinterDepreciation : true;
+    document.getElementById('includePrinterDepreciation').checked = includePrinterDepreciation;
+    
+    updatePriceInfo();
     compute();
   }
 
@@ -1898,33 +1915,55 @@
     );
     
     if (confirmed) {
-      // Reset printer and filament selection
-      document.getElementById('printerSelect').value = '';
-      document.getElementById('filamentSelect').value = '';
+      // Define default values
+      const defaults = {
+        'printerSelect': '',
+        'filamentSelect': '',
+        'printTime': '0',
+        'weight': '0',
+        'printTimeDuplicate': '',
+        'elec': '0.12',
+        'jobRemoval': '0',
+        'supportRemoval': '0',
+        'additionalWork': '0',
+        'postProcessingRate': '20',
+        'modelPrep': '0',
+        'slicing': '0',
+        'materialChange': '0',
+        'transferStart': '0',
+        'preparationRate': '20',
+        'filamentMarkup': '2.7',
+        'generalMarkup': '50',
+        'failureRate': '10'
+      };
       
-      // Reset print parameters
-      document.getElementById('printTime').value = '0';
-      document.getElementById('weight').value = '0';
-      document.getElementById('printTimeDuplicate').value = '';
-      document.getElementById('elec').value = '0.12';
+      // Reset all fields with defaults
+      for (const [id, defaultValue] of Object.entries(defaults)) {
+        const elem = document.getElementById(id);
+        if (elem) {
+          elem.value = defaultValue;
+        }
+      }
       
-      // Reset post-processing
-      document.getElementById('jobRemoval').value = '0';
-      document.getElementById('supportRemoval').value = '0';
-      document.getElementById('additionalWork').value = '0';
+      // Also reset any additional number inputs that don't have explicit defaults
+      const allInputs = document.querySelectorAll('input[type="number"]:not([readonly])');
+      allInputs.forEach(input => {
+        if (!defaults[input.id] && input.id) {
+          // If not in defaults list, reset to placeholder or 0
+          input.value = input.placeholder || '0';
+        }
+      });
       
-      // Reset preparation
-      document.getElementById('modelPrep').value = '0';
-      document.getElementById('slicing').value = '0';
-      document.getElementById('materialChange').value = '0';
-      document.getElementById('transferStart').value = '0';
-      
-      // Reset markups & failures
-      document.getElementById('filamentMarkup').value = '2.7';
-      document.getElementById('generalMarkup').value = '50';
-      document.getElementById('failureRate').value = '10';
+      // Reset all selects that aren't in defaults
+      const allSelects = document.querySelectorAll('select');
+      allSelects.forEach(select => {
+        if (!defaults[select.id] && select.id) {
+          select.value = '';
+        }
+      });
       
       // Recompute with default values
+      updatePriceInfo();
       compute();
     }
   });
@@ -2268,6 +2307,41 @@
     });
   }
 
+  // Setup printer depreciation preference listener
+  let printerDepreciationListener = null;
+  
+  function setupPrinterDepreciationListener(user) {
+    // Remove old listener if exists
+    if (printerDepreciationListener) {
+      db.ref(`users/${user.uid}/preferences/includePrinterDepreciation`).off('value', printerDepreciationListener);
+    }
+
+    // Set up new listener
+    printerDepreciationListener = db.ref(`users/${user.uid}/preferences/includePrinterDepreciation`).on('value', snapshot => {
+      const savedPreference = snapshot.val();
+      console.log('Printer depreciation preference from Firebase:', savedPreference);
+      
+      // Default to true if not set
+      const shouldInclude = savedPreference !== null ? savedPreference : true;
+      document.getElementById('includePrinterDepreciation').checked = shouldInclude;
+      calculateCost();
+    });
+  }
+
+  // Save printer depreciation preference to Firebase
+  async function savePrinterDepreciationPreference() {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    const isChecked = document.getElementById('includePrinterDepreciation').checked;
+    try {
+      await db.ref(`users/${user.uid}/preferences/includePrinterDepreciation`).set(isChecked);
+      console.log('✅ Saved printer depreciation preference:', isChecked);
+    } catch (error) {
+      console.error('Error saving printer depreciation preference:', error);
+    }
+  }
+
   // Load currency preference from Firebase (only if logged in)
   async function loadCurrencyPreference() {
     const user = auth.currentUser;
@@ -2470,6 +2544,18 @@
       setTimeout(() => {
         loadCurrencyPreference();
       }, 150);
+    }
+    
+    // Load printer depreciation preference
+    if (user) {
+      setupPrinterDepreciationListener(user);
+    } else {
+      // Reset to default when logged out
+      document.getElementById('includePrinterDepreciation').checked = true;
+      if (printerDepreciationListener) {
+        db.ref().off('value', printerDepreciationListener);
+        printerDepreciationListener = null;
+      }
     }
     
     // Load user presets
@@ -3842,9 +3928,10 @@
     const filamentMarkup = parseFloat(document.getElementById('filamentMarkup').value) || 1;
     const generalMarkup = (parseFloat(document.getElementById('generalMarkup').value) || 0) / 100;
     const failureRate = (parseFloat(document.getElementById('failureRate').value) || 0) / 100;
+    const includePrinterDepreciation = document.getElementById('includePrinterDepreciation').checked;
 
     // Calculate costs (in USD)
-    const costPrinter = printer.costPerHour * pt;
+    const costPrinter = includePrinterDepreciation ? (printer.costPerHour * pt) : 0;
     const costElectric = pt * electricityUsagePerHour * electricityPrice;
     const costFilament = filament.costPerG * weight * filamentMarkup;
     const costPostProcessing = postProcessingTime * postProcessingRate;
@@ -3904,6 +3991,12 @@
     const el = document.getElementById(id);
     el.addEventListener('input', calculateCost);
     el.addEventListener('change', calculateCost);
+  });
+
+  // Add listener for printer depreciation checkbox
+  document.getElementById('includePrinterDepreciation').addEventListener('change', () => {
+    savePrinterDepreciationPreference();
+    calculateCost();
   });
 
   /* Initialize - Load data from Firebase */
