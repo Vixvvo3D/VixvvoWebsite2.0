@@ -1610,6 +1610,22 @@
     window.scrollTo(0, 0);
   }
 
+  // Helper function to scroll to center of element
+  function scrollToCenter(element) {
+    const elementRect = element.getBoundingClientRect();
+    const absoluteElementTop = elementRect.top + window.pageYOffset;
+    const elementHeight = elementRect.height;
+    const windowHeight = window.innerHeight;
+    
+    // Calculate position to center the element
+    const offsetPosition = absoluteElementTop - (windowHeight / 2) + (elementHeight / 2);
+    
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    });
+  }
+
   // Smooth scroll for nav links - use event delegation for dynamically loaded navbar
   document.addEventListener('click', function(e) {
     const anchor = e.target.closest('a[href^="#"]');
@@ -1625,10 +1641,7 @@
     e.preventDefault();
     const target = document.querySelector(href);
     if (target) {
-      target.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      });
+      scrollToCenter(target);
     }
   });
 
@@ -1642,10 +1655,7 @@
       if (target) {
         // Wait for page to fully render, then scroll
         setTimeout(() => {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
-          });
+          scrollToCenter(target);
         }, 100);
       }
     }
