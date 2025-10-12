@@ -509,7 +509,7 @@
 
   <!-- Notification Popup -->
   <div id="notificationPopup" class="notification-popup">
-    <span class="notification-icon" id="notificationIcon">✓</span>
+    <span class="notification-icon" id="notificationIcon"></span>
     <span id="notificationMessage">Success!</span>
   </div>
 
@@ -574,7 +574,7 @@
             <button class="btn btn-primary" style="width: 100%; margin-top: 16px;" id="btnUpdateProfile">
               Update Profile
             </button>
-            <div class="success-message" id="profileSuccessMsg">✓ Profile updated successfully!</div>
+            <div class="success-message" id="profileSuccessMsg">Profile updated successfully!</div>
           </div>
         </div>
 
@@ -621,7 +621,7 @@
             <button class="btn btn-primary" style="width: 100%; margin-top: 16px;" id="btnSaveCurrencyPage">
               Save Currency
             </button>
-            <div class="success-message" id="currencySuccessMsg">✓ Currency preference saved!</div>
+            <div class="success-message" id="currencySuccessMsg">Currency preference saved!</div>
           </div>
         </div>
 
@@ -647,7 +647,7 @@
             <button class="btn btn-primary" style="width: 100%; margin-top: 16px;" id="btnChangePassword">
               Change Password
             </button>
-            <div class="success-message" id="passwordSuccessMsg">✓ Password changed successfully!</div>
+            <div class="success-message" id="passwordSuccessMsg">Password changed successfully!</div>
           </div>
         </div>
 
@@ -690,7 +690,7 @@
         <div class="tab-panel" id="danger-tab">
           <div class="settings-card">
             <div style="padding: 24px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; margin-bottom: 24px;">
-              <h3 style="color: #ef4444; margin-bottom: 8px;">⚠️ Warning</h3>
+              <h3 style="color: #ef4444; margin-bottom: 8px;">Warning</h3>
               <p style="color: var(--text-muted); font-size: 14px;">These actions are irreversible and will affect your account permanently.</p>
             </div>
 
@@ -793,7 +793,14 @@
     // Logout button in dropdown
     if (btnLogoutSettings) {
       btnLogoutSettings.addEventListener('click', () => {
-        auth.signOut();
+        showConfirm('Logout', 'Are you sure you want to log out?', false, 'Logout').then((confirmed) => {
+          if (confirmed) {
+            auth.signOut().then(() => {
+              showNotification('You have been logged out successfully.', false);
+              window.location.href = '/';
+            });
+          }
+        });
       });
     }
 
@@ -853,7 +860,7 @@
             
             // Show success feedback
             const originalText = btnSaveCurrency.textContent;
-            btnSaveCurrency.textContent = '✓ Saved';
+            btnSaveCurrency.textContent = 'Saved';
             btnSaveCurrency.style.background = 'linear-gradient(135deg, #10b981, #059669)';
             
             // Reset button after 2 seconds
@@ -964,7 +971,7 @@
     const messageEl = document.getElementById('notificationMessage');
     
     messageEl.textContent = message;
-    icon.textContent = isError ? '✕' : '✓';
+    icon.textContent = isError ? 'X' : '';
     
     if (isError) {
       popup.classList.add('error');
@@ -980,7 +987,7 @@
   }
 
   // Confirmation modal function
-  function showConfirm(title, message, isDangerous = false) {
+  function showConfirm(title, message, isDangerous = false, buttonText = 'Confirm') {
     return new Promise((resolve) => {
       const modal = document.getElementById('confirmModal');
       const titleEl = document.getElementById('confirmTitle');
@@ -990,6 +997,7 @@
       
       titleEl.textContent = title;
       messageEl.textContent = message;
+      okBtn.textContent = buttonText;
       
       if (isDangerous) {
         okBtn.classList.add('danger');
@@ -1032,7 +1040,7 @@
         displayName: newDisplayName
       }).then(() => {
         document.getElementById('displayUsername').textContent = newDisplayName;
-        showNotification('Profile updated successfully!');
+        showNotification('Profile updated successfully!', false);
       }).catch(error => {
         showNotification('Error updating profile: ' + error.message, true);
       });
@@ -1046,7 +1054,7 @@
     if (currentUser) {
       db.ref('users/' + currentUser.uid + '/currency').set(currency)
         .then(() => {
-          showNotification('Currency preference saved!');
+          showNotification('Currency preference saved!', false);
         })
         .catch(error => {
           showNotification('Error saving currency: ' + error.message, true);
@@ -1090,7 +1098,7 @@
           document.getElementById('newPassword').value = '';
           document.getElementById('confirmPassword').value = '';
           
-          showNotification('Password changed successfully!');
+          showNotification('Password changed successfully!', false);
         })
         .catch(error => {
           if (error.code === 'auth/wrong-password') {
@@ -1118,26 +1126,20 @@
 
   // Sign Out
   document.getElementById('btnSignOut').addEventListener('click', async () => {
-    const confirmed = await showConfirm(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      false
-    );
-    
-    if (confirmed) {
-      auth.signOut().then(() => {
-        showNotification('Signed out successfully!');
-        setTimeout(() => {
+    showConfirm('Sign Out', 'Are you sure you want to sign out?', false, 'Sign Out').then((confirmed) => {
+      if (confirmed) {
+        auth.signOut().then(() => {
+          showNotification('Signed out successfully!', false);
           window.location.href = '../index.html';
-        }, 1000);
-      });
-    }
+        });
+      }
+    });
   });
 
   // Delete Account
   document.getElementById('btnDeleteAccount').addEventListener('click', async () => {
     const firstConfirm = await showConfirm(
-      '⚠️ Delete Account',
+      'Delete Account',
       'WARNING: This will permanently delete your account and all data. This action cannot be undone. Are you absolutely sure?',
       true
     );
@@ -1158,10 +1160,8 @@
               return currentUser.delete();
             })
             .then(() => {
-              showNotification('Your account has been deleted');
-              setTimeout(() => {
-                window.location.href = '../index.html';
-              }, 2000);
+              showNotification('Your account has been deleted', false);
+              window.location.href = '../index.html';
             })
             .catch(error => {
               if (error.code === 'auth/requires-recent-login') {

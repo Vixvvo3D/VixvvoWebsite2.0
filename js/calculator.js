@@ -141,7 +141,10 @@ filamentsRef.on('value', refreshFilamentsUI);
 /* Add Forms */
 $('#formAddPrinter').addEventListener('submit', e=>{
   e.preventDefault();
-  if(!auth.currentUser) return alert('Login required.');
+  if(!auth.currentUser) {
+    showNotification('Login required.', '', 'Login Required');
+    return;
+  }
   const name = $('#newPrinterName').value.trim();
   const cost = parseFloat($('#newPrinterCost').value);
   if(!name || !isFinite(cost)) return;
@@ -151,7 +154,10 @@ $('#formAddPrinter').addEventListener('submit', e=>{
 
 $('#formAddFilament').addEventListener('submit', e=>{
   e.preventDefault();
-  if(!auth.currentUser) return alert('Login required.');
+  if(!auth.currentUser) {
+    showNotification('Login required.', '', 'Login Required');
+    return;
+  }
   const type = $('#newFilamentType').value.trim();
   const brand = $('#newFilamentBrand').value.trim();
   const spool = parseFloat($('#newFilamentCost').value);
@@ -179,14 +185,23 @@ selFilament.addEventListener('change', savePrefs);
 $('#btnCalc').addEventListener('click', ()=>{
   const printerName  = selPrinter.value;
   const filamentType = selFilament.value;
-  if(!printerName || !filamentType) return alert('Select a printer and filament.');
+  if(!printerName || !filamentType) {
+    showNotification('Select a printer and filament.', '', 'Required Fields');
+    return;
+  }
 
   printersRef.orderByChild('name').equalTo(printerName).once('value', snap=>{
-    if(!snap.val()) return alert('Printer not found.');
+    if(!snap.val()) {
+      showNotification('Printer not found.', '', 'Error');
+      return;
+    }
     const p = Object.values(snap.val())[0];
 
     filamentsRef.orderByChild('type').equalTo(filamentType).once('value', snap2=>{
-      if(!snap2.val()) return alert('Filament not found.');
+      if(!snap2.val()) {
+        showNotification('Filament not found.', '', 'Error');
+        return;
+      }
       const f = Object.values(snap2.val())[0];
 
       const pt = +printTime.value || 0;
@@ -372,10 +387,12 @@ function loadHistory() {
 }
 
 function clearHistory() {
-    if (confirm('Clear all history?')) {
-        const historyRef = ref(database, 'calculatorHistory');
-        remove(historyRef);
-    }
+    showConfirm('Clear all history?', '', 'Clear History').then((confirmed) => {
+        if (confirmed) {
+            const historyRef = ref(database, 'calculatorHistory');
+            remove(historyRef);
+        }
+    });
 }
 
 // History Panel Toggle

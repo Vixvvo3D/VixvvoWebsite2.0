@@ -107,9 +107,62 @@ async function login(email, password) {
   }
 }
 
-// Signup function
+// Send verification code
+async function sendVerificationCode(email) {
+  try {
+    const sendCode = firebase.functions().httpsCallable('sendVerificationCode');
+    const result = await sendCode({ email });
+    return { success: true, message: result.data.message };
+  } catch (error) {
+    console.error('Error sending verification code:', error);
+    
+    let errorMessage = 'Failed to send verification code';
+    
+    if (error.code === 'already-exists') {
+      errorMessage = 'This email is already registered. Please login instead.';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    return { success: false, error: errorMessage };
+  }
+}
+
+// Verify the code
+async function verifyEmailCode(email, code) {
+  try {
+    const verifyCode = firebase.functions().httpsCallable('verifyCode');
+    const result = await verifyCode({ email, code });
+    return { success: true, message: result.data.message };
+  } catch (error) {
+    console.error('Error verifying code:', error);
+    let message = 'Verification failed';
+    
+    if (error.code === 'deadline-exceeded') {
+      message = 'Code has expired. Please request a new one.';
+    } else if (error.code === 'invalid-argument') {
+      message = 'Invalid verification code.';
+    } else if (error.code === 'not-found') {
+      message = 'No verification code found. Please request a new one.';
+    }
+    
+    return { success: false, error: message };
+  }
+}
+
+// Signup function (now requires verified email)
 async function signup(email, password) {
   try {
+    // Check if email was verified
+    const verificationRef = db.ref(`verificationCodes/${email.replace(/\./g, ',')}`);
+    const snapshot = await verificationRef.once('value');
+    const verificationData = snapshot.val();
+    
+    if (!verificationData || !verificationData.verified) {
+      return { success: false, error: 'Email not verified. Please verify your email first.' };
+    }
+    
+    // Create the account
     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
     const user = userCredential.user;
     
@@ -117,8 +170,12 @@ async function signup(email, password) {
     await db.ref(`users/${user.uid}`).set({
       email: email,
       role: 'member',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      emailVerified: true
     });
+    
+    // Clean up verification code
+    await verificationRef.remove();
     
     return { success: true };
   } catch (error) {
@@ -153,6 +210,8 @@ window.vixvvoAuth = {
   login,
   signup,
   logout,
+  sendVerificationCode,
+  verifyEmailCode,
   getCurrentUser: () => currentUser,
   isAdmin: () => isUserAdmin
 };

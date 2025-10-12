@@ -61,14 +61,17 @@ header {
 /* Tabs */
 .tabs {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
-    margin: 16px 0 0;
+    margin: 16px auto 0;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
 
 .tab {
-    flex: 1;
     text-align: center;
-    padding: 12px;
+    padding: 12px 24px;
     border: 1px solid var(--border);
     border-bottom: none;
     border-radius: 12px 12px 0 0;

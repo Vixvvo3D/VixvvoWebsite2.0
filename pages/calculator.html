@@ -9,6 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-functions-compat.js"></script>
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -52,9 +53,10 @@
   /* Tabs */
   .tabs {
     display: flex;
-    gap: 8px;
+    gap: 32px;
     margin-bottom: 32px;
     border-bottom: 2px solid var(--border);
+    justify-content: center;
   }
 
   .tab {
@@ -563,50 +565,144 @@
 
   /* Filter styles */
   .filter-section {
-    margin-bottom: 24px;
-    padding: 16px;
-    background: rgba(15, 11, 22, 0.4);
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    background: rgba(15, 11, 22, 0.3);
     border: 1px solid var(--border);
-    border-radius: 12px;
-  }
-  
-  .filter-row {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-  }
-  
-  .filter-input {
-    flex: 1;
-    padding: 10px 16px;
-    background: rgba(15, 11, 22, 0.6);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 14px;
-  }
-  
-  .filter-input:focus {
-    outline: none;
-    border-color: var(--purple);
-  }
-  
-  .filter-input::placeholder {
-    color: var(--text-muted);
-    opacity: 0.6;
+    border-radius: 10px;
   }
   
   .filter-label {
-    font-size: 13px;
+    font-size: 11px;
     color: var(--text-muted);
-    margin-bottom: 8px;
-    display: block;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
   
   .filter-stats {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-muted);
-    margin-top: 8px;
+    opacity: 0.8;
+  }
+
+  /* Brand Checkbox Grid - Compact Pills */
+  .brand-checkbox-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 0;
+  }
+
+  .brand-checkbox-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: rgba(15, 11, 22, 0.5);
+    border: 1.5px solid rgba(168, 85, 247, 0.25);
+    border-radius: 24px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    font-size: 13px;
+    position: relative;
+  }
+
+  .brand-checkbox-item:hover {
+    border-color: rgba(168, 85, 247, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.15);
+  }
+
+  /* Custom Checkbox Styling */
+  .brand-checkbox-item input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(168, 85, 247, 0.4);
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0;
+    position: relative;
+    background: rgba(15, 11, 22, 0.6);
+    transition: all 0.2s ease;
+  }
+
+  .brand-checkbox-item input[type="checkbox"]:hover {
+    border-color: rgba(168, 85, 247, 0.7);
+    background: rgba(168, 85, 247, 0.1);
+  }
+
+  .brand-checkbox-item input[type="checkbox"]:checked {
+    background: linear-gradient(135deg, #a855f7, #c084fc);
+    border-color: #a855f7;
+  }
+
+  .brand-checkbox-item input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  .brand-checkbox-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+  }
+
+  .brand-checkbox-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: rgba(168, 85, 247, 0.15);
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 700;
+    min-width: 20px;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .brand-checkbox-item.checked {
+    border-color: rgba(168, 85, 247, 0.6);
+  }
+
+  .brand-checkbox-item.checked .brand-checkbox-label {
+    color: var(--purple-light);
+  }
+
+  .brand-checkbox-item.checked .brand-checkbox-count {
+    background: rgba(168, 85, 247, 0.25);
+    color: var(--purple-light);
+  }
+
+  @media (max-width: 768px) {
+    .brand-checkbox-item {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    .brand-checkbox-label {
+      font-size: 12px;
+    }
+    
+    .brand-checkbox-count {
+      font-size: 10px;
+      padding: 1px 5px;
+    }
   }
   
   .no-results {
@@ -751,6 +847,491 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba(239, 68, 68, .4);
   }
+
+  /* Modern Printer Presets Styles */
+  #printersTab .list-item {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.05), rgba(192, 132, 252, 0.05));
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+  }
+
+  #printersTab .list-item:hover {
+    border-color: rgba(168, 85, 247, 0.4);
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(192, 132, 252, 0.08));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.15);
+  }
+
+  #printersTab .item-info {
+    flex: 1;
+  }
+
+  #printersTab .item-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #printersTab .item-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 12px;
+  }
+
+  #printersTab .detail-badge {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+    background: rgba(15, 11, 22, 0.6);
+    border: 1px solid rgba(168, 85, 247, 0.15);
+    border-radius: 8px;
+  }
+
+  #printersTab .detail-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--purple-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  #printersTab .detail-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  #printersTab .btn-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #printersTab .btn-edit,
+  #printersTab .btn-delete {
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+
+  #printersTab .btn-edit {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.15));
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+  }
+
+  #printersTab .btn-edit:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.25));
+    border-color: rgba(59, 130, 246, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+
+  #printersTab .btn-delete {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+  }
+
+  #printersTab .btn-delete:hover {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(220, 38, 38, 0.25));
+    border-color: rgba(239, 68, 68, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  }
+
+  #printersTab .empty-state {
+    text-align: center;
+    padding: 60px 24px;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.03), rgba(192, 132, 252, 0.03));
+    border: 2px dashed rgba(168, 85, 247, 0.2);
+    border-radius: 16px;
+    margin: 20px 0;
+  }
+
+  #printersTab .empty-state-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.6;
+  }
+
+  @media (max-width: 768px) {
+    #printersTab .list-item {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    #printersTab .item-details {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    #printersTab .btn-actions {
+      flex-direction: row;
+      width: 100%;
+    }
+
+    #printersTab .btn-edit,
+    #printersTab .btn-delete {
+      flex: 1;
+    }
+  }
+
+  /* Modern Filament Presets Styles */
+  #filamentsTab .list-item {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.05), rgba(192, 132, 252, 0.05));
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+  }
+
+  #filamentsTab .list-item:hover {
+    border-color: rgba(168, 85, 247, 0.4);
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(192, 132, 252, 0.08));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.15);
+  }
+
+  #filamentsTab .item-info {
+    flex: 1;
+  }
+
+  #filamentsTab .item-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  #filamentsTab .item-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 12px;
+  }
+
+  #filamentsTab .detail-badge {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+    background: rgba(15, 11, 22, 0.6);
+    border: 1px solid rgba(168, 85, 247, 0.15);
+    border-radius: 8px;
+  }
+
+  #filamentsTab .detail-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--purple-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  #filamentsTab .detail-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  #filamentsTab .btn-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #filamentsTab .btn-edit,
+  #filamentsTab .btn-delete {
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+
+  #filamentsTab .btn-edit {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.15));
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+  }
+
+  #filamentsTab .btn-edit:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.25));
+    border-color: rgba(59, 130, 246, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+
+  #filamentsTab .btn-delete {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+  }
+
+  #filamentsTab .btn-delete:hover {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(220, 38, 38, 0.25));
+    border-color: rgba(239, 68, 68, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  }
+
+  #filamentsTab .empty-state {
+    text-align: center;
+    padding: 60px 24px;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.03), rgba(192, 132, 252, 0.03));
+    border: 2px dashed rgba(168, 85, 247, 0.2);
+    border-radius: 16px;
+    margin: 20px 0;
+  }
+
+  #filamentsTab .empty-state-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.6;
+  }
+
+  /* Modern User Presets Styles */
+  #userPresetsTab .list-item {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.05), rgba(192, 132, 252, 0.05));
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 16px;
+    align-items: center;
+  }
+
+  #userPresetsTab .list-item:hover {
+    border-color: rgba(168, 85, 247, 0.4);
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(192, 132, 252, 0.08));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.15);
+  }
+
+  #userPresetsTab .item-info {
+    flex: 1;
+  }
+
+  #userPresetsTab .item-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  #userPresetsTab .item-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 12px;
+  }
+
+  #userPresetsTab .detail-badge {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+    background: rgba(15, 11, 22, 0.6);
+    border: 1px solid rgba(168, 85, 247, 0.15);
+    border-radius: 8px;
+  }
+
+  #userPresetsTab .detail-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--purple-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  #userPresetsTab .detail-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  #userPresetsTab .btn-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #userPresetsTab .btn-edit,
+  #userPresetsTab .btn-delete {
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+
+  #userPresetsTab .btn-edit {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.15));
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+  }
+
+  #userPresetsTab .btn-edit:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.25));
+    border-color: rgba(59, 130, 246, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+
+  #userPresetsTab .btn-delete {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+  }
+
+  #userPresetsTab .btn-delete:hover {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(220, 38, 38, 0.25));
+    border-color: rgba(239, 68, 68, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  }
+
+  #userPresetsTab .empty-state {
+    text-align: center;
+    padding: 60px 24px;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.03), rgba(192, 132, 252, 0.03));
+    border: 2px dashed rgba(168, 85, 247, 0.2);
+    border-radius: 16px;
+    margin: 20px 0;
+  }
+
+  #userPresetsTab .empty-state-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.6;
+  }
+
+  @media (max-width: 768px) {
+    #filamentsTab .list-item,
+    #userPresetsTab .list-item {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    #filamentsTab .item-details,
+    #userPresetsTab .item-details {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    #filamentsTab .btn-actions,
+    #userPresetsTab .btn-actions {
+      flex-direction: row;
+      width: 100%;
+    }
+
+    #filamentsTab .btn-edit,
+    #filamentsTab .btn-delete,
+    #userPresetsTab .btn-edit,
+    #userPresetsTab .btn-delete {
+      flex: 1;
+    }
+  }
+
+  /* Brand Category Sections */
+  .brand-category {
+    margin-bottom: 32px;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.03), rgba(192, 132, 252, 0.03));
+    border: 1px solid rgba(168, 85, 247, 0.15);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+  }
+
+  .brand-category:hover {
+    border-color: rgba(168, 85, 247, 0.25);
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.05), rgba(192, 132, 252, 0.05));
+  }
+
+  .brand-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid rgba(168, 85, 247, 0.2);
+  }
+
+  .brand-title {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #a855f7, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-count {
+    background: rgba(168, 85, 247, 0.15);
+    color: var(--purple-light);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+  }
+
+  .brand-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  @media (max-width: 768px) {
+    .brand-category {
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .brand-title {
+      font-size: 20px;
+    }
+
+    .brand-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    
+    #userPresetsTab > div {
+      grid-template-columns: 1fr !important;
+    }
+  }
 </style>
 </head>
 <body>
@@ -800,8 +1381,9 @@
     <!-- Tabs -->
     <div class="tabs">
       <button class="tab active" onclick="switchTab('calculator')">Calculator</button>
-      <button class="tab" onclick="switchTab('printers')">Printers</button>
-      <button class="tab" onclick="switchTab('filaments')">Filaments</button>
+      <button class="tab" onclick="switchTab('printers')">Printer Presets</button>
+      <button class="tab" onclick="switchTab('filaments')">Filament Presets</button>
+      <button class="tab" onclick="switchTab('userPresets')">Your Presets</button>
     </div>
 
     <!-- Calculator Tab -->
@@ -1025,20 +1607,14 @@
           All available printers with their brands, purchase prices and calculated depreciation costs per hour.
         </p>
         
-        <!-- Filter Section -->
+        <!-- Brand Filter Section -->
         <div class="filter-section">
-          <label class="filter-label">🔍 Filter Printers</label>
-          <div class="filter-row">
-            <input 
-              type="text" 
-              id="printerFilter" 
-              class="filter-input" 
-              placeholder="Search by printer name or brand..."
-            >
-            <button class="btn btn-ghost btn-small" onclick="clearPrinterFilter()">Clear</button>
+          <div class="filter-label">
+            <span>Filter by Brand</span>
+            <span class="filter-stats" id="printerFilterStats">Showing all printers</span>
           </div>
-          <div class="filter-stats" id="printerFilterStats">
-            Showing all printers
+          <div id="printerBrandFilters" class="brand-checkbox-grid">
+            <!-- Checkboxes will be populated dynamically -->
           </div>
         </div>
 
@@ -1062,10 +1638,113 @@
         </div>
         <div id="printersList"></div>
         <div id="printersNoResults" class="no-results" style="display: none;">
-          <div class="no-results-icon">🔍</div>
+          <div class="no-results-icon"></div>
           <p style="font-size: 16px; margin-bottom: 8px;">No printers found</p>
           <p style="font-size: 14px;">Try adjusting your search terms</p>
         </div>
+      </div>
+    </div>
+
+    <!-- User Presets Tab -->
+    <div id="userPresetsTab" class="tab-content">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px;">
+        
+        <!-- Your Printers Section -->
+        <div class="card">
+          <div class="section-header">
+            <h3>Your Printers Library</h3>
+            <div style="display: flex; gap: 8px;">
+              <button id="btnToggleUserPrinterMassDelete" class="btn btn-toggle-mass-delete" style="display:none;">Mass Delete</button>
+              <button id="btnAddUserPrinter" class="btn btn-primary btn-small" style="display:none;">+ Add Printer</button>
+            </div>
+          </div>
+          <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+            Your personal printers library. These are only visible to you and can be customized for your specific needs.
+          </p>
+          
+          <!-- Brand Filter Section -->
+          <div class="filter-section">
+            <div class="filter-label">
+              <span>Filter by Brand</span>
+              <span class="filter-stats" id="userPrinterFilterStats">Showing all printers</span>
+            </div>
+            <div id="userPrinterBrandFilters" class="brand-checkbox-grid">
+              <!-- Checkboxes will be populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Mass Delete Controls -->
+          <div id="userPrinterMassDeleteControls" class="mass-delete-controls">
+            <div class="select-all-container">
+              <input type="checkbox" id="selectAllUserPrinters" class="mass-delete-checkbox">
+              <label for="selectAllUserPrinters" class="select-all-label">Select All</label>
+              <span class="selected-count" id="userPrinterSelectedCount">0 selected</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button id="btnDeleteSelectedUserPrinters" class="btn-mass-delete">Delete Selected</button>
+              <button id="btnCancelUserPrinterMassDelete" class="btn-cancel-mass-delete">Cancel</button>
+            </div>
+          </div>
+          
+          <div id="userPrintersListContainer" style="display: none;">
+            <div id="userPrintersMassDeleteList"></div>
+          </div>
+          <div id="userPrintersList"></div>
+          <div id="userPrintersNoResults" class="no-results" style="display: none;">
+            <div class="no-results-icon"></div>
+            <p style="font-size: 16px; margin-bottom: 8px;">No printers found</p>
+            <p style="font-size: 14px;">Try adjusting your search terms</p>
+          </div>
+        </div>
+
+        <!-- Your Filaments Section -->
+        <div class="card">
+          <div class="section-header">
+            <h3>Your Filaments Library</h3>
+            <div style="display: flex; gap: 8px;">
+              <button id="btnToggleUserFilamentMassDelete" class="btn btn-toggle-mass-delete" style="display:none;">Mass Delete</button>
+              <button id="btnAddUserFilament" class="btn btn-primary btn-small" style="display:none;">+ Add Filament</button>
+            </div>
+          </div>
+          <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+            Your personal filaments library. These are only visible to you and can be customized for your specific needs.
+          </p>
+          
+          <!-- Brand Filter Section -->
+          <div class="filter-section">
+            <div class="filter-label">
+              <span>Filter by Brand</span>
+              <span class="filter-stats" id="userFilamentFilterStats">Showing all filaments</span>
+            </div>
+            <div id="userFilamentBrandFilters" class="brand-checkbox-grid">
+              <!-- Checkboxes will be populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Mass Delete Controls -->
+          <div id="userFilamentMassDeleteControls" class="mass-delete-controls">
+            <div class="select-all-container">
+              <input type="checkbox" id="selectAllUserFilaments" class="mass-delete-checkbox">
+              <label for="selectAllUserFilaments" class="select-all-label">Select All</label>
+              <span class="selected-count" id="userFilamentSelectedCount">0 selected</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button id="btnDeleteSelectedUserFilaments" class="btn-mass-delete">Delete Selected</button>
+              <button id="btnCancelUserFilamentMassDelete" class="btn-cancel-mass-delete">Cancel</button>
+            </div>
+          </div>
+          
+          <div id="userFilamentsListContainer" style="display: none;">
+            <div id="userFilamentsMassDeleteList"></div>
+          </div>
+          <div id="userFilamentsList"></div>
+          <div id="userFilamentsNoResults" class="no-results" style="display: none;">
+            <div class="no-results-icon"></div>
+            <p style="font-size: 16px; margin-bottom: 8px;">No filaments found</p>
+            <p style="font-size: 14px;">Try adjusting your search terms</p>
+          </div>
+        </div>
+        
       </div>
     </div>
 
@@ -1083,20 +1762,14 @@
           All available filaments with detailed pricing information per spool, kilogram, and gram.
         </p>
         
-        <!-- Filter Section -->
+        <!-- Brand Filter Section -->
         <div class="filter-section">
-          <label class="filter-label">🔍 Filter Filaments</label>
-          <div class="filter-row">
-            <input 
-              type="text" 
-              id="filamentFilter" 
-              class="filter-input" 
-              placeholder="Search by type or brand..."
-            >
-            <button class="btn btn-ghost btn-small" onclick="clearFilamentFilter()">Clear</button>
+          <div class="filter-label">
+            <span>Filter by Brand</span>
+            <span class="filter-stats" id="filamentFilterStats">Showing all filaments</span>
           </div>
-          <div class="filter-stats" id="filamentFilterStats">
-            Showing all filaments
+          <div id="filamentBrandFilters" class="brand-checkbox-grid">
+            <!-- Checkboxes will be populated dynamically -->
           </div>
         </div>
 
@@ -1120,7 +1793,7 @@
         </div>
         <div id="filamentsList"></div>
         <div id="filamentsNoResults" class="no-results" style="display: none;">
-          <div class="no-results-icon">🔍</div>
+          <div class="no-results-icon"></div>
           <p style="font-size: 16px; margin-bottom: 8px;">No filaments found</p>
           <p style="font-size: 14px;">Try adjusting your search terms</p>
         </div>
@@ -1136,7 +1809,13 @@
       <label>Email</label>
       <input id="loginEmail" type="email" placeholder="your@email.com">
       <label>Password</label>
-      <input id="loginPass" type="password" placeholder="••••••••">
+      <div style="position: relative;">
+        <input id="loginPass" type="password" placeholder="••••••••" style="padding-right: 45px;">
+        <button id="toggleLoginPassCalc" type="button" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-muted); padding: 4px 8px;">👁</button>
+      </div>
+      <div style="text-align: right; margin-top: 4px;">
+        <a href="#" id="forgotPasswordLinkCalc" style="color: var(--purple-light); text-decoration: none; font-size: 13px;">Forgot Password?</a>
+      </div>
       <div id="loginErr" class="err"></div>
       <div class="modal-buttons">
         <button id="doLogin" class="btn btn-primary">Login</button>
@@ -1158,9 +1837,15 @@
       <label>Email</label>
       <input id="signupEmail" type="email" placeholder="your@email.com">
       <label>Password</label>
-      <input id="signupPass" type="password" placeholder="••••••••">
+      <div style="position: relative;">
+        <input id="signupPass" type="password" placeholder="••••••••" style="padding-right: 45px;">
+        <button id="toggleSignupPassCalc" type="button" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-muted); padding: 4px 8px;">👁</button>
+      </div>
       <label>Confirm Password</label>
-      <input id="signupPassConfirm" type="password" placeholder="••••••••">
+      <div style="position: relative;">
+        <input id="signupPassConfirm" type="password" placeholder="••••••••" style="padding-right: 45px;">
+        <button id="toggleSignupPassConfirmCalc" type="button" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-muted); padding: 4px 8px;">👁</button>
+      </div>
       <div id="signupErr" class="err"></div>
       <div class="modal-buttons">
         <button id="doSignup" class="btn btn-primary">Create Account</button>
@@ -1257,7 +1942,7 @@
 
   <!-- Custom Notification -->
   <div id="customNotification" class="notification">
-    <div class="notification-icon">✓</div>
+    <div class="notification-icon"></div>
     <div class="notification-title">Success!</div>
     <div class="notification-message"></div>
     <div class="notification-buttons">
@@ -1267,11 +1952,11 @@
 
   <!-- Custom Confirm Dialog -->
   <div id="customConfirm" class="confirm-dialog">
-    <div class="confirm-icon">⚠️</div>
+    <div class="confirm-icon"></div>
     <div class="confirm-title">Are you sure?</div>
     <div class="confirm-message"></div>
     <div class="confirm-buttons">
-      <button id="confirmYes" class="btn btn-danger">Delete</button>
+      <button id="confirmYes" class="btn btn-danger">Confirm</button>
       <button id="confirmNo" class="btn btn-ghost">Cancel</button>
     </div>
   </div>
@@ -1335,8 +2020,14 @@
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.database();
+  
+  // Shared database - all users can read, only admins can write
   const printersRef = db.ref('printers');
   const filamentsRef = db.ref('filaments');
+  
+  // User-specific database references (will be set when user logs in)
+  let userPrintersRef = null;
+  let userFilamentsRef = null;
 
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
@@ -1405,9 +2096,15 @@
 
   // Logout button in settings
   btnLogoutSettings.addEventListener('click', () => {
-    settingsDropdown.classList.remove('active');
-    btnSettings.classList.remove('active');
-    auth.signOut();
+    showConfirm('Are you sure you want to log out?', '', 'Logout', 'Logout').then((confirmed) => {
+      if (confirmed) {
+        settingsDropdown.classList.remove('active');
+        btnSettings.classList.remove('active');
+        auth.signOut().then(() => {
+          showNotification('You have been logged out successfully.', '', 'Goodbye!');
+        });
+      }
+    });
   });
 
     // Return references for auth state handler
@@ -1522,7 +2219,7 @@
   btnSavePreset.addEventListener('click', () => {
     const user = auth.currentUser;
     if (!user) {
-      alert('Please login to save presets');
+      showNotification('Please login to save presets', '', 'Login Required');
       return;
     }
     
@@ -1646,7 +2343,7 @@
   btnManagePresets.addEventListener('click', () => {
     const user = auth.currentUser;
     if (!user) {
-      alert('Please login to manage presets');
+      showNotification('Please login to manage presets', '', 'Login Required');
       return;
     }
     renderPresetsList();
@@ -1817,6 +2514,21 @@
     return amount / exchangeRates[currentCurrency];
   }
 
+  // Convert between two currencies
+  function convertBetweenCurrencies(amount, fromCurrency, toCurrency) {
+    // If same currency, no conversion needed
+    if (fromCurrency === toCurrency) return amount;
+    
+    // If exchange rates not available, return original
+    if (!exchangeRates[fromCurrency] || !exchangeRates[toCurrency]) return amount;
+    
+    // Convert from -> USD -> to
+    const usdAmount = amount / exchangeRates[fromCurrency];
+    const convertedAmount = usdAmount * exchangeRates[toCurrency];
+    
+    return convertedAmount;
+  }
+
   // Format money with current currency
   function formatMoney(usdAmount) {
     const amount = convertCurrency(usdAmount);
@@ -1867,7 +2579,7 @@
         saveBtn.classList.remove('saved');
         saveBtn.disabled = false;
       } else {
-        saveBtn.textContent = 'Saved ✓';
+        saveBtn.textContent = 'Saved';
         saveBtn.classList.add('saved');
         saveBtn.disabled = true;
       }
@@ -1899,7 +2611,7 @@
     userCurrencyRef.set(currentCurrency).then(() => {
       console.log('✅ Currency preference saved to Firebase:', currentCurrency);
       lastSavedCurrency = currentCurrency;
-      saveBtn.textContent = 'Saved ✓';
+      saveBtn.textContent = 'Saved';
       saveBtn.classList.add('saved');
       
       // Reset button after 2 seconds
@@ -1914,10 +2626,10 @@
       // Check if it's a permission error
       if (error.code === 'PERMISSION_DENIED') {
         saveBtn.textContent = 'Permission Error';
-        alert('Permission denied. Firebase security rules may need to be updated.\n\nPlease update your Firebase Realtime Database rules to:\n\n{\n  "rules": {\n    "users": {\n      "$uid": {\n        ".read": "$uid === auth.uid",\n        ".write": "$uid === auth.uid"\n      }\n    },\n    "printers": {\n      ".read": true,\n      ".write": "auth != null"\n    },\n    "filaments": {\n      ".read": true,\n      ".write": "auth != null"\n    }\n  }\n}');
+        showNotification('Permission denied. Firebase security rules may need to be updated.\n\nPlease update your Firebase Realtime Database rules to:\n\n{\n  "rules": {\n    "users": {\n      "$uid": {\n        ".read": "$uid === auth.uid",\n        ".write": "$uid === auth.uid"\n      }\n    },\n    "printers": {\n      ".read": true,\n      ".write": "auth != null"\n    },\n    "filaments": {\n      ".read": true,\n      ".write": "auth != null"\n    }\n  }\n}', '', 'Permission Error');
       } else {
         saveBtn.textContent = 'Error';
-        alert('Error saving currency: ' + error.message);
+        showNotification('Error saving currency: ' + error.message, '', 'Error');
       }
       
       saveBtn.disabled = false;
@@ -2021,11 +2733,18 @@
     renderPrintersList();
     renderFilamentSelect();
     renderFilamentsList();
+    
+    // Also refresh user preset lists
+    if (auth.currentUser) {
+      renderUserPrintersList();
+      renderUserFilamentsList();
+    }
+    
     calculateCost();
   }
 
   /* Custom Notification System */
-  function showNotification(message, icon = '✓', title = 'Success!') {
+  function showNotification(message, icon = '', title = 'Success!') {
     const notification = document.getElementById('customNotification');
     const overlay = document.getElementById('overlay');
     
@@ -2048,7 +2767,7 @@
   }
 
   /* Custom Confirm Dialog */
-  function showConfirm(message, icon = '⚠️', title = 'Are you sure?') {
+  function showConfirm(message, icon = '', title = 'Are you sure?', buttonText = 'Confirm') {
     return new Promise((resolve) => {
       const confirmDialog = document.getElementById('customConfirm');
       const overlay = document.getElementById('overlay');
@@ -2058,6 +2777,7 @@
       confirmDialog.querySelector('.confirm-icon').textContent = icon;
       confirmDialog.querySelector('.confirm-title').textContent = title;
       confirmDialog.querySelector('.confirm-message').textContent = message;
+      yesBtn.textContent = buttonText;
       
       overlay.style.display = 'block';
       confirmDialog.classList.add('show');
@@ -2108,6 +2828,29 @@
 
   auth.onAuthStateChanged(async user => {
     console.log('Auth state changed. User:', user ? user.uid : 'logged out');
+    
+    // Set up user-specific database references
+    if (user) {
+      userPrintersRef = db.ref(`userPrinters/${user.uid}`);
+      userFilamentsRef = db.ref(`userFilaments/${user.uid}`);
+      
+      // Listen to user printers and filaments
+      userPrintersRef.on('value', renderUserPrintersList);
+      userFilamentsRef.on('value', renderUserFilamentsList);
+    } else {
+      // Clean up listeners when user logs out
+      if (userPrintersRef) {
+        userPrintersRef.off();
+        userPrintersRef = null;
+      }
+      if (userFilamentsRef) {
+        userFilamentsRef.off();
+        userFilamentsRef = null;
+      }
+      // Re-render to show "Coming Soon" message
+      renderUserPrintersList();
+      renderUserFilamentsList();
+    }
     
     // Wait for navbar elements to be available
     let retryCount = 0;
@@ -2219,6 +2962,12 @@
     document.getElementById('btnAddPrinter').style.display = isAdmin ? 'inline-block' : 'none';
     document.getElementById('btnAddFilament').style.display = isAdmin ? 'inline-block' : 'none';
     
+    // Show/hide user preset buttons (for all logged-in users)
+    document.getElementById('btnAddUserPrinter').style.display = user ? 'inline-block' : 'none';
+    document.getElementById('btnAddUserFilament').style.display = user ? 'inline-block' : 'none';
+    document.getElementById('btnToggleUserPrinterMassDelete').style.display = user ? 'inline-block' : 'none';
+    document.getElementById('btnToggleUserFilamentMassDelete').style.display = user ? 'inline-block' : 'none';
+    
     // Load currency preference when auth state changes
     if (Object.keys(exchangeRates).length > 0) {
       setTimeout(() => {
@@ -2264,15 +3013,23 @@
     } else if (tabName === 'printers') {
       document.getElementById('printersTab').classList.add('active');
       document.querySelector('.tabs .tab:nth-child(2)').classList.add('active');
-      console.log('Switched to Printers tab');
+      console.log('Switched to Printer Presets tab');
       renderPrintersList();
     } else if (tabName === 'filaments') {
       document.getElementById('filamentsTab').classList.add('active');
       document.querySelector('.tabs .tab:nth-child(3)').classList.add('active');
-      console.log('Switched to Filaments tab');
+      console.log('Switched to Filament Presets tab');
       renderFilamentsList();
+    } else if (tabName === 'userPresets') {
+      document.getElementById('userPresetsTab').classList.add('active');
+      document.querySelector('.tabs .tab:nth-child(4)').classList.add('active');
+      console.log('Switched to Your Presets tab');
+      renderUserPrintersList();
+      renderUserFilamentsList();
     }
   }
+
+  /* User Presets - No longer using sub-tabs, both sections shown side by side */
 
   /* Modal Functions */
   function showModal(modal) {
@@ -2326,7 +3083,7 @@
     const pass = document.getElementById('loginPass').value;
     
     if (!email || !pass) {
-      document.getElementById('loginErr').textContent = 'Please enter email and password.';
+      document.getElementById('loginErr').textContent = 'Please enter both email and password.';
       return;
     }
     
@@ -2349,109 +3106,35 @@
         if (error.code === 'auth/user-not-found') {
           document.getElementById('loginErr').textContent = 'No account found with this email.';
         } else if (error.code === 'auth/wrong-password') {
-          document.getElementById('loginErr').textContent = 'Incorrect password.';
+          document.getElementById('loginErr').textContent = 'Incorrect password. Please try again.';
         } else if (error.code === 'auth/invalid-email') {
           document.getElementById('loginErr').textContent = 'Invalid email address.';
+        } else if (error.code === 'auth/invalid-credential') {
+          document.getElementById('loginErr').textContent = 'Invalid credentials. Please check your email and password.';
         } else {
-          document.getElementById('loginErr').textContent = 'Login failed. Please try again.';
+          document.getElementById('loginErr').textContent = 'Invalid credentials. Please check your email and password.';
         }
       });
   };
 
-  /* Signup */
+  /* Signup - DISABLED: Requires Email Verification */
   document.getElementById('closeSignup').onclick = () => hideModal(signupModal);
   
-  document.getElementById('doSignup').onclick = () => {
-    const username = document.getElementById('signupUsername').value.trim();
-    const email = document.getElementById('signupEmail').value.trim();
-    const pass = document.getElementById('signupPass').value;
-    const passConfirm = document.getElementById('signupPassConfirm').value;
-    
-    if (!username || !email || !pass || !passConfirm) {
-      document.getElementById('signupErr').textContent = 'Please fill all fields.';
-      return;
-    }
-
-    if (username.length < 3) {
-      document.getElementById('signupErr').textContent = 'Username must be at least 3 characters.';
-      return;
-    }
-
-    if (username.length > 20) {
-      document.getElementById('signupErr').textContent = 'Username must be less than 20 characters.';
-      return;
-    }
-    
-    if (pass !== passConfirm) {
-      document.getElementById('signupErr').textContent = 'Passwords do not match.';
-      return;
-    }
-    
-    if (pass.length < 6) {
-      document.getElementById('signupErr').textContent = 'Password must be at least 6 characters.';
-      return;
-    }
-    
-    // Create the user account
-    auth.createUserWithEmailAndPassword(email, pass)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        console.log('User created:', user.uid);
-        
-        // Update Firebase Auth display name
-        return user.updateProfile({
-          displayName: username
-        }).then(() => {
-          // Also save username to database with role
-          return db.ref(`users/${user.uid}`).set({
-            username: username,
-            email: email,
-            role: 'member',
-            createdAt: new Date().toISOString()
-          });
-        });
-      })
-      .then(() => {
-        console.log('✅ User created with username and role set to "member"');
-        hideModal(signupModal);
-        document.getElementById('signupUsername').value = '';
-        document.getElementById('signupEmail').value = '';
-        document.getElementById('signupPass').value = '';
-        document.getElementById('signupPassConfirm').value = '';
-        document.getElementById('signupErr').textContent = '';
-        
-        // Show custom notification instead of alert
-        showNotification(
-          'Your account has been created successfully! Welcome to Vixvvo.',
-          '🎉',
-          'Welcome!'
-        );
-        
-        if (Object.keys(exchangeRates).length > 0) {
-          setTimeout(() => {
-            loadCurrencyPreference();
-          }, 250);
-        }
-      })
-      .catch((error) => {
-        console.error('Signup error:', error);
-        if (error.code === 'auth/email-already-in-use') {
-          document.getElementById('signupErr').textContent = 'Email already registered. Please login.';
-        } else if (error.code === 'auth/invalid-email') {
-          document.getElementById('signupErr').textContent = 'Invalid email address.';
-        } else if (error.code === 'auth/weak-password') {
-          document.getElementById('signupErr').textContent = 'Password is too weak.';
-        } else {
-          document.getElementById('signupErr').textContent = 'Signup failed: ' + error.message;
-        }
-      });
+  // IMPORTANT: Account creation on calculator page is disabled
+  // Users MUST sign up from the home page to ensure email verification
+  document.getElementById('doSignup').onclick = async () => {
+    // Automatically redirect to home page and open signup modal
+    sessionStorage.setItem('openSignup', 'true');
+    window.location.href = '../index.html';
   };
 
   /* Modal Switching */
   document.getElementById('switchToSignup').onclick = () => {
     hideModal(loginModal);
-    document.getElementById('loginErr').textContent = '';
-    showModal(signupModal);
+    // Redirect to home page for signup (requires email verification)
+    // Store flag to auto-open signup modal
+    sessionStorage.setItem('openSignup', 'true');
+    window.location.href = '../index.html';
   };
 
   document.getElementById('switchToLogin').onclick = () => {
@@ -2460,96 +3143,253 @@
     showModal(loginModal);
   };
 
-  /* Filter Functions */
-  function clearPrinterFilter() {
-    document.getElementById('printerFilter').value = '';
-    filterPrinters();
-  }
+  /* Password Visibility Toggles */
+  // Login password toggle
+  document.getElementById('toggleLoginPassCalc').onclick = (e) => {
+    e.preventDefault();
+    const passInput = document.getElementById('loginPass');
+    const toggleBtn = document.getElementById('toggleLoginPassCalc');
+    if (passInput.type === 'password') {
+      passInput.type = 'text';
+      toggleBtn.textContent = '�‍🗨';
+    } else {
+      passInput.type = 'password';
+      toggleBtn.textContent = '👁';
+    }
+  };
 
-  function clearFilamentFilter() {
-    document.getElementById('filamentFilter').value = '';
-    filterFilaments();
+  // Signup password toggle
+  document.getElementById('toggleSignupPassCalc').onclick = (e) => {
+    e.preventDefault();
+    const passInput = document.getElementById('signupPass');
+    const toggleBtn = document.getElementById('toggleSignupPassCalc');
+    if (passInput.type === 'password') {
+      passInput.type = 'text';
+      toggleBtn.textContent = '�‍🗨';
+    } else {
+      passInput.type = 'password';
+      toggleBtn.textContent = '👁';
+    }
+  };
+
+  // Signup confirm password toggle
+  document.getElementById('toggleSignupPassConfirmCalc').onclick = (e) => {
+    e.preventDefault();
+    const passInput = document.getElementById('signupPassConfirm');
+    const toggleBtn = document.getElementById('toggleSignupPassConfirmCalc');
+    if (passInput.type === 'password') {
+      passInput.type = 'text';
+      toggleBtn.textContent = '👁‍�';
+    } else {
+      passInput.type = 'password';
+      toggleBtn.textContent = '👁';
+    }
+  };
+
+  /* Forgot Password */
+  document.getElementById('forgotPasswordLinkCalc').onclick = (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    
+    if (!email) {
+      document.getElementById('loginErr').textContent = 'Please enter your email address first.';
+      return;
+    }
+
+    showConfirm(`Send password reset email to ${email}?`, '', 'Reset Password', 'Send Email').then((confirmed) => {
+      if (confirmed) {
+        auth.sendPasswordResetEmail(email)
+          .then(() => {
+            showNotification('Password reset email sent! Check your inbox and spam folder.', '', 'Email Sent');
+            document.getElementById('loginErr').textContent = '';
+          })
+          .catch((error) => {
+          if (error.code === 'auth/user-not-found') {
+            document.getElementById('loginErr').textContent = 'No account found with this email.';
+          } else if (error.code === 'auth/invalid-email') {
+            document.getElementById('loginErr').textContent = 'Invalid email address.';
+          } else {
+            document.getElementById('loginErr').textContent = 'Error: ' + error.message;
+          }
+          });
+      }
+    });
+  };
+
+  /* Brand Filter Functions */
+  function populatePrinterBrandFilters() {
+    const container = document.getElementById('printerBrandFilters');
+    if (!container) return;
+    
+    // Get unique brands with counts
+    const brandCounts = {};
+    Object.values(printersData).forEach(printer => {
+      const brand = printer.brand || 'Unknown';
+      brandCounts[brand] = (brandCounts[brand] || 0) + 1;
+    });
+    
+    // Sort brands alphabetically
+    const sortedBrands = Object.keys(brandCounts).sort();
+    
+    // Create checkbox for each brand
+    container.innerHTML = '';
+    sortedBrands.forEach(brand => {
+      const item = document.createElement('label');
+      item.className = 'brand-checkbox-item';
+      item.innerHTML = `
+        <input type="checkbox" value="${brand}" onchange="filterPrinters()">
+        <span class="brand-checkbox-label">${brand}</span>
+        <span class="brand-checkbox-count">${brandCounts[brand]}</span>
+      `;
+      
+      // Add checked class when checkbox is checked
+      const checkbox = item.querySelector('input');
+      checkbox.addEventListener('change', function() {
+        if (this.checked) {
+          item.classList.add('checked');
+        } else {
+          item.classList.remove('checked');
+        }
+      });
+      
+      container.appendChild(item);
+    });
   }
 
   function filterPrinters() {
-    const filterValue = document.getElementById('printerFilter').value.toLowerCase().trim();
-    const items = document.querySelectorAll('#printersList .list-item');
-    let visibleCount = 0;
-    const totalCount = items.length;
-
-    items.forEach(item => {
-      const textContent = item.textContent.toLowerCase();
-      const matches = textContent.includes(filterValue);
-      
-      if (matches) {
-        item.classList.remove('hidden');
-        visibleCount++;
-      } else {
-        item.classList.add('hidden');
+    const checkboxes = document.querySelectorAll('#printerBrandFilters input[type="checkbox"]');
+    const selectedBrands = new Set();
+    
+    checkboxes.forEach(cb => {
+      if (cb.checked) {
+        selectedBrands.add(cb.value);
       }
     });
-
+    
+    const categories = document.querySelectorAll('#printersList .brand-category');
+    let visibleCount = 0;
+    let totalCount = 0;
+    
+    categories.forEach(category => {
+      const brandTitle = category.querySelector('.brand-title').textContent;
+      const items = category.querySelectorAll('.list-item');
+      totalCount += items.length;
+      
+      // Show all if nothing is selected, otherwise only show selected brands
+      if (selectedBrands.size === 0 || selectedBrands.has(brandTitle)) {
+        category.style.display = 'block';
+        visibleCount += items.length;
+      } else {
+        category.style.display = 'none';
+      }
+    });
+    
     // Update stats
     const stats = document.getElementById('printerFilterStats');
     const noResults = document.getElementById('printersNoResults');
     const list = document.getElementById('printersList');
-
+    
     if (visibleCount === 0 && totalCount > 0) {
       noResults.style.display = 'block';
       list.style.display = 'none';
-      stats.textContent = `No matches found (0 of ${totalCount})`;
+      stats.textContent = `No printers match selected brands (0 of ${totalCount})`;
     } else {
       noResults.style.display = 'none';
       list.style.display = 'block';
-      if (filterValue) {
-        stats.textContent = `Showing ${visibleCount} of ${totalCount} printers`;
-      } else {
+      if (selectedBrands.size === 0) {
         stats.textContent = `Showing all ${totalCount} printers`;
+      } else {
+        stats.textContent = `Showing ${visibleCount} of ${totalCount} printers`;
       }
     }
   }
 
-  function filterFilaments() {
-    const filterValue = document.getElementById('filamentFilter').value.toLowerCase().trim();
-    const items = document.querySelectorAll('#filamentsList .list-item');
-    let visibleCount = 0;
-    const totalCount = items.length;
-
-    items.forEach(item => {
-      const name = item.querySelector('.item-name').textContent.toLowerCase();
-      const matches = name.includes(filterValue);
+  function populateFilamentBrandFilters() {
+    const container = document.getElementById('filamentBrandFilters');
+    if (!container) return;
+    
+    // Get unique brands with counts
+    const brandCounts = {};
+    Object.values(filamentsData).forEach(filament => {
+      const brand = filament.brand || 'Unknown';
+      brandCounts[brand] = (brandCounts[brand] || 0) + 1;
+    });
+    
+    // Sort brands alphabetically
+    const sortedBrands = Object.keys(brandCounts).sort();
+    
+    // Create checkbox for each brand
+    container.innerHTML = '';
+    sortedBrands.forEach(brand => {
+      const item = document.createElement('label');
+      item.className = 'brand-checkbox-item';
+      item.innerHTML = `
+        <input type="checkbox" value="${brand}" onchange="filterFilaments()">
+        <span class="brand-checkbox-label">${brand}</span>
+        <span class="brand-checkbox-count">${brandCounts[brand]}</span>
+      `;
       
-      if (matches) {
-        item.classList.remove('hidden');
-        visibleCount++;
-      } else {
-        item.classList.add('hidden');
+      // Add checked class when checkbox is checked
+      const checkbox = item.querySelector('input');
+      checkbox.addEventListener('change', function() {
+        if (this.checked) {
+          item.classList.add('checked');
+        } else {
+          item.classList.remove('checked');
+        }
+      });
+      
+      container.appendChild(item);
+    });
+  }
+
+  function filterFilaments() {
+    const checkboxes = document.querySelectorAll('#filamentBrandFilters input[type="checkbox"]');
+    const selectedBrands = new Set();
+    
+    checkboxes.forEach(cb => {
+      if (cb.checked) {
+        selectedBrands.add(cb.value);
       }
     });
-
+    
+    const categories = document.querySelectorAll('#filamentsList .brand-category');
+    let visibleCount = 0;
+    let totalCount = 0;
+    
+    categories.forEach(category => {
+      const brandTitle = category.querySelector('.brand-title').textContent;
+      const items = category.querySelectorAll('.list-item');
+      totalCount += items.length;
+      
+      // Show all if nothing is selected, otherwise only show selected brands
+      if (selectedBrands.size === 0 || selectedBrands.has(brandTitle)) {
+        category.style.display = 'block';
+        visibleCount += items.length;
+      } else {
+        category.style.display = 'none';
+      }
+    });
+    
     // Update stats
     const stats = document.getElementById('filamentFilterStats');
     const noResults = document.getElementById('filamentsNoResults');
     const list = document.getElementById('filamentsList');
-
+    
     if (visibleCount === 0 && totalCount > 0) {
       noResults.style.display = 'block';
       list.style.display = 'none';
-      stats.textContent = `No matches found (0 of ${totalCount})`;
+      stats.textContent = `No filaments match selected brands (0 of ${totalCount})`;
     } else {
       noResults.style.display = 'none';
       list.style.display = 'block';
-      if (filterValue) {
-        stats.textContent = `Showing ${visibleCount} of ${totalCount} filaments`;
-      } else {
+      if (selectedBrands.size === 0) {
         stats.textContent = `Showing all ${totalCount} filaments`;
+      } else {
+        stats.textContent = `Showing ${visibleCount} of ${totalCount} filaments`;
       }
     }
   }
-
-  // Add event listeners for filter inputs
-  document.getElementById('printerFilter').addEventListener('input', filterPrinters);
-  document.getElementById('filamentFilter').addEventListener('input', filterFilaments);
 
   /* Printers - Load from Firebase with Brand */
   function loadPrinters() {
@@ -2618,19 +3458,45 @@
     const currentValue = select.value;
     select.innerHTML = '<option value="">Choose a printer...</option>';
     
-    Object.entries(printersData).forEach(([name, printer]) => {
-      const option = document.createElement('option');
-      option.value = name;
-      option.textContent = `${printer.brand} ${name}`;
-      select.appendChild(option);
-    });
+    // Add user printers first if logged in
+    if (auth.currentUser && Object.keys(userPrintersData).length > 0) {
+      const userGroup = document.createElement('optgroup');
+      userGroup.label = 'Your Library';
+      Object.entries(userPrintersData).forEach(([id, printer]) => {
+        const option = document.createElement('option');
+        option.value = `user:${id}`;
+        option.textContent = `${printer.name} (${printer.brand})`;
+        userGroup.appendChild(option);
+      });
+      select.appendChild(userGroup);
+    }
     
-    if (currentValue && printersData[currentValue]) {
+    // Add global printers second
+    if (Object.keys(printersData).length > 0) {
+      const globalGroup = document.createElement('optgroup');
+      globalGroup.label = 'Global Library';
+      Object.entries(printersData).forEach(([name, printer]) => {
+        const option = document.createElement('option');
+        option.value = `global:${name}`;
+        option.textContent = `${name} (${printer.brand})`;
+        globalGroup.appendChild(option);
+      });
+      select.appendChild(globalGroup);
+    }
+    
+    // Restore previous selection
+    if (currentValue) {
       select.value = currentValue;
     }
     
     updatePriceInfo();
-    console.log('Printer select updated with', Object.keys(printersData).length, 'options');
+    const totalOptions = Object.keys(printersData).length + Object.keys(userPrintersData).length;
+    console.log('Printer select updated with', totalOptions, 'options (', Object.keys(printersData).length, 'global,', Object.keys(userPrintersData).length, 'user)');
+  }
+  
+  // Helper function to populate printer dropdown (called from user preset functions)
+  function populatePrinterDropdown() {
+    renderPrinterSelect();
   }
 
   function renderPrintersList() {
@@ -2668,47 +3534,84 @@
     }
 
     const countHeader = document.createElement('div');
-    countHeader.style.cssText = 'font-size: 14px; color: var(--text-muted); margin-bottom: 16px; font-weight: 600;';
-    countHeader.textContent = `📋 Total: ${printerCount} printer${printerCount !== 1 ? 's' : ''}`;
+    countHeader.style.cssText = 'font-size: 14px; color: var(--text-muted); margin-bottom: 24px; font-weight: 600;';
+    countHeader.textContent = `Total: ${printerCount} printer${printerCount !== 1 ? 's' : ''}`;
     list.appendChild(countHeader);
     
-    // Sort printers by brand then name
-    const sortedPrinters = Object.entries(printersData).sort((a, b) => {
-      const brandCompare = a[1].brand.localeCompare(b[1].brand);
-      if (brandCompare !== 0) return brandCompare;
-      return a[1].name.localeCompare(b[1].name);
+    // Group printers by brand
+    const printersByBrand = {};
+    Object.entries(printersData).forEach(([name, printer]) => {
+      if (!printersByBrand[printer.brand]) {
+        printersByBrand[printer.brand] = [];
+      }
+      printersByBrand[printer.brand].push(printer);
     });
     
-    sortedPrinters.forEach(([name, printer]) => {
-      const item = document.createElement('div');
-      item.className = isAdmin ? 'list-item with-checkbox' : 'list-item';
+    // Sort brands alphabetically
+    const sortedBrands = Object.keys(printersByBrand).sort((a, b) => a.localeCompare(b));
+    
+    // Render each brand category
+    sortedBrands.forEach(brand => {
+      const printers = printersByBrand[brand].sort((a, b) => a.name.localeCompare(b.name));
       
-      console.log('Rendering printer with admin buttons:', isAdmin);
+      const brandCategory = document.createElement('div');
+      brandCategory.className = 'brand-category';
       
-      item.innerHTML = `
-        ${isAdmin ? `<input type="checkbox" class="item-checkbox printer-checkbox" data-printer-id="${printer.id}" onchange="updatePrinterSelection()">` : ''}
-        <div class="item-info">
-          <div class="item-name">🖨️ ${printer.brand} ${printer.name}</div>
-          <div class="item-details">
-            <strong>Price:</strong> ${formatMoney(printer.price)} • 
-            <strong>Lifespan:</strong> ${printer.lifespan.toLocaleString()} hours • 
-            <strong>Depreciation:</strong> ${formatMoney(printer.costPerHour)}/hour
-          </div>
-        </div>
-        ${isAdmin ? `
-          <div class="btn-actions">
-            <button class="btn btn-edit btn-small" onclick="editPrinter('${printer.id}')">Edit</button>
-            <button class="btn btn-delete btn-small" onclick="deletePrinter('${printer.id}')">Delete</button>
-          </div>
-        ` : ''}
+      const brandHeader = document.createElement('div');
+      brandHeader.className = 'brand-header';
+      brandHeader.innerHTML = `
+        <div class="brand-title">${brand}</div>
+        <div class="brand-count">${printers.length} printer${printers.length !== 1 ? 's' : ''}</div>
       `;
-      list.appendChild(item);
+      
+      const brandItems = document.createElement('div');
+      brandItems.className = 'brand-items';
+      
+      printers.forEach(printer => {
+        const item = document.createElement('div');
+        item.className = isAdmin ? 'list-item with-checkbox' : 'list-item';
+        
+        item.innerHTML = `
+          ${isAdmin ? `<input type="checkbox" class="item-checkbox printer-checkbox" data-printer-id="${printer.id}" onchange="updatePrinterSelection()">` : ''}
+          <div class="item-info">
+            <div class="item-name">${printer.name}</div>
+            <div class="item-details">
+              <div class="detail-badge">
+                <span class="detail-label">Purchase Price</span>
+                <span class="detail-value">${formatMoney(printer.price)}</span>
+              </div>
+              <div class="detail-badge">
+                <span class="detail-label">Lifespan</span>
+                <span class="detail-value">${printer.lifespan.toLocaleString()} hrs</span>
+              </div>
+              <div class="detail-badge">
+                <span class="detail-label">Depreciation</span>
+                <span class="detail-value">${formatMoney(printer.costPerHour)}/hr</span>
+              </div>
+            </div>
+          </div>
+          ${isAdmin ? `
+            <div class="btn-actions">
+              <button class="btn btn-edit btn-small" onclick="editPrinter('${printer.id}')">Edit</button>
+              <button class="btn btn-delete btn-small" onclick="deletePrinter('${printer.id}')">Delete</button>
+            </div>
+          ` : ''}
+        `;
+        brandItems.appendChild(item);
+      });
+      
+      brandCategory.appendChild(brandHeader);
+      brandCategory.appendChild(brandItems);
+      list.appendChild(brandCategory);
     });
     
     // Reset mass delete mode when re-rendering
     if (isAdmin) {
       exitPrinterMassDeleteMode();
     }
+    
+    // Populate brand filters
+    populatePrinterBrandFilters();
        
     console.log('Printers list rendered successfully');
   }
@@ -2724,8 +3627,48 @@
     document.getElementById('printerLifespan').value = '5000';
     document.getElementById('printerQuickAdd').value = '';
     document.getElementById('printerErr').textContent = '';
+    
+    // Reset to global save handler
+    document.getElementById('savePrinter').onclick = saveGlobalPrinter;
+    
     showModal(printerModal);
   };
+  
+  // Global printer save function
+  function saveGlobalPrinter() {
+    const name = document.getElementById('printerName').value.trim();
+    const brand = document.getElementById('printerBrand').value.trim();
+    const price = parseFloat(document.getElementById('printerPrice').value);
+    const lifespan = parseInt(document.getElementById('printerLifespan').value);
+    
+    if (!name || !brand || !price || price < 0 || !lifespan || lifespan < 1) {
+      document.getElementById('printerErr').textContent = 'Please fill all fields correctly.';
+      return;
+    }
+    
+    if (editingPrinterId) {
+      // Update existing printer
+      printersRef.child(editingPrinterId).update({ name, brand, price, lifespan })
+        .then(() => {
+          editingPrinterId = null;
+          hideModal(printerModal);
+          document.getElementById('printerErr').textContent = '';
+        })
+        .catch((error) => {
+          document.getElementById('printerErr').textContent = 'Error updating printer: ' + error.message;
+        });
+    } else {
+      // Add new printer
+      printersRef.push({ name, brand, price, lifespan })
+        .then(() => {
+          hideModal(printerModal);
+          document.getElementById('printerErr').textContent = '';
+        })
+        .catch((error) => {
+          document.getElementById('printerErr').textContent = 'Error saving printer: ' + error.message;
+        });
+    }
+  }
 
   // Quick Add Parser for Printers - BATCH SAVE
   document.getElementById('btnParseQuickAdd').onclick = () => {
@@ -2802,7 +3745,7 @@
           
           // Show success message
           document.getElementById('printerErr').style.color = '#10b981';
-          document.getElementById('printerErr').textContent = `✓ Successfully added ${addedCount} printer${addedCount > 1 ? 's' : ''}!`;
+          document.getElementById('printerErr').textContent = `Successfully added ${addedCount} printer${addedCount > 1 ? 's' : ''}!`;
           
           setTimeout(() => {
             document.getElementById('printerErr').style.color = '#ff7b7b';
@@ -2835,81 +3778,37 @@
     document.getElementById('printerLifespan').value = printer.lifespan;
     document.getElementById('printerQuickAdd').value = '';
     document.getElementById('printerErr').textContent = '';
+    
+    // Reset to global save handler
+    document.getElementById('savePrinter').onclick = saveGlobalPrinter;
+    
     showModal(printerModal);
   }
 
   document.getElementById('closePrinter').onclick = () => {
     editingPrinterId = null;
+    editingUserPrinterId = null;
     hideModal(printerModal);
   };
 
-  document.getElementById('savePrinter').onclick = () => {
-    const name = document.getElementById('printerName').value.trim();
-    const brand = document.getElementById('printerBrand').value.trim();
-    const price = parseFloat(document.getElementById('printerPrice').value);
-    const lifespan = parseInt(document.getElementById('printerLifespan').value);
-    
-    if (!name || !brand || !price || price < 0 || !lifespan || lifespan < 1) {
-      document.getElementById('printerErr').textContent = 'Please fill all fields correctly.';
-      return;
-    }
-    
-    if (editingPrinterId) {
-      // Update existing printer - now includes name and brand
-      console.log('Updating printer:', editingPrinterId);
-      printersRef.child(editingPrinterId).update({ name, brand, price, lifespan }) // Added name
-        .then(() => {
-          editingPrinterId = null;
-          hideModal(printerModal);
-          document.getElementById('printerErr').textContent = '';
-          console.log('Printer updated successfully');
-        })
-        .catch((error) => {
-          console.error('Error updating printer:', error);
-          document.getElementById('printerErr').textContent = 'Error updating printer: ' + error.message;
-        });
-    } else {
-      // Add new printer
-      console.log('Adding printer:', name, brand, price, lifespan);
-      printersRef.push({ name, brand, price, lifespan })
-        .then(() => {
-          hideModal(printerModal);
-          document.getElementById('printerErr').textContent = '';
-        })
-        .catch((error) => {
-          console.error('Error adding printer:', error);
-          document.getElementById('printerErr').textContent = 'Error saving printer: ' + error.message;
-        });
-    }
-  };
+  // Initial setup of save button (will be overridden when modals open)
+  document.getElementById('savePrinter').onclick = saveGlobalPrinter;
 
   function deletePrinter(id) {
     const printer = Object.values(printersData).find(p => p.id === id);
     if (!printer) return;
     
-    showConfirm(
-      `Delete "${printer.brand} ${printer.name}"? This action cannot be undone.`,
-      '🗑️',
-      'Delete Printer?'
-    ).then((confirmed) => {
+    showConfirm(`Delete "${printer.brand} ${printer.name}"? This action cannot be undone.`, '', 'Delete Printer?', 'Delete').then((confirmed) => {
       if (confirmed) {
         console.log('Deleting printer:', id);
         printersRef.child(id).remove()
           .then(() => {
             console.log('Printer deleted successfully');
-            showNotification(
-              `"${printer.brand} ${printer.name}" has been deleted.`,
-              '✓',
-              'Deleted!'
-            );
+            showNotification(`"${printer.brand} ${printer.name}" has been deleted.`, '', 'Deleted');
           })
           .catch(error => {
             console.error('Error deleting printer:', error);
-            showNotification(
-              'Error deleting printer: ' + error.message,
-              '❌',
-              'Error'
-            );
+            showNotification('Error deleting printer: ' + error.message, '', 'Error');
           });
       }
     });
@@ -2965,19 +3864,548 @@
     const currentValue = select.value;
     select.innerHTML = '<option value="">Choose filament...</option>';
     
-    Object.entries(filamentsData).forEach(([type, filament]) => {
-      const option = document.createElement('option');
-      option.value = type;
-      option.textContent = `${type} (${filament.brand})`;
-      select.appendChild(option);
-    });
+    // Add user filaments first if logged in
+    if (auth.currentUser && Object.keys(userFilamentsData).length > 0) {
+      const userGroup = document.createElement('optgroup');
+      userGroup.label = 'Your Library';
+      Object.entries(userFilamentsData).forEach(([id, filament]) => {
+        const option = document.createElement('option');
+        option.value = `user:${id}`;
+        option.textContent = `${filament.type} (${filament.brand})`;
+        userGroup.appendChild(option);
+      });
+      select.appendChild(userGroup);
+    }
     
-    if (currentValue && filamentsData[currentValue]) {
+    // Add global filaments second
+    if (Object.keys(filamentsData).length > 0) {
+      const globalGroup = document.createElement('optgroup');
+      globalGroup.label = 'Global Library';
+      Object.entries(filamentsData).forEach(([type, filament]) => {
+        const option = document.createElement('option');
+        option.value = `global:${type}`;
+        option.textContent = `${type} (${filament.brand})`;
+        globalGroup.appendChild(option);
+      });
+      select.appendChild(globalGroup);
+    }
+    
+    // Restore previous selection
+    if (currentValue) {
       select.value = currentValue;
     }
     
     updatePriceInfo();
-    console.log('Filament select updated with', Object.keys(filamentsData).length, 'options');
+    const totalOptions = Object.keys(filamentsData).length + Object.keys(userFilamentsData).length;
+    console.log('Filament select updated with', totalOptions, 'options (', Object.keys(filamentsData).length, 'global,', Object.keys(userFilamentsData).length, 'user)');
+  }
+  
+  // Helper function to populate filament dropdown (called from user preset functions)
+  function populateFilamentDropdown() {
+    renderFilamentSelect();
+  }
+
+  // User Presets Functions
+  let userPrintersData = {};
+  let userFilamentsData = {};
+  let editingUserPrinterId = null;
+  let editingUserFilamentId = null;
+  
+  function renderUserPrintersList(snapshot) {
+    const list = document.getElementById('userPrintersList');
+    const container = document.getElementById('userPrintersListContainer');
+    const toggleBtn = document.getElementById('btnToggleUserPrinterMassDelete');
+    
+    if (!list || !container) return;
+    
+    const user = auth.currentUser;
+    
+    // If no user, show message to log in
+    if (!user) {
+      container.style.display = 'none';
+      list.style.display = 'block';
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon"></div>
+          <p style="font-size: 18px; margin-bottom: 12px; font-weight: 600;">Login to Add Your Printers</p>
+          <p style="font-size: 14px; color: var(--text-muted); max-width: 400px; margin: 0 auto;">
+            Create and manage your personal printer library, separate from the global presets.
+          </p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Get user printers data
+    if (snapshot) {
+      userPrintersData = {};
+      snapshot.forEach(child => {
+        const printer = child.val();
+        printer.id = child.key;
+        printer.costPerHour = printer.price / printer.lifespan;
+        userPrintersData[child.key] = printer;
+      });
+    }
+    
+    container.style.display = 'none';
+    list.style.display = 'block';
+    list.innerHTML = '';
+    
+    const printerCount = Object.keys(userPrintersData).length;
+    
+    // Show/hide mass delete toggle button
+    if (printerCount > 0) {
+      toggleBtn.style.display = 'inline-block';
+    } else {
+      toggleBtn.style.display = 'none';
+    }
+    
+    if (printerCount === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon"></div>
+          <p style="font-size: 16px; margin-bottom: 8px;">No personal printers yet</p>
+          <p style="margin-top: 8px; font-size: 14px;">Click "Add Printer" above to create your first personal printer preset.</p>
+        </div>
+      `;
+      document.getElementById('userPrinterFilterStats').textContent = 'No printers available';
+      
+      // Clear brand filters
+      const brandFiltersContainer = document.getElementById('userPrinterBrandFilters');
+      if (brandFiltersContainer) {
+        brandFiltersContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">No printers to filter</div>';
+      }
+      return;
+    }
+    
+    const countHeader = document.createElement('div');
+    countHeader.style.cssText = 'font-size: 14px; color: var(--text-muted); margin-bottom: 24px; font-weight: 600;';
+    countHeader.textContent = `Total: ${printerCount} printer${printerCount !== 1 ? 's' : ''}`;
+    list.appendChild(countHeader);
+    
+    // Group printers by brand
+    const printersByBrand = {};
+    Object.entries(userPrintersData).forEach(([id, printer]) => {
+      if (!printersByBrand[printer.brand]) {
+        printersByBrand[printer.brand] = [];
+      }
+      printersByBrand[printer.brand].push(printer);
+    });
+    
+    // Sort brands alphabetically
+    const sortedBrands = Object.keys(printersByBrand).sort((a, b) => a.localeCompare(b));
+    
+    // Render each brand category
+    sortedBrands.forEach(brand => {
+      const printers = printersByBrand[brand].sort((a, b) => a.name.localeCompare(b.name));
+      
+      const brandCategory = document.createElement('div');
+      brandCategory.className = 'brand-category';
+      
+      const brandHeader = document.createElement('div');
+      brandHeader.className = 'brand-header';
+      brandHeader.innerHTML = `
+        <div class="brand-title">${brand}</div>
+        <div class="brand-count">${printers.length} printer${printers.length !== 1 ? 's' : ''}</div>
+      `;
+      
+      const brandItems = document.createElement('div');
+      brandItems.className = 'brand-items';
+      
+      printers.forEach(printer => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        
+        // Convert price from USD storage to current display currency
+        const priceInUSD = printer.price;
+        const convertedPrice = convertCurrency(priceInUSD);
+        const convertedCostPerHour = convertedPrice / printer.lifespan;
+        
+        // Format money in the current currency
+        const symbol = currencySymbols[currentCurrency] || currentCurrency + ' ';
+        const decimals = ['JPY', 'KRW', 'IDR', 'CLP'].includes(currentCurrency) ? 0 : 2;
+        const formattedPrice = `${symbol}${convertedPrice.toFixed(decimals)}`;
+        const formattedCostPerHour = `${symbol}${convertedCostPerHour.toFixed(decimals)}`;
+        
+        const currencyNote = '';
+        
+        item.innerHTML = `
+          <input type="checkbox" class="item-checkbox user-printer-checkbox" data-printer-id="${printer.id}" onchange="updateUserPrinterSelection()">
+          <div class="item-info">
+            <div class="item-name">${printer.name}</div>
+            <div class="item-details">
+              <div class="detail-badge">
+                <span class="detail-label">Price${currencyNote}</span>
+                <span class="detail-value">${formattedPrice}</span>
+              </div>
+              <div class="detail-badge">
+                <span class="detail-label">Lifespan</span>
+                <span class="detail-value">${printer.lifespan.toLocaleString()} hrs</span>
+              </div>
+              <div class="detail-badge">
+                <span class="detail-label">Depreciation</span>
+                <span class="detail-value">${formattedCostPerHour}/hr</span>
+              </div>
+            </div>
+          </div>
+          <div class="btn-actions">
+            <button class="btn btn-edit btn-small" onclick="editUserPrinter('${printer.id}')">Edit</button>
+            <button class="btn btn-delete btn-small" onclick="deleteUserPrinter('${printer.id}')">Delete</button>
+          </div>
+        `;
+        brandItems.appendChild(item);
+      });
+      
+      brandCategory.appendChild(brandHeader);
+      brandCategory.appendChild(brandItems);
+      list.appendChild(brandCategory);
+    });
+    
+    // Populate brand filters
+    populateUserPrinterBrandFilters();
+    
+    // Update calculator dropdowns
+    populatePrinterDropdown();
+  }
+
+  function populateUserPrinterBrandFilters() {
+    const container = document.getElementById('userPrinterBrandFilters');
+    if (!container) return;
+    
+    if (Object.keys(userPrintersData).length === 0) {
+      container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">No printers to filter</div>';
+      return;
+    }
+    
+    // Get unique brands with counts
+    const brandCounts = {};
+    Object.values(userPrintersData).forEach(printer => {
+      const brand = printer.brand || 'Unknown';
+      brandCounts[brand] = (brandCounts[brand] || 0) + 1;
+    });
+    
+    // Sort brands alphabetically
+    const sortedBrands = Object.keys(brandCounts).sort();
+    
+    // Create checkbox for each brand
+    container.innerHTML = '';
+    sortedBrands.forEach(brand => {
+      const item = document.createElement('label');
+      item.className = 'brand-checkbox-item';
+      item.innerHTML = `
+        <input type="checkbox" value="${brand}" onchange="filterUserPrinters()">
+        <span class="brand-checkbox-label">${brand}</span>
+        <span class="brand-checkbox-count">${brandCounts[brand]}</span>
+      `;
+      
+      const checkbox = item.querySelector('input');
+      checkbox.addEventListener('change', function() {
+        if (this.checked) {
+          item.classList.add('checked');
+        } else {
+          item.classList.remove('checked');
+        }
+      });
+      
+      container.appendChild(item);
+    });
+  }
+
+  function filterUserPrinters() {
+    const checkboxes = document.querySelectorAll('#userPrinterBrandFilters input[type="checkbox"]');
+    const selectedBrands = new Set();
+    
+    checkboxes.forEach(cb => {
+      if (cb.checked) {
+        selectedBrands.add(cb.value);
+      }
+    });
+    
+    const categories = document.querySelectorAll('#userPrintersList .brand-category');
+    let visibleCount = 0;
+    let totalCount = 0;
+    
+    categories.forEach(category => {
+      const brandTitle = category.querySelector('.brand-title').textContent;
+      const items = category.querySelectorAll('.list-item');
+      totalCount += items.length;
+      
+      if (selectedBrands.size === 0 || selectedBrands.has(brandTitle)) {
+        category.style.display = 'block';
+        visibleCount += items.length;
+      } else {
+        category.style.display = 'none';
+      }
+    });
+    
+    // Update stats
+    const stats = document.getElementById('userPrinterFilterStats');
+    const noResults = document.getElementById('userPrintersNoResults');
+    const list = document.getElementById('userPrintersList');
+    
+    if (visibleCount === 0 && totalCount > 0) {
+      noResults.style.display = 'block';
+      list.style.display = 'none';
+      stats.textContent = `No printers match selected brands (0 of ${totalCount})`;
+    } else {
+      noResults.style.display = 'none';
+      list.style.display = 'block';
+      if (selectedBrands.size === 0) {
+        stats.textContent = `Showing all ${totalCount} printers`;
+      } else {
+        stats.textContent = `Showing ${visibleCount} of ${totalCount} printers`;
+      }
+    }
+  }
+
+  function renderUserFilamentsList(snapshot) {
+    const list = document.getElementById('userFilamentsList');
+    const container = document.getElementById('userFilamentsListContainer');
+    const toggleBtn = document.getElementById('btnToggleUserFilamentMassDelete');
+    
+    if (!list || !container) return;
+    
+    const user = auth.currentUser;
+    
+    // If no user, show message to log in
+    if (!user) {
+      container.style.display = 'none';
+      list.style.display = 'block';
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon"></div>
+          <p style="font-size: 18px; margin-bottom: 12px; font-weight: 600;">Login to Add Your Filaments</p>
+          <p style="font-size: 14px; color: var(--text-muted); max-width: 400px; margin: 0 auto;">
+            Create and manage your personal filament library, separate from the global presets.
+          </p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Get user filaments data
+    if (snapshot) {
+      userFilamentsData = {};
+      snapshot.forEach(child => {
+        const filament = child.val();
+        filament.id = child.key;
+        filament.costPerG = filament.spoolCost / filament.spoolWeight;
+        userFilamentsData[child.key] = filament;
+      });
+    }
+    
+    container.style.display = 'none';
+    list.style.display = 'block';
+    list.innerHTML = '';
+    
+    const filamentCount = Object.keys(userFilamentsData).length;
+    
+    // Show/hide mass delete toggle button
+    if (filamentCount > 0) {
+      toggleBtn.style.display = 'inline-block';
+    } else {
+      toggleBtn.style.display = 'none';
+    }
+    
+    if (filamentCount === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon"></div>
+          <p style="font-size: 16px; margin-bottom: 8px;">No personal filaments yet</p>
+          <p style="margin-top: 8px; font-size: 14px;">Click "Add Filament" above to create your first personal filament preset.</p>
+        </div>
+      `;
+      document.getElementById('userFilamentFilterStats').textContent = 'No filaments available';
+      
+      // Clear brand filters
+      const brandFiltersContainer = document.getElementById('userFilamentBrandFilters');
+      if (brandFiltersContainer) {
+        brandFiltersContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">No filaments to filter</div>';
+      }
+      return;
+    }
+    
+    const countHeader = document.createElement('div');
+    countHeader.style.cssText = 'font-size: 14px; color: var(--text-muted); margin-bottom: 24px; font-weight: 600;';
+    countHeader.textContent = `Total: ${filamentCount} filament${filamentCount !== 1 ? 's' : ''}`;
+    list.appendChild(countHeader);
+    
+    // Group filaments by brand
+    const filamentsByBrand = {};
+    Object.entries(userFilamentsData).forEach(([id, filament]) => {
+      if (!filamentsByBrand[filament.brand]) {
+        filamentsByBrand[filament.brand] = [];
+      }
+      filamentsByBrand[filament.brand].push(filament);
+    });
+    
+    // Sort brands alphabetically
+    const sortedBrands = Object.keys(filamentsByBrand).sort((a, b) => a.localeCompare(b));
+    
+    // Render each brand category
+    sortedBrands.forEach(brand => {
+      const filaments = filamentsByBrand[brand].sort((a, b) => a.type.localeCompare(b.type));
+      
+      const brandCategory = document.createElement('div');
+      brandCategory.className = 'brand-category';
+      
+      const brandHeader = document.createElement('div');
+      brandHeader.className = 'brand-header';
+      brandHeader.innerHTML = `
+        <div class="brand-title">${brand}</div>
+        <div class="brand-count">${filaments.length} filament${filaments.length !== 1 ? 's' : ''}</div>
+      `;
+      
+      const brandItems = document.createElement('div');
+      brandItems.className = 'brand-items';
+      
+      filaments.forEach(filament => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        
+        // Convert price from USD storage to current display currency
+        const spoolCostInUSD = filament.spoolCost;
+        const convertedSpoolCost = convertCurrency(spoolCostInUSD);
+        const convertedCostPerG = convertedSpoolCost / filament.spoolWeight;
+        const perKg = convertedCostPerG * 1000;
+        const perG = convertedCostPerG;
+        
+        // Format money in the current currency
+        const symbol = currencySymbols[currentCurrency] || currentCurrency + ' ';
+        const decimals = ['JPY', 'KRW', 'IDR', 'CLP'].includes(currentCurrency) ? 0 : 2;
+        const formattedSpoolCost = `${symbol}${convertedSpoolCost.toFixed(decimals)}`;
+        const formattedPerKg = `${symbol}${perKg.toFixed(decimals)}`;
+        const formattedPerG = `${symbol}${perG.toFixed(decimals + 1)}`;
+        
+        const currencyNote = '';
+        
+        item.innerHTML = `
+          <input type="checkbox" class="item-checkbox user-filament-checkbox" data-filament-id="${filament.id}" onchange="updateUserFilamentSelection()">
+          <div class="item-info">
+            <div class="item-name">${filament.type}</div>
+            <div class="item-details">
+              <div class="detail-badge">
+                <span class="detail-label">Spool Cost${currencyNote}</span>
+                <span class="detail-value">${formattedSpoolCost} (${filament.spoolWeight}g)</span>
+              </div>
+              <div class="detail-badge">
+                <span class="detail-label">Per Kilogram</span>
+                <span class="detail-value">${formattedPerKg}</span>
+              </div>
+              <div class="detail-badge">
+                <span class="detail-label">Per Gram</span>
+                <span class="detail-value">${formattedPerG}</span>
+              </div>
+            </div>
+          </div>
+          <div class="btn-actions">
+            <button class="btn btn-edit btn-small" onclick="editUserFilament('${filament.id}')">Edit</button>
+            <button class="btn btn-delete btn-small" onclick="deleteUserFilament('${filament.id}')">Delete</button>
+          </div>
+        `;
+        brandItems.appendChild(item);
+      });
+      
+      brandCategory.appendChild(brandHeader);
+      brandCategory.appendChild(brandItems);
+      list.appendChild(brandCategory);
+    });
+    
+    // Populate brand filters
+    populateUserFilamentBrandFilters();
+    
+    // Update calculator dropdowns
+    populateFilamentDropdown();
+  }
+
+  function populateUserFilamentBrandFilters() {
+    const container = document.getElementById('userFilamentBrandFilters');
+    if (!container) return;
+    
+    if (Object.keys(userFilamentsData).length === 0) {
+      container.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">No filaments to filter</div>';
+      return;
+    }
+    
+    // Get unique brands with counts
+    const brandCounts = {};
+    Object.values(userFilamentsData).forEach(filament => {
+      const brand = filament.brand || 'Unknown';
+      brandCounts[brand] = (brandCounts[brand] || 0) + 1;
+    });
+    
+    // Sort brands alphabetically
+    const sortedBrands = Object.keys(brandCounts).sort();
+    
+    // Create checkbox for each brand
+    container.innerHTML = '';
+    sortedBrands.forEach(brand => {
+      const item = document.createElement('label');
+      item.className = 'brand-checkbox-item';
+      item.innerHTML = `
+        <input type="checkbox" value="${brand}" onchange="filterUserFilaments()">
+        <span class="brand-checkbox-label">${brand}</span>
+        <span class="brand-checkbox-count">${brandCounts[brand]}</span>
+      `;
+      
+      const checkbox = item.querySelector('input');
+      checkbox.addEventListener('change', function() {
+        if (this.checked) {
+          item.classList.add('checked');
+        } else {
+          item.classList.remove('checked');
+        }
+      });
+      
+      container.appendChild(item);
+    });
+  }
+
+  function filterUserFilaments() {
+    const checkboxes = document.querySelectorAll('#userFilamentBrandFilters input[type="checkbox"]');
+    const selectedBrands = new Set();
+    
+    checkboxes.forEach(cb => {
+      if (cb.checked) {
+        selectedBrands.add(cb.value);
+      }
+    });
+    
+    const categories = document.querySelectorAll('#userFilamentsList .brand-category');
+    let visibleCount = 0;
+    let totalCount = 0;
+    
+    categories.forEach(category => {
+      const brandTitle = category.querySelector('.brand-title').textContent;
+      const items = category.querySelectorAll('.list-item');
+      totalCount += items.length;
+      
+      if (selectedBrands.size === 0 || selectedBrands.has(brandTitle)) {
+        category.style.display = 'block';
+        visibleCount += items.length;
+      } else {
+        category.style.display = 'none';
+      }
+    });
+    
+    // Update stats
+    const stats = document.getElementById('userFilamentFilterStats');
+    const noResults = document.getElementById('userFilamentsNoResults');
+    const list = document.getElementById('userFilamentsList');
+    
+    if (visibleCount === 0 && totalCount > 0) {
+      noResults.style.display = 'block';
+      list.style.display = 'none';
+      stats.textContent = `No filaments match selected brands (0 of ${totalCount})`;
+    } else {
+      noResults.style.display = 'none';
+      list.style.display = 'block';
+      if (selectedBrands.size === 0) {
+        stats.textContent = `Showing all ${totalCount} filaments`;
+      } else {
+        stats.textContent = `Showing ${visibleCount} of ${totalCount} filaments`;
+      }
+    }
   }
 
   function renderFilamentsList() {
@@ -3001,7 +4429,7 @@
     if (filamentCount === 0) {
       list.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-icon">🎨</div>
+          <div class="empty-state-icon"></div>
           <p style="font-size: 16px; margin-bottom: 8px;">No filaments in the library yet.</p>
           ${isAdmin ? '<p style="margin-top: 8px; font-size: 14px;">Click "Add Filament" above to add your first filament.</p>' : '<p style="margin-top: 8px; font-size: 14px;">Login as admin to add filaments.</p>'}
         </div>
@@ -3011,46 +4439,86 @@
     }
 
     const countHeader = document.createElement('div');
-    countHeader.style.cssText = 'font-size: 14px; color: var(--text-muted); margin-bottom: 16px; font-weight: 600;';
-    countHeader.textContent = `📋 Total: ${filamentCount} filament${filamentCount !== 1 ? 's' : ''}`;
+    countHeader.style.cssText = 'font-size: 14px; color: var(--text-muted); margin-bottom: 24px; font-weight: 600;';
+    countHeader.textContent = `Total: ${filamentCount} filament${filamentCount !== 1 ? 's' : ''}`;
     list.appendChild(countHeader);
     
-    const sortedFilaments = Object.entries(filamentsData).sort((a, b) => 
-      a[1].type.localeCompare(b[1].type)
-    );
+    // Group filaments by brand
+    const filamentsByBrand = {};
+    Object.entries(filamentsData).forEach(([type, filament]) => {
+      if (!filamentsByBrand[filament.brand]) {
+        filamentsByBrand[filament.brand] = [];
+      }
+      filamentsByBrand[filament.brand].push(filament);
+    });
     
-    sortedFilaments.forEach(([type, filament]) => {
-      const item = document.createElement('div');
-      item.className = isAdmin ? 'list-item with-checkbox' : 'list-item';
-      const perKg = filament.costPerG * 1000;
-      const perG = filament.costPerG;
+    // Sort brands alphabetically
+    const sortedBrands = Object.keys(filamentsByBrand).sort((a, b) => a.localeCompare(b));
+    
+    // Render each brand category
+    sortedBrands.forEach(brand => {
+      const filaments = filamentsByBrand[brand].sort((a, b) => a.type.localeCompare(b.type));
       
-      console.log('Rendering filament with admin buttons:', isAdmin);
+      const brandCategory = document.createElement('div');
+      brandCategory.className = 'brand-category';
       
-      item.innerHTML = `
-        ${isAdmin ? `<input type="checkbox" class="item-checkbox filament-checkbox" data-filament-id="${filament.id}" onchange="updateFilamentSelection()">` : ''}
-        <div class="item-info">
-          <div class="item-name">🎨 ${filament.type} - ${filament.brand}</div>
-          <div class="item-details">
-            <strong>Spool:</strong> ${formatMoney(filament.spoolCost)} (${filament.spoolWeight}g) • 
-            <strong>Per kg:</strong> ${formatMoney(perKg)} • 
-            <strong>Per gram:</strong> ${formatMoney(perG)}
-          </div>
-        </div>
-        ${isAdmin ? `
-          <div class="btn-actions">
-            <button class="btn btn-edit btn-small" onclick="editFilament('${filament.id}')">Edit</button>
-            <button class="btn btn-delete btn-small" onclick="deleteFilament('${filament.id}')">Delete</button>
-          </div>
-        ` : ''}
+      const brandHeader = document.createElement('div');
+      brandHeader.className = 'brand-header';
+      brandHeader.innerHTML = `
+        <div class="brand-title">${brand}</div>
+        <div class="brand-count">${filaments.length} filament${filaments.length !== 1 ? 's' : ''}</div>
       `;
-      list.appendChild(item);
+      
+      const brandItems = document.createElement('div');
+      brandItems.className = 'brand-items';
+      
+      filaments.forEach(filament => {
+        const item = document.createElement('div');
+        item.className = isAdmin ? 'list-item with-checkbox' : 'list-item';
+        const perKg = filament.costPerG * 1000;
+        const perG = filament.costPerG;
+        
+        item.innerHTML = `
+          ${isAdmin ? `<input type="checkbox" class="item-checkbox filament-checkbox" data-filament-id="${filament.id}" onchange="updateFilamentSelection()">` : ''}
+          <div class="item-info">
+            <div class="item-name">${filament.type}</div>
+            <div class="item-details">
+              <div class="detail-badge">
+                <span class="detail-label">Spool Cost</span>
+                <span class="detail-value">${formatMoney(filament.spoolCost)} (${filament.spoolWeight}g)</span>
+              </div>
+              <div class="detail-badge">
+                <span class="detail-label">Per Kilogram</span>
+                <span class="detail-value">${formatMoney(perKg)}</span>
+              </div>
+              <div class="detail-badge">
+                <span class="detail-label">Per Gram</span>
+                <span class="detail-value">${formatMoney(perG)}</span>
+              </div>
+            </div>
+          </div>
+          ${isAdmin ? `
+            <div class="btn-actions">
+              <button class="btn btn-edit btn-small" onclick="editFilament('${filament.id}')">Edit</button>
+              <button class="btn btn-delete btn-small" onclick="deleteFilament('${filament.id}')">Delete</button>
+            </div>
+          ` : ''}
+        `;
+        brandItems.appendChild(item);
+      });
+      
+      brandCategory.appendChild(brandHeader);
+      brandCategory.appendChild(brandItems);
+      list.appendChild(brandCategory);
     });
 
     // Reset mass delete mode when re-rendering
     if (isAdmin) {
       exitFilamentMassDeleteMode();
     }
+    
+    // Populate brand filters
+    populateFilamentBrandFilters();
   }
 
   document.getElementById('btnAddFilament').onclick = () => {
@@ -3064,8 +4532,48 @@
     document.getElementById('filamentCostSpool').value = '';
     document.getElementById('filamentQuickAdd').value = '';
     document.getElementById('filamentErr').textContent = '';
+    
+    // Reset to global save handler
+    document.getElementById('saveFilament').onclick = saveGlobalFilament;
+    
     showModal(filamentModal);
   };
+  
+  // Global filament save function
+  function saveGlobalFilament() {
+    const type = document.getElementById('filamentType').value.trim();
+    const brand = document.getElementById('filamentBrand').value.trim();
+    const spoolWeight = parseInt(document.getElementById('filamentSpoolWeight').value);
+    const spoolCost = parseFloat(document.getElementById('filamentCostSpool').value);
+    
+    if (!type || !brand || !spoolWeight || spoolWeight < 1 || !spoolCost || spoolCost < 0) {
+      document.getElementById('filamentErr').textContent = 'Please fill all fields correctly.';
+      return;
+    }
+    
+    if (editingFilamentId) {
+      // Update existing filament
+      filamentsRef.child(editingFilamentId).update({ type, brand, spoolWeight, spoolCost })
+        .then(() => {
+          editingFilamentId = null;
+          hideModal(filamentModal);
+          document.getElementById('filamentErr').textContent = '';
+        })
+        .catch((error) => {
+          document.getElementById('filamentErr').textContent = 'Error updating filament: ' + error.message;
+        });
+    } else {
+      // Add new filament
+      filamentsRef.push({ type, brand, spoolWeight, spoolCost })
+        .then(() => {
+          hideModal(filamentModal);
+          document.getElementById('filamentErr').textContent = '';
+        })
+        .catch((error) => {
+          document.getElementById('filamentErr').textContent = 'Error saving filament: ' + error.message;
+        });
+    }
+  }
 
   // Quick Add Parser for Filaments - BATCH SAVE
   document.getElementById('btnParseFilamentQuickAdd').onclick = () => {
@@ -3142,7 +4650,7 @@
           
           // Show success message
           document.getElementById('filamentErr').style.color = '#10b981';
-          document.getElementById('filamentErr').textContent = `✓ Successfully added ${addedCount} filament${addedCount > 1 ? 's' : ''}!`;
+          document.getElementById('filamentErr').textContent = `Successfully added ${addedCount} filament${addedCount > 1 ? 's' : ''}!`;
           
           setTimeout(() => {
             document.getElementById('filamentErr').style.color = '#ff7b7b';
@@ -3175,73 +4683,34 @@
     document.getElementById('filamentCostSpool').value = filament.spoolCost;
     document.getElementById('filamentQuickAdd').value = '';
     document.getElementById('filamentErr').textContent = '';
+    
+    // Reset to global save handler
+    document.getElementById('saveFilament').onclick = saveGlobalFilament;
+    
     showModal(filamentModal);
   }
 
   document.getElementById('closeFilament').onclick = () => {
     editingFilamentId = null;
+    editingUserFilamentId = null;
     hideModal(filamentModal);
   };
 
-  document.getElementById('saveFilament').onclick = () => {
-    const type = document.getElementById('filamentType').value.trim();
-    const brand = document.getElementById('filamentBrand').value.trim();
-    const spoolWeight = parseInt(document.getElementById('filamentSpoolWeight').value);
-    const spoolCost = parseFloat(document.getElementById('filamentCostSpool').value);
-    
-    if (!type || !brand || !spoolWeight || spoolWeight < 1 || !spoolCost || spoolCost < 0) {
-      document.getElementById('filamentErr').textContent = 'Please fill all fields correctly.';
-      return;
-    }
-    
-    if (editingFilamentId) {
-      // Update existing filament - now includes type and brand
-      filamentsRef.child(editingFilamentId).update({ type, brand, spoolWeight, spoolCost }) // Added type
-        .then(() => {
-          editingFilamentId = null;
-          hideModal(filamentModal);
-          document.getElementById('filamentErr').textContent = '';
-        })
-        .catch((error) => {
-          document.getElementById('filamentErr').textContent = 'Error updating filament: ' + error.message;
-        });
-    } else {
-      // Add new filament
-      filamentsRef.push({ type, brand, spoolWeight, spoolCost })
-        .then(() => {
-          hideModal(filamentModal);
-          document.getElementById('filamentErr').textContent = '';
-        })
-        .catch((error) => {
-          document.getElementById('filamentErr').textContent = 'Error saving filament: ' + error.message;
-        });
-    }
-  };
+  // Initial setup of save button (will be overridden when modals open)
+  document.getElementById('saveFilament').onclick = saveGlobalFilament;
 
   function deleteFilament(id) {
     const filament = Object.values(filamentsData).find(f => f.id === id);
     if (!filament) return;
     
-    showConfirm(
-      `Delete "${filament.type} - ${filament.brand}"? This action cannot be undone.`,
-      '🗑️',
-      'Delete Filament?'
-    ).then((confirmed) => {
+    showConfirm(`Delete "${filament.type} - ${filament.brand}"? This action cannot be undone.`, '', 'Delete Filament?', 'Delete').then((confirmed) => {
       if (confirmed) {
         filamentsRef.child(id).remove()
           .then(() => {
-            showNotification(
-              `"${filament.type} - ${filament.brand}" has been deleted.`,
-              '✓',
-              'Deleted!'
-            );
+            showNotification(`"${filament.type} - ${filament.brand}" has been deleted.`, '', 'Deleted');
           })
           .catch(error => {
-            showNotification(
-              'Error deleting filament: ' + error.message,
-              '❌',
-              'Error'
-            );
+            showNotification('Error deleting filament: ' + error.message, '', 'Error');
           });
       }
     });
@@ -3335,7 +4804,7 @@
       ? `Delete "${printerNames[0]}"? This action cannot be undone.`
       : `Delete ${selectedIds.length} printers? This action cannot be undone.\n\nSelected printers:\n• ${printerNames.join('\n• ')}`;
     
-    showConfirm(message, '🗑️', 'Delete Printers?').then((confirmed) => {
+    showConfirm(message, '', 'Delete Printers?', 'Delete').then((confirmed) => {
       if (confirmed) {
         let deletedCount = 0;
         const deletePromises = selectedIds.map(id => 
@@ -3347,19 +4816,11 @@
         
         Promise.all(deletePromises)
           .then(() => {
-            showNotification(
-              `Successfully deleted ${deletedCount} printer${deletedCount > 1 ? 's' : ''}!`,
-              '✓',
-              'Deleted!'
-            );
+            showNotification(`Successfully deleted ${deletedCount} printer${deletedCount > 1 ? 's' : ''}!`, '', 'Success');
             exitPrinterMassDeleteMode();
           })
           .catch(error => {
-            showNotification(
-              'Error deleting printers: ' + error.message,
-              '❌',
-              'Error'
-            );
+            showNotification('Error deleting printers: ' + error.message, '', 'Error');
           });
       }
     });
@@ -3453,7 +4914,7 @@
       ? `Delete "${filamentNames[0]}"? This action cannot be undone.`
       : `Delete ${selectedIds.length} filaments? This action cannot be undone.\n\nSelected filaments:\n• ${filamentNames.join('\n• ')}`;
     
-    showConfirm(message, '🗑️', 'Delete Filaments?').then((confirmed) => {
+    showConfirm(message, '', 'Delete Filaments?', 'Delete').then((confirmed) => {
       if (confirmed) {
         let deletedCount = 0;
         const deletePromises = selectedIds.map(id => 
@@ -3465,19 +4926,213 @@
         
         Promise.all(deletePromises)
           .then(() => {
-            showNotification(
-              `Successfully deleted ${deletedCount} filament${deletedCount > 1 ? 's' : ''}!`,
-              '✓',
-              'Deleted!'
-            );
+            showNotification(`Successfully deleted ${deletedCount} filament${deletedCount > 1 ? 's' : ''}!`, '', 'Success');
             exitFilamentMassDeleteMode();
           })
           .catch(error => {
-            showNotification(
-              'Error deleting filaments: ' + error.message,
-              '❌',
-              'Error'
-            );
+            showNotification('Error deleting filaments: ' + error.message, '', 'Error');
+          });
+      }
+    });
+  });
+
+  /* User Presets Mass Delete functionality */
+  function enterUserPrinterMassDeleteMode() {
+    document.getElementById('userPrintersList').classList.add('mass-delete-mode');
+    document.getElementById('userPrinterMassDeleteControls').classList.add('active');
+    document.getElementById('btnToggleUserPrinterMassDelete').classList.add('active');
+    document.getElementById('selectAllUserPrinters').checked = false;
+    updateUserPrinterSelection();
+  }
+
+  function exitUserPrinterMassDeleteMode() {
+    document.getElementById('userPrintersList').classList.remove('mass-delete-mode');
+    document.getElementById('userPrinterMassDeleteControls').classList.remove('active');
+    document.getElementById('btnToggleUserPrinterMassDelete').classList.remove('active');
+    document.getElementById('selectAllUserPrinters').checked = false;
+    document.querySelectorAll('.user-printer-checkbox').forEach(cb => cb.checked = false);
+    updateUserPrinterSelection();
+  }
+
+  function updateUserPrinterSelection() {
+    const checkboxes = document.querySelectorAll('.user-printer-checkbox');
+    const selectAll = document.getElementById('selectAllUserPrinters');
+    const deleteBtn = document.getElementById('btnDeleteSelectedUserPrinters');
+    const countDisplay = document.getElementById('userPrinterSelectedCount');
+    
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    const totalCount = checkboxes.length;
+    
+    if (checkedCount === 0) {
+      selectAll.checked = false;
+      selectAll.indeterminate = false;
+    } else if (checkedCount === totalCount) {
+      selectAll.checked = true;
+      selectAll.indeterminate = false;
+    } else {
+      selectAll.checked = false;
+      selectAll.indeterminate = true;
+    }
+    
+    countDisplay.textContent = `${checkedCount} selected`;
+    
+    if (checkedCount > 0) {
+      deleteBtn.classList.add('enabled');
+    } else {
+      deleteBtn.classList.remove('enabled');
+    }
+  }
+
+  document.getElementById('btnToggleUserPrinterMassDelete').addEventListener('click', function() {
+    if (this.classList.contains('active')) {
+      exitUserPrinterMassDeleteMode();
+    } else {
+      enterUserPrinterMassDeleteMode();
+    }
+  });
+
+  document.getElementById('btnCancelUserPrinterMassDelete').addEventListener('click', function() {
+    exitUserPrinterMassDeleteMode();
+  });
+
+  document.getElementById('selectAllUserPrinters').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.user-printer-checkbox');
+    checkboxes.forEach(cb => cb.checked = this.checked);
+    updateUserPrinterSelection();
+  });
+
+  document.getElementById('btnDeleteSelectedUserPrinters').addEventListener('click', function() {
+    const checkboxes = document.querySelectorAll('.user-printer-checkbox:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => cb.dataset.printerId);
+    
+    if (selectedIds.length === 0) return;
+    
+    const printerNames = selectedIds.map(id => {
+      const printer = userPrintersData[id];
+      return printer ? `${printer.brand} ${printer.name}` : 'Unknown';
+    });
+    
+    const message = selectedIds.length === 1 
+      ? `Delete "${printerNames[0]}"? This action cannot be undone.`
+      : `Delete ${selectedIds.length} printers? This action cannot be undone.\n\nSelected printers:\n• ${printerNames.join('\n• ')}`;
+    
+    showConfirm(message, '', 'Delete Printers?', 'Delete').then((confirmed) => {
+      if (confirmed) {
+        let deletedCount = 0;
+        const deletePromises = selectedIds.map(id => 
+          userPrintersRef.child(id).remove().then(() => {
+            deletedCount++;
+          })
+        );
+        
+        Promise.all(deletePromises)
+          .then(() => {
+            showNotification(`Successfully deleted ${deletedCount} printer${deletedCount > 1 ? 's' : ''}!`, '', 'Success');
+            exitUserPrinterMassDeleteMode();
+          })
+          .catch(error => {
+            showNotification('Error deleting printers: ' + error.message, '', 'Error');
+          });
+      }
+    });
+  });
+
+  // User Filaments Mass Delete
+  function enterUserFilamentMassDeleteMode() {
+    document.getElementById('userFilamentsList').classList.add('mass-delete-mode');
+    document.getElementById('userFilamentMassDeleteControls').classList.add('active');
+    document.getElementById('btnToggleUserFilamentMassDelete').classList.add('active');
+    document.getElementById('selectAllUserFilaments').checked = false;
+    updateUserFilamentSelection();
+  }
+
+  function exitUserFilamentMassDeleteMode() {
+    document.getElementById('userFilamentsList').classList.remove('mass-delete-mode');
+    document.getElementById('userFilamentMassDeleteControls').classList.remove('active');
+    document.getElementById('btnToggleUserFilamentMassDelete').classList.remove('active');
+    document.getElementById('selectAllUserFilaments').checked = false;
+    document.querySelectorAll('.user-filament-checkbox').forEach(cb => cb.checked = false);
+    updateUserFilamentSelection();
+  }
+
+  function updateUserFilamentSelection() {
+    const checkboxes = document.querySelectorAll('.user-filament-checkbox');
+    const selectAll = document.getElementById('selectAllUserFilaments');
+    const deleteBtn = document.getElementById('btnDeleteSelectedUserFilaments');
+    const countDisplay = document.getElementById('userFilamentSelectedCount');
+    
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    const totalCount = checkboxes.length;
+    
+    if (checkedCount === 0) {
+      selectAll.checked = false;
+      selectAll.indeterminate = false;
+    } else if (checkedCount === totalCount) {
+      selectAll.checked = true;
+      selectAll.indeterminate = false;
+    } else {
+      selectAll.checked = false;
+      selectAll.indeterminate = true;
+    }
+    
+    countDisplay.textContent = `${checkedCount} selected`;
+    
+    if (checkedCount > 0) {
+      deleteBtn.classList.add('enabled');
+    } else {
+      deleteBtn.classList.remove('enabled');
+    }
+  }
+
+  document.getElementById('btnToggleUserFilamentMassDelete').addEventListener('click', function() {
+    if (this.classList.contains('active')) {
+      exitUserFilamentMassDeleteMode();
+    } else {
+      enterUserFilamentMassDeleteMode();
+    }
+  });
+
+  document.getElementById('btnCancelUserFilamentMassDelete').addEventListener('click', function() {
+    exitUserFilamentMassDeleteMode();
+  });
+
+  document.getElementById('selectAllUserFilaments').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.user-filament-checkbox');
+    checkboxes.forEach(cb => cb.checked = this.checked);
+    updateUserFilamentSelection();
+  });
+
+  document.getElementById('btnDeleteSelectedUserFilaments').addEventListener('click', function() {
+    const checkboxes = document.querySelectorAll('.user-filament-checkbox:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => cb.dataset.filamentId);
+    
+    if (selectedIds.length === 0) return;
+    
+    const filamentNames = selectedIds.map(id => {
+      const filament = userFilamentsData[id];
+      return filament ? `${filament.brand} ${filament.type}` : 'Unknown';
+    });
+    
+    const message = selectedIds.length === 1 
+      ? `Delete "${filamentNames[0]}"? This action cannot be undone.`
+      : `Delete ${selectedIds.length} filaments? This action cannot be undone.\n\nSelected filaments:\n• ${filamentNames.join('\n• ')}`;
+    
+    showConfirm(message, '', 'Delete Filaments?', 'Delete').then((confirmed) => {
+      if (confirmed) {
+        let deletedCount = 0;
+        const deletePromises = selectedIds.map(id => 
+          userFilamentsRef.child(id).remove().then(() => {
+            deletedCount++;
+          })
+        );
+        
+        Promise.all(deletePromises)
+          .then(() => {
+            showNotification(`Successfully deleted ${deletedCount} filament${deletedCount > 1 ? 's' : ''}!`, '', 'Success');
+            exitUserFilamentMassDeleteMode();
+          })
+          .catch(error => {
+            showNotification('Error deleting filaments: ' + error.message, '', 'Error');
           });
       }
     });
@@ -3512,25 +5167,47 @@
   }
 
   function updatePriceInfo() {
-    const printerName = document.getElementById('printerSelect').value;
-    const filamentType = document.getElementById('filamentSelect').value;
+    const printerValue = document.getElementById('printerSelect').value;
+    const filamentValue = document.getElementById('filamentSelect').value;
     const printerCostBox = document.getElementById('printerCostBox');
     const filamentCostBox = document.getElementById('filamentCostBox');
     const printerCostInfo = document.getElementById('printerCostInfo');
     const filamentCostInfo = document.getElementById('filamentCostInfo');
     
-    // Show/hide printer cost info independently
-    if (printerName && printersData[printerName]) {
-      const printer = printersData[printerName];
+    // Get printer data (handle both global and user printers)
+    let printer = null;
+    if (printerValue) {
+      if (printerValue.startsWith('global:')) {
+        const name = printerValue.substring(7);
+        printer = printersData[name];
+      } else if (printerValue.startsWith('user:')) {
+        const id = printerValue.substring(5);
+        printer = userPrintersData[id];
+      }
+    }
+    
+    // Show/hide printer cost info
+    if (printer) {
       printerCostInfo.textContent = `${formatMoney(printer.costPerHour)}/h`;
       printerCostBox.style.display = 'block';
     } else {
       printerCostBox.style.display = 'none';
     }
     
-    // Show/hide filament cost info independently
-    if (filamentType && filamentsData[filamentType]) {
-      const filament = filamentsData[filamentType];
+    // Get filament data (handle both global and user filaments)
+    let filament = null;
+    if (filamentValue) {
+      if (filamentValue.startsWith('global:')) {
+        const type = filamentValue.substring(7);
+        filament = filamentsData[type];
+      } else if (filamentValue.startsWith('user:')) {
+        const id = filamentValue.substring(5);
+        filament = userFilamentsData[id];
+      }
+    }
+    
+    // Show/hide filament cost info
+    if (filament) {
       const perKg = filament.costPerG * 1000;
       filamentCostInfo.textContent = `${formatMoney(perKg)}/kg`;
       filamentCostBox.style.display = 'block';
@@ -3552,10 +5229,10 @@
   });
 
   function calculateCost() {
-    const printerName = document.getElementById('printerSelect').value;
-    const filamentType = document.getElementById('filamentSelect').value;
+    const printerValue = document.getElementById('printerSelect').value;
+    const filamentValue = document.getElementById('filamentSelect').value;
     
-    if (!printerName || !filamentType) {
+    if (!printerValue || !filamentValue) {
       // Reset display
       document.getElementById('printerCost').textContent = formatMoney(0);
       document.getElementById('filamentCost').textContent = formatMoney(0);
@@ -3572,8 +5249,25 @@
       return;
     }
 
-    const printer = printersData[printerName];
-    const filament = filamentsData[filamentType];
+    // Get printer data (handle both global and user printers)
+    let printer = null;
+    if (printerValue.startsWith('global:')) {
+      const name = printerValue.substring(7);
+      printer = printersData[name];
+    } else if (printerValue.startsWith('user:')) {
+      const id = printerValue.substring(5);
+      printer = userPrintersData[id];
+    }
+    
+    // Get filament data (handle both global and user filaments)
+    let filament = null;
+    if (filamentValue.startsWith('global:')) {
+      const type = filamentValue.substring(7);
+      filament = filamentsData[type];
+    } else if (filamentValue.startsWith('user:')) {
+      const id = filamentValue.substring(5);
+      filament = userFilamentsData[id];
+    }
     
     if (!printer || !filament) return;
 
@@ -3610,10 +5304,14 @@
     const failureRate = (parseFloat(document.getElementById('failureRate').value) || 0) / 100;
     const includePrinterDepreciation = document.getElementById('includePrinterDepreciation').checked;
 
+    // User presets are already stored in USD, so no conversion needed
+    const printerCostPerHourUSD = printer.costPerHour;
+    const filamentCostPerGUSD = filament.costPerG;
+
     // Calculate costs (in USD)
-    const costPrinter = includePrinterDepreciation ? (printer.costPerHour * pt) : 0;
+    const costPrinter = includePrinterDepreciation ? (printerCostPerHourUSD * pt) : 0;
     const costElectric = pt * electricityUsagePerHour * electricityPrice;
-    const costFilament = filament.costPerG * weight * filamentMarkup;
+    const costFilament = filamentCostPerGUSD * weight * filamentMarkup;
     const costPostProcessing = postProcessingTime * postProcessingRate;
     const costPreparation = preparationTime * preparationRate;
     const costLabor = costPostProcessing + costPreparation;
@@ -3633,7 +5331,7 @@
     // Update UI with converted currency
     document.getElementById('printerCost').textContent = formatMoney(costPrinter);
     document.getElementById('filamentCost').textContent = formatMoney(costFilament);
-    document.getElementById('filamentDetails').textContent = `${weight.toFixed(0)} g @ ${formatMoney(filament.costPerG)}/g × ${filamentMarkup.toFixed(2)}`;
+    document.getElementById('filamentDetails').textContent = `${weight.toFixed(0)} g @ ${formatMoney(filamentCostPerGUSD)}/g × ${filamentMarkup.toFixed(2)}`;
     document.getElementById('electricityCost').textContent = formatMoney(costElectric);
     document.getElementById('electricityDetails').textContent = `${electricityUsagePerHour} kWh/h`;
     
@@ -3679,6 +5377,262 @@
     calculateCost();
   });
 
+  /* User Printer Handlers */
+  document.getElementById('btnAddUserPrinter').onclick = () => {
+    if (!auth.currentUser) {
+      showNotification('Please login to add your own printers', '', 'Login Required');
+      return;
+    }
+    editingUserPrinterId = null;
+    document.getElementById('printerModalTitle').textContent = 'Add Your Printer';
+    document.getElementById('printerName').value = '';
+    document.getElementById('printerName').readOnly = false;
+    document.getElementById('printerBrand').value = '';
+    document.getElementById('printerBrand').readOnly = false;
+    document.getElementById('printerPrice').value = '';
+    document.getElementById('printerLifespan').value = '5000';
+    document.getElementById('printerQuickAdd').value = '';
+    
+    // Show what currency will be saved
+    const symbol = currencySymbols[currentCurrency] || currentCurrency;
+    document.getElementById('printerErr').innerHTML = `<div style="color: var(--text-muted); font-size: 13px; margin-top: 8px;">Will be saved in ${currentCurrency} (${symbol}). Change currency in settings if needed.</div>`;
+    
+    // Modify save button behavior for user presets
+    document.getElementById('savePrinter').onclick = saveUserPrinter;
+    
+    showModal(printerModal);
+  };
+
+  function saveUserPrinter() {
+    if (!auth.currentUser || !userPrintersRef) {
+      showNotification('Please login to save your printer', '', 'Login Required');
+      return;
+    }
+    
+    const name = document.getElementById('printerName').value.trim();
+    const brand = document.getElementById('printerBrand').value.trim();
+    const priceInCurrentCurrency = parseFloat(document.getElementById('printerPrice').value);
+    const lifespan = parseInt(document.getElementById('printerLifespan').value);
+    
+    if (!name || !brand || !priceInCurrentCurrency || priceInCurrentCurrency < 0 || !lifespan || lifespan < 1) {
+      document.getElementById('printerErr').textContent = 'Please fill all fields correctly.';
+      return;
+    }
+    
+    // Convert price from current currency to USD for storage
+    const priceInUSD = convertToUSD(priceInCurrentCurrency);
+    
+    const printerData = { 
+      name, 
+      brand, 
+      price: priceInUSD, // Always store in USD
+      lifespan
+      // No currency field needed - everything is stored in USD
+    };
+    
+    if (editingUserPrinterId) {
+      // Update existing user printer
+      userPrintersRef.child(editingUserPrinterId).update(printerData)
+        .then(() => {
+          editingUserPrinterId = null;
+          hideModal(printerModal);
+          document.getElementById('printerErr').textContent = '';
+          showNotification(`"${brand} ${name}" has been updated in your library.`, '', 'Updated');
+        })
+        .catch((error) => {
+          document.getElementById('printerErr').textContent = 'Error updating printer: ' + error.message;
+        });
+    } else {
+      // Add new user printer
+      userPrintersRef.push(printerData)
+        .then(() => {
+          hideModal(printerModal);
+          document.getElementById('printerErr').textContent = '';
+          showNotification(`"${brand} ${name}" has been added to your library!`, '', 'Added');
+        })
+        .catch((error) => {
+          document.getElementById('printerErr').textContent = 'Error saving printer: ' + error.message;
+        });
+    }
+  }
+
+  function editUserPrinter(id) {
+    if (!auth.currentUser) return;
+    
+    editingUserPrinterId = id;
+    const printer = userPrintersData[id];
+    if (!printer) return;
+    
+    document.getElementById('printerModalTitle').textContent = 'Edit Your Printer';
+    document.getElementById('printerName').value = printer.name;
+    document.getElementById('printerName').readOnly = false;
+    document.getElementById('printerBrand').value = printer.brand;
+    document.getElementById('printerBrand').readOnly = false;
+    
+    // Convert price from USD storage to current currency for display
+    const priceInUSD = printer.price;
+    const priceInCurrentCurrency = convertCurrency(priceInUSD);
+    document.getElementById('printerPrice').value = priceInCurrentCurrency.toFixed(2);
+    document.getElementById('printerLifespan').value = printer.lifespan;
+    document.getElementById('printerQuickAdd').value = '';
+    
+    // Show currency info
+    const symbol = currencySymbols[currentCurrency] || currentCurrency;
+    document.getElementById('printerErr').innerHTML = `<div style="color: var(--text-muted); font-size: 13px; margin-top: 8px;">This preset is stored in USD. Price shown in ${currentCurrency} (${symbol}).</div>`;
+    
+    // Modify save button behavior for user presets
+    document.getElementById('savePrinter').onclick = saveUserPrinter;
+    
+    showModal(printerModal);
+  }
+
+  function deleteUserPrinter(id) {
+    if (!auth.currentUser || !userPrintersRef) return;
+    
+    const printer = userPrintersData[id];
+    if (!printer) return;
+    
+    showConfirm(`Delete "${printer.brand} ${printer.name}" from your library? This action cannot be undone.`, '', 'Delete Printer?', 'Delete').then((confirmed) => {
+      if (confirmed) {
+        userPrintersRef.child(id).remove()
+          .then(() => {
+            showNotification(`"${printer.brand} ${printer.name}" has been deleted from your library.`, '', 'Deleted');
+          })
+          .catch(error => {
+            showNotification('Error deleting printer: ' + error.message, '', 'Error');
+          });
+      }
+    });
+  }
+
+  /* User Filament Handlers */
+  document.getElementById('btnAddUserFilament').onclick = () => {
+    if (!auth.currentUser) {
+      showNotification('Please login to add your own filaments', '', 'Login Required');
+      return;
+    }
+    editingUserFilamentId = null;
+    document.getElementById('filamentModalTitle').textContent = 'Add Your Filament';
+    document.getElementById('filamentType').value = '';
+    document.getElementById('filamentType').readOnly = false;
+    document.getElementById('filamentBrand').value = '';
+    document.getElementById('filamentBrand').readOnly = false;
+    document.getElementById('filamentSpoolWeight').value = '1000';
+    document.getElementById('filamentCostSpool').value = '';
+    document.getElementById('filamentQuickAdd').value = '';
+    
+    // Show what currency will be saved
+    const symbol = currencySymbols[currentCurrency] || currentCurrency;
+    document.getElementById('filamentErr').innerHTML = `<div style="color: var(--text-muted); font-size: 13px; margin-top: 8px;">Will be saved in ${currentCurrency} (${symbol}). Change currency in settings if needed.</div>`;
+    
+    // Modify save button behavior for user presets
+    document.getElementById('saveFilament').onclick = saveUserFilament;
+    
+    showModal(filamentModal);
+  };
+
+  function saveUserFilament() {
+    if (!auth.currentUser || !userFilamentsRef) {
+      showNotification('Please login to save your filament', '', 'Login Required');
+      return;
+    }
+    
+    const type = document.getElementById('filamentType').value.trim();
+    const brand = document.getElementById('filamentBrand').value.trim();
+    const spoolWeight = parseInt(document.getElementById('filamentSpoolWeight').value);
+    const spoolCostInCurrentCurrency = parseFloat(document.getElementById('filamentCostSpool').value);
+    
+    if (!type || !brand || !spoolWeight || spoolWeight < 1 || !spoolCostInCurrentCurrency || spoolCostInCurrentCurrency < 0) {
+      document.getElementById('filamentErr').textContent = 'Please fill all fields correctly.';
+      return;
+    }
+    
+    // Convert spool cost from current currency to USD for storage
+    const spoolCostInUSD = convertToUSD(spoolCostInCurrentCurrency);
+    
+    const filamentData = {
+      type,
+      brand,
+      spoolWeight,
+      spoolCost: spoolCostInUSD // Always store in USD
+      // No currency field needed - everything is stored in USD
+    };
+    
+    if (editingUserFilamentId) {
+      // Update existing user filament
+      userFilamentsRef.child(editingUserFilamentId).update(filamentData)
+        .then(() => {
+          editingUserFilamentId = null;
+          hideModal(filamentModal);
+          document.getElementById('filamentErr').textContent = '';
+          showNotification(`"${brand} ${type}" has been updated in your library.`, '', 'Updated');
+        })
+        .catch((error) => {
+          document.getElementById('filamentErr').textContent = 'Error updating filament: ' + error.message;
+        });
+    } else {
+      // Add new user filament
+      userFilamentsRef.push(filamentData)
+        .then(() => {
+          hideModal(filamentModal);
+          document.getElementById('filamentErr').textContent = '';
+          showNotification(`"${brand} ${type}" has been added to your library!`, '', 'Added');
+        })
+        .catch((error) => {
+          document.getElementById('filamentErr').textContent = 'Error saving filament: ' + error.message;
+        });
+    }
+  }
+
+  function editUserFilament(id) {
+    if (!auth.currentUser) return;
+    
+    editingUserFilamentId = id;
+    const filament = userFilamentsData[id];
+    if (!filament) return;
+    
+    document.getElementById('filamentModalTitle').textContent = 'Edit Your Filament';
+    document.getElementById('filamentType').value = filament.type;
+    document.getElementById('filamentType').readOnly = false;
+    document.getElementById('filamentBrand').value = filament.brand;
+    document.getElementById('filamentBrand').readOnly = false;
+    document.getElementById('filamentSpoolWeight').value = filament.spoolWeight;
+    
+    // Convert spool cost from USD storage to current currency for display
+    const spoolCostInUSD = filament.spoolCost;
+    const spoolCostInCurrentCurrency = convertCurrency(spoolCostInUSD);
+    document.getElementById('filamentCostSpool').value = spoolCostInCurrentCurrency.toFixed(2);
+    document.getElementById('filamentQuickAdd').value = '';
+    
+    // Show currency info
+    const symbol = currencySymbols[currentCurrency] || currentCurrency;
+    document.getElementById('filamentErr').innerHTML = `<div style="color: var(--text-muted); font-size: 13px; margin-top: 8px;">This preset is stored in USD. Cost shown in ${currentCurrency} (${symbol}).</div>`;
+    
+    // Modify save button behavior for user presets
+    document.getElementById('saveFilament').onclick = saveUserFilament;
+    
+    showModal(filamentModal);
+  }
+
+  function deleteUserFilament(id) {
+    if (!auth.currentUser || !userFilamentsRef) return;
+    
+    const filament = userFilamentsData[id];
+    if (!filament) return;
+    
+    showConfirm(`Delete "${filament.brand} ${filament.type}" from your library? This action cannot be undone.`, '', 'Delete Filament?', 'Delete').then((confirmed) => {
+      if (confirmed) {
+        userFilamentsRef.child(id).remove()
+          .then(() => {
+            showNotification(`"${filament.brand} ${filament.type}" has been deleted from your library.`, '', 'Deleted');
+          })
+          .catch(error => {
+            showNotification('Error deleting filament: ' + error.message, '', 'Error');
+          });
+      }
+    });
+  }
+
   /* Initialize - Load data from Firebase */
   console.log('Starting data load...');
   
@@ -3715,7 +5669,7 @@
       });
       console.log('Currency preference loaded:', currentCurrency);
       
-      // 3. Load printers and filaments (with timeout)
+      // 3. Load printers and filaments (shared database - available to all)
       const dataLoadPromise = Promise.race([
         Promise.all([
           new Promise(resolve => {

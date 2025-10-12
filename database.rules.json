@@ -1,0 +1,43 @@
+{
+  "rules": {
+    "usernames": {
+      ".read": true,
+      ".indexOn": [".value"],
+      "$uid": {
+        ".write": "auth != null && (!data.exists() || auth.uid == $uid)"
+      }
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "printers": {
+      ".read": true,
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+    },
+    "filaments": {
+      ".read": true,
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+    },
+    "userPrinters": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "userFilaments": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "verificationCodes": {
+      "$email": {
+        ".read": false,
+        ".write": true
+      }
+    }
+  }
+}

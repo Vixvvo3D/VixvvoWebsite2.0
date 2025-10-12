@@ -9,6 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-functions-compat.js"></script>
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -247,6 +248,109 @@
   .section-subtitle {
     text-align: center;
     color: var(--text-muted);
+  }
+
+  /* Memberships Section */
+  .memberships {
+    padding: 80px 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 48px;
+  }
+
+  .pricing-card {
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 32px;
+    transition: transform .3s, box-shadow .3s, border-color .3s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pricing-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(168, 85, 247, .2);
+    border-color: var(--purple);
+  }
+
+  .pricing-card.featured {
+    border: 2px solid var(--purple);
+    box-shadow: 0 20px 40px rgba(168, 85, 247, .3);
+  }
+
+  .plan-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(168, 85, 247, .15);
+    border: 1px solid var(--purple);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--purple);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .plan-badge.popular {
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    color: white;
+    border: none;
+  }
+
+  .pricing-card h3 {
+    font-size: 28px;
+    margin-bottom: 16px;
+  }
+
+  .price {
+    margin-bottom: 32px;
+  }
+
+  .price .amount {
+    font-size: 48px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a855f7, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .price .period {
+    font-size: 16px;
+    color: var(--text-muted);
+  }
+
+  .features-list {
+    list-style: none;
+    margin-bottom: 32px;
+    flex-grow: 1;
+  }
+
+  .features-list li {
+    padding: 12px 0;
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+  }
+
+  .features-list li:last-child {
+    border-bottom: none;
+  }
+
+  .pricing-card .btn {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
     font-size: 18px;
   }
   
@@ -282,6 +386,142 @@
     .features {
       padding: 60px 24px;
     }
+
+    .memberships {
+      padding: 60px 24px;
+    }
+
+    .pricing-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+
+  /* Custom Notification Modal */
+  .notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 2px solid var(--purple);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.8);
+    z-index: 400;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    display: block;
+  }
+
+  .notification.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+  }
+
+  .notification-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .notification-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .notification-message {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .notification-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .notification-buttons .btn {
+    padding: 12px 32px;
+  }
+
+  /* Confirmation Dialog Styles */
+  .confirm-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 2px solid var(--purple);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.8);
+    z-index: 400;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    max-width: 420px;
+    width: 90%;
+    display: block;
+  }
+
+  .confirm-dialog.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+  }
+
+  .confirm-icon {
+    font-size: 56px;
+    text-align: center;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .confirm-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .confirm-message {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .confirm-buttons {
+    display: flex;
+    gap: 12px;
+  }
+
+  .confirm-buttons .btn {
+    flex: 1;
+    padding: 14px;
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, .4);
   }
 </style>
 </head>
@@ -414,15 +654,83 @@
     </div>
   </section>
 
+  <!-- Memberships Section -->
+  <section class="memberships" id="memberships">
+    <h2 class="section-title reveal">Choose Your Plan</h2>
+    <p class="section-subtitle reveal">Unlock premium features and support our development</p>
+    
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="plan-badge">Free</div>
+        <h3>Basic</h3>
+        <div class="price">
+          <span class="amount">$0</span>
+          <span class="period">/forever</span>
+        </div>
+        <ul class="features-list">
+          <li>✅ Full calculator access</li>
+          <li>✅ Save calculations</li>
+          <li>✅ Basic printer management</li>
+          <li>✅ Public view of printers</li>
+          <li>❌ Email verification only</li>
+          <li>❌ Limited support</li>
+        </ul>
+        <button class="btn btn-outline" onclick="scrollToHero()">Get Started</button>
+      </div>
+      
+      <div class="pricing-card featured">
+        <div class="plan-badge popular">Most Popular</div>
+        <h3>Member</h3>
+        <div class="price">
+          <span class="amount">$9.99</span>
+          <span class="period">/month</span>
+        </div>
+        <ul class="features-list">
+          <li>✅ Everything in Basic</li>
+          <li>✅ Priority support</li>
+          <li>✅ Advanced analytics</li>
+          <li>✅ Export to PDF</li>
+          <li>✅ Custom branding</li>
+          <li>✅ Early access to features</li>
+        </ul>
+        <button class="btn btn-primary" onclick="alert('Payment integration coming soon!')">Coming Soon</button>
+      </div>
+      
+      <div class="pricing-card">
+        <div class="plan-badge">Premium</div>
+        <h3>Pro</h3>
+        <div class="price">
+          <span class="amount">$19.99</span>
+          <span class="period">/month</span>
+        </div>
+        <ul class="features-list">
+          <li>✅ Everything in Member</li>
+          <li>✅ API access</li>
+          <li>✅ White-label solution</li>
+          <li>✅ Custom integrations</li>
+          <li>✅ Dedicated support</li>
+          <li>✅ Unlimited projects</li>
+        </ul>
+        <button class="btn btn-outline" onclick="alert('Payment integration coming soon!')">Coming Soon</button>
+      </div>
+    </div>
+  </section>
+
   <!-- Login Modal -->
-  <div id="overlay"></div>
-  <div id="modal">
+  <div id="overlay" style="display: none;"></div>
+  <div id="modal" style="background: rgba(0,0,0,.7);">
     <div class="modal-card">
       <h3>Login</h3>
       <label>Email</label>
       <input id="loginEmail" type="email" placeholder="your@email.com">
       <label>Password</label>
-      <input id="loginPass" type="password" placeholder="••••••••">
+      <div style="position: relative;">
+        <input id="loginPass" type="password" placeholder="••••••••" style="padding-right: 45px;">
+        <button id="toggleLoginPass" type="button" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-muted); padding: 4px 8px;">👁</button>
+      </div>
+      <div style="text-align: right; margin-top: 4px;">
+        <a href="#" id="forgotPasswordLink" style="color: var(--purple); text-decoration: none; font-size: 13px;">Forgot Password?</a>
+      </div>
       <div id="loginErr" class="err"></div>
       <div class="modal-buttons">
         <button id="doLogin" class="btn btn-primary">Login</button>
@@ -435,22 +743,64 @@
   </div>
 
   <!-- Sign Up Modal -->
-  <div id="signupModal" style="display: none;">
+  <div id="signupModal" style="display: none; background: rgba(0,0,0,.7);">
     <div class="modal-card">
       <h3>Sign Up</h3>
+      <label>Username</label>
+      <input id="signupUsername" type="text" placeholder="Choose a username">
       <label>Email</label>
       <input id="signupEmail" type="email" placeholder="your@email.com">
       <label>Password</label>
-      <input id="signupPass" type="password" placeholder="••••••••">
+      <div style="position: relative;">
+        <input id="signupPass" type="password" placeholder="••••••••" style="padding-right: 45px;">
+        <button id="toggleSignupPass" type="button" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-muted); padding: 4px 8px;">👁</button>
+      </div>
       <label>Confirm Password</label>
-      <input id="signupPassConfirm" type="password" placeholder="••••••••">
+      <div style="position: relative;">
+        <input id="signupPassConfirm" type="password" placeholder="••••••••" style="padding-right: 45px;">
+        <button id="toggleSignupPassConfirm" type="button" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-muted); padding: 4px 8px;">👁</button>
+      </div>
       <div id="signupErr" class="err"></div>
       <div class="modal-buttons">
-        <button id="doSignup" class="btn btn-primary">Sign Up</button>
+        <button id="doSignup" class="btn btn-primary">Continue</button>
         <button id="doSignupClose" class="btn btn-ghost">Cancel</button>
       </div>
       <div style="text-align: center; margin-top: 16px; color: var(--text-muted); font-size: 14px;">
         Already have an account? <a href="#" id="backToLoginLink" style="color: var(--purple); text-decoration: none; font-weight: 600;">Login</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Verification Modal -->
+  <div id="verificationModal" style="display: none; position: fixed; inset: 0; z-index: 300; place-items: center; background: rgba(0,0,0,.7);">
+    <div class="modal-card" style="max-width: 500px;">
+      <h3>Verify Your Email</h3>
+      <p style="color: var(--text-muted); margin-bottom: 24px;">
+        Enter the 6-digit code we sent to <strong id="verifyEmailDisplay"></strong>
+      </p>
+      
+      <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 16px;">
+        <input id="code1" type="text" maxlength="1" class="code-input" style="width: 50px; height: 60px; text-align: center; font-size: 24px; font-weight: bold;">
+        <input id="code2" type="text" maxlength="1" class="code-input" style="width: 50px; height: 60px; text-align: center; font-size: 24px; font-weight: bold;">
+        <input id="code3" type="text" maxlength="1" class="code-input" style="width: 50px; height: 60px; text-align: center; font-size: 24px; font-weight: bold;">
+        <input id="code4" type="text" maxlength="1" class="code-input" style="width: 50px; height: 60px; text-align: center; font-size: 24px; font-weight: bold;">
+        <input id="code5" type="text" maxlength="1" class="code-input" style="width: 50px; height: 60px; text-align: center; font-size: 24px; font-weight: bold;">
+        <input id="code6" type="text" maxlength="1" class="code-input" style="width: 50px; height: 60px; text-align: center; font-size: 24px; font-weight: bold;">
+      </div>
+      
+      <div style="text-align: center; margin-bottom: 16px;">
+        <span id="codeTimer" style="color: var(--text-muted); font-size: 14px;">Expires in 10:00</span>
+      </div>
+      
+      <div id="verifyErr" class="err"></div>
+      
+      <div class="modal-buttons">
+        <button id="doVerify" class="btn btn-primary">Verify & Create Account</button>
+        <button id="resendCode" class="btn btn-ghost">Resend Code</button>
+      </div>
+      
+      <div style="text-align: center; margin-top: 16px;">
+        <a href="#" id="backToSignup" style="color: var(--purple); text-decoration: none; font-size: 14px;">← Back to Sign Up</a>
       </div>
     </div>
   </div>
@@ -470,18 +820,27 @@
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.database();
+  const functions = firebase.functions();
+  
+  // Set the region for Cloud Functions (us-central1 is default)
+  functions.useEmulator = false;
 
   // Enable auth persistence
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
   /* Login Modal */
-  const overlay = document.getElementById('overlay');
   const modal = document.getElementById('modal');
   const signupModal = document.getElementById('signupModal');
   
   document.getElementById('doClose').onclick = () => {
-    overlay.style.display = 'none';
     modal.style.display = 'none';
+  };
+
+  // Click outside modal to close
+  modal.onclick = (e) => {
+    if (e.target.id === 'modal') {
+      modal.style.display = 'none';
+    }
   };
 
   document.getElementById('signUpLink').onclick = (e) => {
@@ -489,6 +848,7 @@
     modal.style.display = 'none';
     signupModal.style.display = 'grid';
     document.getElementById('signupErr').textContent = '';
+    document.getElementById('signupUsername').value = '';
     document.getElementById('signupEmail').value = '';
     document.getElementById('signupPass').value = '';
     document.getElementById('signupPassConfirm').value = '';
@@ -504,18 +864,119 @@
   };
 
   document.getElementById('doSignupClose').onclick = () => {
-    overlay.style.display = 'none';
     signupModal.style.display = 'none';
   };
 
-  document.getElementById('doSignup').onclick = () => {
+  // Click outside signup modal to close
+  signupModal.onclick = (e) => {
+    if (e.target.id === 'signupModal') {
+      signupModal.style.display = 'none';
+    }
+  };
+
+  /* Password Visibility Toggles */
+  // Login password toggle
+  document.getElementById('toggleLoginPass').onclick = (e) => {
+    e.preventDefault();
+    const passInput = document.getElementById('loginPass');
+    const toggleBtn = document.getElementById('toggleLoginPass');
+    if (passInput.type === 'password') {
+      passInput.type = 'text';
+      toggleBtn.textContent = '�‍🗨';
+    } else {
+      passInput.type = 'password';
+      toggleBtn.textContent = '👁';
+    }
+  };
+
+  // Signup password toggle
+  document.getElementById('toggleSignupPass').onclick = (e) => {
+    e.preventDefault();
+    const passInput = document.getElementById('signupPass');
+    const toggleBtn = document.getElementById('toggleSignupPass');
+    if (passInput.type === 'password') {
+      passInput.type = 'text';
+      toggleBtn.textContent = '�‍🗨';
+    } else {
+      passInput.type = 'password';
+      toggleBtn.textContent = '👁';
+    }
+  };
+
+  // Signup confirm password toggle
+  document.getElementById('toggleSignupPassConfirm').onclick = (e) => {
+    e.preventDefault();
+    const passInput = document.getElementById('signupPassConfirm');
+    const toggleBtn = document.getElementById('toggleSignupPassConfirm');
+    if (passInput.type === 'password') {
+      passInput.type = 'text';
+      toggleBtn.textContent = '👁‍�';
+    } else {
+      passInput.type = 'password';
+      toggleBtn.textContent = '👁';
+    }
+  };
+
+  /* Forgot Password */
+  document.getElementById('forgotPasswordLink').onclick = (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    
+    if (!email) {
+      document.getElementById('loginErr').textContent = 'Please enter your email address first.';
+      return;
+    }
+
+    showConfirm(`Send password reset email to ${email}?`, '', 'Reset Password').then((confirmed) => {
+      if (confirmed) {
+        auth.sendPasswordResetEmail(email)
+          .then(() => {
+            showNotification('Password reset email sent! Check your inbox.', '', 'Email Sent');
+            document.getElementById('loginErr').textContent = '';
+          })
+          .catch((error) => {
+            if (error.code === 'auth/user-not-found') {
+              document.getElementById('loginErr').textContent = 'No account found with this email.';
+            } else if (error.code === 'auth/invalid-email') {
+              document.getElementById('loginErr').textContent = 'Invalid email address.';
+            } else {
+              document.getElementById('loginErr').textContent = 'Error: ' + error.message;
+            }
+          });
+      }
+    });
+  };
+
+  // Store signup data temporarily
+  let pendingSignupData = null;
+  let verificationTimer = null;
+  let timeRemaining = 600; // 10 minutes in seconds
+
+  document.getElementById('doSignup').onclick = async () => {
+    const username = document.getElementById('signupUsername').value.trim();
     const email = document.getElementById('signupEmail').value.trim();
     const pass = document.getElementById('signupPass').value;
     const passConfirm = document.getElementById('signupPassConfirm').value;
     const errDiv = document.getElementById('signupErr');
 
-    if (!email || !pass || !passConfirm) {
+    if (!username || !email || !pass || !passConfirm) {
       errDiv.textContent = 'Please fill in all fields.';
+      return;
+    }
+
+    if (username.length < 3) {
+      errDiv.textContent = 'Username must be at least 3 characters.';
+      return;
+    }
+
+    if (username.length > 20) {
+      errDiv.textContent = 'Username must be less than 20 characters.';
+      return;
+    }
+
+    // Check if username contains only valid characters
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      errDiv.textContent = 'Username can only contain letters, numbers, and underscores.';
       return;
     }
 
@@ -529,44 +990,331 @@
       return;
     }
 
-    auth.createUserWithEmailAndPassword(email, pass)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        return db.ref('users/' + user.uid).set({
-          email: email,
-          role: 'user',
-          createdAt: new Date().toISOString()
-        });
-      })
-      .then(() => {
-        overlay.style.display = 'none';
-        signupModal.style.display = 'none';
-        alert('Account created successfully! Welcome to Vixvvo Tools.');
-      })
-      .catch((error) => {
-        if (error.code === 'auth/email-already-in-use') {
-          errDiv.textContent = 'This email is already registered.';
-        } else if (error.code === 'auth/invalid-email') {
-          errDiv.textContent = 'Invalid email address.';
-        } else if (error.code === 'auth/weak-password') {
-          errDiv.textContent = 'Password is too weak.';
-        } else {
-          errDiv.textContent = 'Error creating account: ' + error.message;
+    try {
+      // Check if username already exists
+      const usernamesSnapshot = await db.ref('usernames').once('value');
+      const usernames = usernamesSnapshot.val() || {};
+      
+      // Check if username is taken (case-insensitive)
+      const usernameLower = username.toLowerCase();
+      const usernameExists = Object.values(usernames).some(
+        existingUsername => existingUsername.toLowerCase() === usernameLower
+      );
+      
+      if (usernameExists) {
+        errDiv.textContent = 'This username is already taken. Please choose another.';
+        return;
+      }
+
+      // Check if email is already registered BEFORE sending verification code
+      errDiv.textContent = 'Checking if email is available...';
+      errDiv.style.color = '#888';
+      
+      try {
+        // Use Firebase Auth methods to check if email exists
+        const signInMethods = await auth.fetchSignInMethodsForEmail(email);
+        
+        if (signInMethods && signInMethods.length > 0) {
+          // Email is already registered
+          errDiv.textContent = 'This email is already registered. Please login instead.';
+          errDiv.style.color = '#ff4444';
+          return;
         }
+      } catch (emailCheckError) {
+        // If error checking email, log it but continue (better UX)
+        console.warn('Error checking email availability:', emailCheckError);
+      }
+
+      // Store data for later account creation
+      pendingSignupData = { username, email, pass };
+      
+      // Send verification code
+      errDiv.textContent = 'Sending verification code...';
+      errDiv.style.color = '#888';
+      
+      try {
+        const sendCode = functions.httpsCallable('sendVerificationCode');
+        const result = await sendCode({ email });
+        
+        console.log('Verification code sent successfully:', result);
+        
+        // Show verification modal
+        signupModal.style.display = 'none';
+        document.getElementById('verificationModal').style.display = 'grid';
+        document.getElementById('verifyEmailDisplay').textContent = email;
+        errDiv.textContent = '';
+        errDiv.style.color = '#ff4444';
+        
+        // Clear code inputs
+        for (let i = 1; i <= 6; i++) {
+          document.getElementById(`code${i}`).value = '';
+        }
+        document.getElementById('code1').focus();
+        
+        // Start countdown timer
+        startVerificationTimer();
+        
+      } catch (codeError) {
+        console.error('Failed to send verification code:', codeError);
+        errDiv.style.color = '#ff4444';
+        
+        if (codeError.code === 'already-exists') {
+          errDiv.textContent = 'This email is already registered. Please login instead.';
+        } else if (codeError.code === 'unauthenticated') {
+          errDiv.textContent = 'Email service authentication failed. Please contact support.';
+        } else if (codeError.code === 'failed-precondition') {
+          errDiv.textContent = 'Email verification is not configured. Please contact support.';
+        } else {
+          errDiv.textContent = 'Failed to send verification code. Please check your email and try again.';
+        }
+        
+        // Clear pending data since verification failed
+        pendingSignupData = null;
+        return;
+      }
+      
+    } catch (error) {
+      if (error.code === 'auth/email-already-in-use') {
+        errDiv.textContent = 'This email is already registered.';
+      } else if (error.code === 'auth/invalid-email') {
+        errDiv.textContent = 'Invalid email address.';
+      } else {
+        errDiv.textContent = 'Error: ' + error.message;
+      }
+    }
+  };
+
+  // Verification timer
+  function startVerificationTimer() {
+    timeRemaining = 600; // Reset to 10 minutes
+    updateTimerDisplay();
+    
+    if (verificationTimer) clearInterval(verificationTimer);
+    
+    verificationTimer = setInterval(() => {
+      timeRemaining--;
+      updateTimerDisplay();
+      
+      if (timeRemaining <= 0) {
+        clearInterval(verificationTimer);
+        document.getElementById('verifyErr').textContent = 'Code expired. Please request a new one.';
+      }
+    }, 1000);
+  }
+  
+  function updateTimerDisplay() {
+    const minutes = Math.floor(timeRemaining / 60);
+    const seconds = timeRemaining % 60;
+    document.getElementById('codeTimer').textContent = 
+      `Expires in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  // Code input auto-focus
+  for (let i = 1; i <= 6; i++) {
+    const input = document.getElementById(`code${i}`);
+    input.addEventListener('input', (e) => {
+      if (e.target.value.length === 1 && i < 6) {
+        document.getElementById(`code${i + 1}`).focus();
+      }
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && e.target.value === '' && i > 1) {
+        document.getElementById(`code${i - 1}`).focus();
+      }
+    });
+  }
+
+  // Verify code and create account
+  document.getElementById('doVerify').onclick = async () => {
+    const code = Array.from({length: 6}, (_, i) => 
+      document.getElementById(`code${i + 1}`).value
+    ).join('');
+    
+    const errDiv = document.getElementById('verifyErr');
+    
+    if (code.length !== 6) {
+      errDiv.textContent = 'Please enter the complete 6-digit code.';
+      return;
+    }
+    
+    if (!pendingSignupData) {
+      errDiv.textContent = 'Session expired. Please start over.';
+      return;
+    }
+    
+    try {
+      // Verify the code first - CRITICAL: Don't create account without verification
+      errDiv.textContent = 'Verifying code...';
+      const verifyCode = functions.httpsCallable('verifyCode');
+      const verifyResult = await verifyCode({ email: pendingSignupData.email, code });
+      
+      if (!verifyResult.data.success) {
+        errDiv.textContent = 'Verification failed. Please try again.';
+        return;
+      }
+      
+      console.log('Code verified successfully, creating account...');
+      
+      // Double-check email availability before account creation (prevents race condition)
+      errDiv.textContent = 'Creating account...';
+      try {
+        const signInMethods = await auth.fetchSignInMethodsForEmail(pendingSignupData.email);
+        if (signInMethods && signInMethods.length > 0) {
+          // Email is already registered (either by this user or someone else)
+          errDiv.textContent = 'This email is already registered. If this is your account, please login instead.';
+          // Clean up verification code
+          const emailKey = pendingSignupData.email.replace(/\./g, ",");
+          await db.ref('verificationCodes/' + emailKey).remove();
+          return;
+        }
+      } catch (emailCheckError) {
+        console.warn('Could not verify email availability:', emailCheckError);
+        // Continue anyway - Firebase will throw error if email is taken
+      }
+      
+      // Code is valid and email still available, create the account
+      const userCredential = await auth.createUserWithEmailAndPassword(
+        pendingSignupData.email, 
+        pendingSignupData.pass
+      );
+      const user = userCredential.user;
+
+      // Update Firebase Auth display name
+      await user.updateProfile({
+        displayName: pendingSignupData.username
       });
+
+      // Save user data to database
+      await db.ref('users/' + user.uid).set({
+        username: pendingSignupData.username,
+        email: pendingSignupData.email,
+        role: 'user',
+        createdAt: new Date().toISOString(),
+        emailVerified: true
+      });
+
+      // Save username to usernames list
+      await db.ref('usernames/' + user.uid).set(pendingSignupData.username);
+      
+      // Delete the verification code from database
+      const emailKey = pendingSignupData.email.replace(/\./g, ",");
+      await db.ref('verificationCodes/' + emailKey).remove();
+      
+      // Clean up
+      clearInterval(verificationTimer);
+      pendingSignupData = null;
+      document.getElementById('verificationModal').style.display = 'none';
+      
+      // Clear all form fields
+      document.getElementById('signupUsername').value = '';
+      document.getElementById('signupEmail').value = '';
+      document.getElementById('signupPass').value = '';
+      document.getElementById('signupPassConfirm').value = '';
+      
+      showNotification('Account created successfully! Welcome to Vixvvo Tools.', '', 'Welcome!');
+      console.log('Account created successfully for:', pendingSignupData.email);
+      
+    } catch (error) {
+      console.error('Account creation error:', error);
+      
+      if (error.code === 'deadline-exceeded') {
+        errDiv.textContent = 'Code has expired. Please request a new one.';
+      } else if (error.code === 'invalid-argument') {
+        errDiv.textContent = 'Invalid verification code. Please try again.';
+      } else if (error.code === 'not-found') {
+        errDiv.textContent = 'Verification code not found. Please request a new one.';
+      } else if (error.code === 'auth/email-already-in-use') {
+        errDiv.textContent = 'This email is already registered. If this is your account, please login instead.';
+        // Clean up verification code
+        const emailKey = pendingSignupData.email.replace(/\./g, ",");
+        db.ref('verificationCodes/' + emailKey).remove().catch(e => console.warn('Could not remove verification code:', e));
+        // Clean up and close modal after a delay
+        setTimeout(() => {
+          clearInterval(verificationTimer);
+          pendingSignupData = null;
+          document.getElementById('verificationModal').style.display = 'none';
+        }, 3000);
+      } else {
+        errDiv.textContent = 'Error: ' + (error.message || 'Account creation failed');
+      }
+    }
+  };
+
+  // Resend code
+  document.getElementById('resendCode').onclick = async () => {
+    if (!pendingSignupData) {
+      document.getElementById('verifyErr').textContent = 'Session expired. Please start over.';
+      return;
+    }
+    
+    const errDiv = document.getElementById('verifyErr');
+    errDiv.textContent = 'Sending new code...';
+    errDiv.style.color = '#888';
+    
+    try {
+      const sendCode = functions.httpsCallable('sendVerificationCode');
+      const result = await sendCode({ email: pendingSignupData.email });
+      
+      console.log('New verification code sent:', result);
+      errDiv.textContent = '';
+      startVerificationTimer();
+      showNotification('New verification code sent!', '', 'Check your email');
+    } catch (error) {
+      console.error('Failed to resend code:', error);
+      errDiv.style.color = '#ff4444';
+      
+      if (error.code === 'unauthenticated' || error.code === 'failed-precondition') {
+        errDiv.textContent = 'Email service is not available. Please contact support.';
+      } else {
+        errDiv.textContent = 'Failed to resend code: ' + (error.message || 'Please try again');
+      }
+    }
+  };
+
+  // Back to signup
+  document.getElementById('backToSignup').onclick = (e) => {
+    e.preventDefault();
+    clearInterval(verificationTimer);
+    document.getElementById('verificationModal').style.display = 'none';
+    signupModal.style.display = 'grid';
+  };
+
+  // Click outside verification modal to close
+  document.getElementById('verificationModal').onclick = (e) => {
+    if (e.target.id === 'verificationModal') {
+      clearInterval(verificationTimer);
+      document.getElementById('verificationModal').style.display = 'none';
+      signupModal.style.display = 'grid';
+    }
   };
 
   document.getElementById('doLogin').onclick = () => {
     const email = document.getElementById('loginEmail').value.trim();
     const pass = document.getElementById('loginPass').value;
+    const errDiv = document.getElementById('loginErr');
+
+    if (!email || !pass) {
+      errDiv.textContent = 'Please enter both email and password.';
+      return;
+    }
     
     auth.signInWithEmailAndPassword(email, pass)
       .then(() => {
-        overlay.style.display = 'none';
         modal.style.display = 'none';
+        errDiv.textContent = '';
       })
-      .catch(() => {
-        document.getElementById('loginErr').textContent = 'Wrong email or password.';
+      .catch((error) => {
+        if (error.code === 'auth/user-not-found') {
+          errDiv.textContent = 'No account found with this email.';
+        } else if (error.code === 'auth/wrong-password') {
+          errDiv.textContent = 'Incorrect password. Please try again.';
+        } else if (error.code === 'auth/invalid-email') {
+          errDiv.textContent = 'Invalid email address.';
+        } else if (error.code === 'auth/invalid-credential') {
+          errDiv.textContent = 'Invalid credentials. Please check your email and password.';
+        } else {
+          errDiv.textContent = 'Invalid credentials. Please check your email and password.';
+        }
       });
   };
 
@@ -592,7 +1340,6 @@
     if (btnLoginNav) {
       btnLoginNav.addEventListener('click', () => {
         document.getElementById('loginErr').textContent = '';
-        overlay.style.display = 'block';
         modal.style.display = 'grid';
       });
     }
@@ -628,16 +1375,20 @@
     settingsDropdown.classList.remove('active');
     btnSettings.classList.remove('active');
     document.getElementById('loginErr').textContent = '';
-    overlay.style.display = 'block';
     modal.style.display = 'grid';
   });
 
   // Logout button in settings
   btnLogoutSettings.addEventListener('click', () => {
-    settingsDropdown.classList.remove('active');
-    btnSettings.classList.remove('active');
-    auth.signOut().then(() => {
-      console.log('User logged out');
+    showConfirm('Are you sure you want to log out?', '', 'Logout', 'Logout').then((confirmed) => {
+      if (confirmed) {
+        settingsDropdown.classList.remove('active');
+        btnSettings.classList.remove('active');
+        auth.signOut().then(() => {
+          console.log('User logged out');
+          showNotification('You have been logged out successfully.', '', 'Goodbye!');
+        });
+      }
     });
   });
 
@@ -679,7 +1430,7 @@
         
         // Show success feedback
         const originalText = btnSaveCurrency.textContent;
-        btnSaveCurrency.textContent = '✓ Saved';
+        btnSaveCurrency.textContent = 'Saved';
         btnSaveCurrency.style.background = 'linear-gradient(135deg, #10b981, #059669)';
         
         // Reset button after 2 seconds
@@ -691,7 +1442,7 @@
       })
       .catch(error => {
         console.error('Error saving currency:', error);
-        alert('Failed to save currency. Please try again.');
+        showNotification('Failed to save currency. Please try again.', '', 'Error');
       });
   });
 
@@ -872,6 +1623,114 @@
       }
     });
   });
+
+  // Auto-open signup modal if redirected from another page
+  window.addEventListener('load', () => {
+    const shouldOpenSignup = sessionStorage.getItem('openSignup');
+    if (shouldOpenSignup === 'true') {
+      // Clear the flag
+      sessionStorage.removeItem('openSignup');
+      
+      // Wait a moment for the page to fully load, then open signup modal
+      setTimeout(() => {
+        document.getElementById('signupModal').style.display = 'grid';
+        document.getElementById('signupUsername').focus();
+      }, 300);
+    }
+  });
+</script>
+
+<!-- Custom Notification -->
+<div id="customNotification" class="notification">
+  <div class="notification-icon"></div>
+  <div class="notification-title">Success!</div>
+  <div class="notification-message"></div>
+  <div class="notification-buttons">
+    <button class="btn btn-primary" onclick="hideNotification()">Got it!</button>
+  </div>
+</div>
+
+<!-- Custom Confirm Dialog -->
+<div id="customConfirm" class="confirm-dialog">
+  <div class="confirm-icon"></div>
+  <div class="confirm-title">Are you sure?</div>
+  <div class="confirm-message"></div>
+  <div class="confirm-buttons">
+    <button id="confirmYes" class="btn btn-danger">Confirm</button>
+    <button id="confirmNo" class="btn btn-ghost">Cancel</button>
+  </div>
+</div>
+
+<script>
+/* Custom Notification System */
+function showNotification(message, icon = '', title = 'Success!') {
+  const notification = document.getElementById('customNotification');
+  const overlay = document.getElementById('overlay');
+  
+  notification.querySelector('.notification-icon').textContent = icon;
+  notification.querySelector('.notification-title').textContent = title;
+  notification.querySelector('.notification-message').textContent = message;
+  
+  notification.classList.add('show');
+}
+
+function hideNotification() {
+  const notification = document.getElementById('customNotification');
+  notification.classList.remove('show');
+}
+
+/* Custom Confirm Dialog */
+function showConfirm(message, icon = '', title = 'Are you sure?', buttonText = 'Confirm') {
+  return new Promise((resolve) => {
+    const confirmDialog = document.getElementById('customConfirm');
+    const overlay = document.getElementById('overlay');
+    const yesBtn = document.getElementById('confirmYes');
+    const noBtn = document.getElementById('confirmNo');
+    
+    confirmDialog.querySelector('.confirm-icon').textContent = icon;
+    confirmDialog.querySelector('.confirm-title').textContent = title;
+    confirmDialog.querySelector('.confirm-message').textContent = message;
+    yesBtn.textContent = buttonText;
+    
+    overlay.style.display = 'block';
+    confirmDialog.classList.add('show');
+    
+    const cleanup = () => {
+      confirmDialog.classList.remove('show');
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 300);
+    };
+    
+    yesBtn.onclick = () => {
+      cleanup();
+      resolve(true);
+    };
+    
+    noBtn.onclick = () => {
+      cleanup();
+      resolve(false);
+    };
+  });
+}
+
+// Smooth scroll function
+function scrollToHero() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Enable smooth scrolling for all anchor links
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+});
 </script>
 
 </body>
