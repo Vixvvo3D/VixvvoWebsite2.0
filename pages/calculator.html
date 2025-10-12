@@ -2212,7 +2212,7 @@
     document.getElementById('includePrinterDepreciation').checked = includePrinterDepreciation;
     
     updatePriceInfo();
-    compute();
+    calculateCost();
   }
 
   // Save preset button
@@ -2294,7 +2294,7 @@
       
       // Recompute with default values
       updatePriceInfo();
-      compute();
+      calculateCost();
     }
   });
 
