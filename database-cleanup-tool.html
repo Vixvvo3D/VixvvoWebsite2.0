@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Database Cleanup Tool</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f0f0f;
+      color: #fff;
+      padding: 40px 20px;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #a855f7, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .subtitle {
+      color: #888;
+      margin-bottom: 40px;
+    }
+    
+    .section {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    
+    .section h2 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      color: #a855f7;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #a855f7, #c084fc);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-right: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(168, 85, 247, .4);
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+    
+    .btn-danger:hover {
+      box-shadow: 0 8px 24px rgba(239, 68, 68, .4);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    
+    .stat-card {
+      background: #222;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #333;
+    }
+    
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #a855f7;
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      color: #888;
+      margin-top: 4px;
+    }
+    
+    #output {
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    
+    .success { color: #10b981; }
+    .warning { color: #f59e0b; }
+    .error { color: #ef4444; }
+    .info { color: #3b82f6; }
+    
+    .loading {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #333;
+      border-top: 2px solid #a855f7;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>🧹 Database Cleanup Tool</h1>
+    <p class="subtitle">Organize and clean your Firebase Realtime Database</p>
+    
+    <!-- Stats Section -->
+    <div class="section">
+      <h2>📊 Database Statistics</h2>
+      <button class="btn" onclick="loadStats()">Refresh Stats</button>
+      <div class="stats-grid" id="statsGrid">
+        <!-- Stats will be loaded here -->
+      </div>
+    </div>
+    
+    <!-- Cleanup Actions -->
+    <div class="section">
+      <h2>🧹 Cleanup Actions</h2>
+      <button class="btn" onclick="cleanExpiredCodes()">Clean Expired Verification Codes</button>
+      <button class="btn" onclick="organizeUserData()">Organize User Data</button>
+      <button class="btn" onclick="findDuplicates()">Find Duplicates</button>
+      <button class="btn btn-danger" onclick="clearAllVerificationCodes()">Clear All Verification Codes</button>
+    </div>
+    
+    <!-- Output Console -->
+    <div class="section">
+      <h2>📋 Output Log</h2>
+      <div id="output">Ready to clean database. Click an action above to start.</div>
+    </div>
+  </div>
+  
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDwEDp5SfrxeEntOJg_XzbiBoGc9ADbX5g",
+      authDomain: "vixvvowebsite.firebaseapp.com",
+      projectId: "vixvvowebsite",
+      storageBucket: "vixvvowebsite.appspot.com",
+      messagingSenderId: "862620702799",
+      appId: "1:862620702799:web:d06c0ec4e7b0f3010d323a",
+      databaseURL: "https://vixvvowebsite-default-rtdb.firebaseio.com"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+    
+    function log(message, type = 'info') {
+      const output = document.getElementById('output');
+      const className = type === 'success' ? 'success' : 
+                        type === 'warning' ? 'warning' :
+                        type === 'error' ? 'error' : 'info';
+      output.innerHTML += `<span class="${className}">${message}</span>\n`;
+      output.scrollTop = output.scrollHeight;
+    }
+    
+    function clearLog() {
+      document.getElementById('output').innerHTML = '';
+    }
+    
+    async function loadStats() {
+      clearLog();
+      log('📊 Loading database statistics...', 'info');
+      log('');
+      
+      try {
+        const [users, printers, filaments, userPrinters, userFilaments, codes] = await Promise.all([
+          db.ref('users').once('value'),
+          db.ref('printers').once('value'),
+          db.ref('filaments').once('value'),
+          db.ref('userPrinters').once('value'),
+          db.ref('userFilaments').once('value'),
+          db.ref('verificationCodes').once('value')
+        ]);
+        
+        const usersData = users.val() || {};
+        const admins = Object.values(usersData).filter(u => u.role === 'admin').length;
+        
+        const userPrintersData = userPrinters.val() || {};
+        const totalUserPrinters = Object.values(userPrintersData).reduce((sum, up) => sum + Object.keys(up || {}).length, 0);
+        
+        const userFilamentsData = userFilaments.val() || {};
+        const totalUserFilaments = Object.values(userFilamentsData).reduce((sum, uf) => sum + Object.keys(uf || {}).length, 0);
+        
+        const stats = {
+          users: Object.keys(usersData).length,
+          admins: admins,
+          printers: printers.numChildren(),
+          filaments: filaments.numChildren(),
+          userPrinters: totalUserPrinters,
+          userFilaments: totalUserFilaments,
+          codes: codes.numChildren()
+        };
+        
+        // Update stats grid
+        const grid = document.getElementById('statsGrid');
+        grid.innerHTML = `
+          <div class="stat-card">
+            <div class="stat-value">${stats.users}</div>
+            <div class="stat-label">Total Users</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${stats.admins}</div>
+            <div class="stat-label">Admins</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${stats.printers}</div>
+            <div class="stat-label">Global Printers</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${stats.filaments}</div>
+            <div class="stat-label">Global Filaments</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${stats.userPrinters}</div>
+            <div class="stat-label">User Printers</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${stats.userFilaments}</div>
+            <div class="stat-label">User Filaments</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${stats.codes}</div>
+            <div class="stat-label">Verification Codes</div>
+          </div>
+        `;
+        
+        log('✅ Stats loaded successfully!', 'success');
+        log(`   Users: ${stats.users} (${stats.admins} admins)`, 'info');
+        log(`   Global Printers: ${stats.printers}`, 'info');
+        log(`   Global Filaments: ${stats.filaments}`, 'info');
+        log(`   User Printers: ${stats.userPrinters}`, 'info');
+        log(`   User Filaments: ${stats.userFilaments}`, 'info');
+        log(`   Verification Codes: ${stats.codes}`, 'info');
+        
+      } catch (error) {
+        log('❌ Error loading stats: ' + error.message, 'error');
+      }
+    }
+    
+    async function cleanExpiredCodes() {
+      clearLog();
+      log('🧹 Cleaning expired verification codes...', 'info');
+      log('');
+      
+      try {
+        const snapshot = await db.ref('verificationCodes').once('value');
+        const codes = snapshot.val() || {};
+        const now = Date.now();
+        let deleted = 0;
+        
+        for (const [email, data] of Object.entries(codes)) {
+          if (data.expiresAt && data.expiresAt < now) {
+            await db.ref('verificationCodes').child(email).remove();
+            deleted++;
+            log(`✅ Deleted expired code for: ${email.replace(/,/g, '.')}`, 'success');
+          }
+        }
+        
+        log('', 'info');
+        log(`✅ Cleaned ${deleted} expired verification codes`, 'success');
+        
+        await loadStats();
+        
+      } catch (error) {
+        log('❌ Error: ' + error.message, 'error');
+      }
+    }
+    
+    async function organizeUserData() {
+      clearLog();
+      log('📁 Organizing user data...', 'info');
+      log('');
+      
+      try {
+        const snapshot = await db.ref('users').once('value');
+        const users = snapshot.val() || {};
+        let updated = 0;
+        
+        for (const [uid, userData] of Object.entries(users)) {
+          const updates = {};
+          let needsUpdate = false;
+          
+          if (!userData.role) {
+            updates.role = 'user';
+            needsUpdate = true;
+          }
+          
+          if (!userData.currency) {
+            updates.currency = 'USD';
+            needsUpdate = true;
+          }
+          
+          if (!userData.createdAt) {
+            updates.createdAt = new Date().toISOString();
+            needsUpdate = true;
+          }
+          
+          if (needsUpdate) {
+            await db.ref('users').child(uid).update(updates);
+            updated++;
+            log(`✅ Updated user: ${userData.email || uid}`, 'success');
+          }
+        }
+        
+        log('', 'info');
+        log(`✅ Organized ${updated} user records`, 'success');
+        
+        await loadStats();
+        
+      } catch (error) {
+        log('❌ Error: ' + error.message, 'error');
+      }
+    }
+    
+    async function findDuplicates() {
+      clearLog();
+      log('🔍 Searching for duplicates...', 'info');
+      log('');
+      
+      try {
+        // Check printers
+        const printersSnapshot = await db.ref('printers').once('value');
+        const printers = printersSnapshot.val() || {};
+        const printerNames = new Set();
+        let printerDuplicates = 0;
+        
+        for (const [id, printer] of Object.entries(printers)) {
+          if (printerNames.has(printer.name)) {
+            log(`⚠️  Duplicate printer: ${printer.name} (ID: ${id})`, 'warning');
+            printerDuplicates++;
+          } else {
+            printerNames.add(printer.name);
+          }
+        }
+        
+        // Check filaments
+        const filamentsSnapshot = await db.ref('filaments').once('value');
+        const filaments = filamentsSnapshot.val() || {};
+        const filamentKeys = new Set();
+        let filamentDuplicates = 0;
+        
+        for (const [id, filament] of Object.entries(filaments)) {
+          const key = `${filament.brand}-${filament.name}`;
+          if (filamentKeys.has(key)) {
+            log(`⚠️  Duplicate filament: ${filament.brand} ${filament.name} (ID: ${id})`, 'warning');
+            filamentDuplicates++;
+          } else {
+            filamentKeys.add(key);
+          }
+        }
+        
+        log('', 'info');
+        log(`Found ${printerDuplicates} duplicate printers`, printerDuplicates > 0 ? 'warning' : 'success');
+        log(`Found ${filamentDuplicates} duplicate filaments`, filamentDuplicates > 0 ? 'warning' : 'success');
+        
+      } catch (error) {
+        log('❌ Error: ' + error.message, 'error');
+      }
+    }
+    
+    async function clearAllVerificationCodes() {
+      if (!confirm('⚠️ This will delete ALL verification codes. Are you sure?')) {
+        return;
+      }
+      
+      clearLog();
+      log('🗑️  Clearing all verification codes...', 'warning');
+      log('');
+      
+      try {
+        await db.ref('verificationCodes').remove();
+        log('✅ All verification codes cleared', 'success');
+        await loadStats();
+      } catch (error) {
+        log('❌ Error: ' + error.message, 'error');
+      }
+    }
+    
+    // Load stats on page load
+    window.addEventListener('load', () => {
+      loadStats();
+    });
+  </script>
+</body>
+</html>
