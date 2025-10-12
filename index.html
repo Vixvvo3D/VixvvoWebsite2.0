@@ -1604,9 +1604,11 @@
     hideLoadingOverlay();
   }, 5000);
 
-  // Force scroll to top and prevent auto-scroll
+  // Force scroll to top and prevent auto-scroll (unless there's a hash)
   history.scrollRestoration = 'manual';
-  window.scrollTo(0, 0);
+  if (!window.location.hash) {
+    window.scrollTo(0, 0);
+  }
 
   // Smooth scroll for nav links only
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -1629,8 +1631,25 @@
     });
   });
 
-  // Auto-open signup modal if redirected from another page
+  // Handle hash navigation on page load
   window.addEventListener('load', () => {
+    // Check if there's a hash in the URL
+    if (window.location.hash) {
+      const hash = window.location.hash;
+      const target = document.querySelector(hash);
+      
+      if (target) {
+        // Wait for page to fully render, then scroll
+        setTimeout(() => {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }, 100);
+      }
+    }
+    
+    // Auto-open signup modal if redirected from another page
     const shouldOpenSignup = sessionStorage.getItem('openSignup');
     if (shouldOpenSignup === 'true') {
       // Clear the flag
