@@ -118,7 +118,11 @@ async function sendVerificationCode(email) {
     
     let errorMessage = 'Failed to send verification code';
     
-    if (error.code === 'already-exists') {
+    // Check for "already exists" errors in multiple ways
+    if (error.code === 'already-exists' || 
+        (error.message && error.message.toLowerCase().includes('already registered'))) {
+      errorMessage = 'This email is already registered. Please login instead.';
+    } else if (error.message && error.message.toLowerCase().includes('already')) {
       errorMessage = 'This email is already registered. Please login instead.';
     } else if (error.message) {
       errorMessage = error.message;

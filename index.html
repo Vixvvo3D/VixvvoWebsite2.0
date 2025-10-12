@@ -1058,14 +1058,19 @@
         console.error('Failed to send verification code:', codeError);
         errDiv.style.color = '#ff4444';
         
-        if (codeError.code === 'already-exists') {
+        // Check both error.code and error.message for "already exists" scenarios
+        if (codeError.code === 'already-exists' || 
+            (codeError.message && codeError.message.includes('already registered'))) {
           errDiv.textContent = 'This email is already registered. Please login instead.';
         } else if (codeError.code === 'unauthenticated') {
           errDiv.textContent = 'Email service authentication failed. Please contact support.';
         } else if (codeError.code === 'failed-precondition') {
           errDiv.textContent = 'Email verification is not configured. Please contact support.';
+        } else if (codeError.message && codeError.message.includes('already')) {
+          // Catch any other "already" related errors
+          errDiv.textContent = 'This email is already registered. Please login instead.';
         } else {
-          errDiv.textContent = 'Failed to send verification code. Please check your email and try again.';
+          errDiv.textContent = 'Failed to send verification code. Please try again.';
         }
         
         // Clear pending data since verification failed
