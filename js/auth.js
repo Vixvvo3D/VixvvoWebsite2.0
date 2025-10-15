@@ -5,7 +5,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDwEDp5SfrxeEntOJg_XzbiBoGc9ADbX5g",
   authDomain: "vixvvowebsite.firebaseapp.com",
   projectId: "vixvvowebsite",
-  storageBucket: "vixvvowebsite.appspot.com",
+  storageBucket: "vixvvowebsite.firebasestorage.app",
   messagingSenderId: "862620702799",
   appId: "1:862620702799:web:d06c0ec4e7b0f3010d323a",
   measurementId: "G-VX36JF6PTT",

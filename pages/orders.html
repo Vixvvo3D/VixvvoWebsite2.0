@@ -23,11 +23,40 @@
 <script src="../js/auth.js"></script>
 <script src="../js/currency.js"></script>
 
+<!-- Google Places API for Address Autocomplete -->
+<!-- SECURITY: Restrict this API key in Google Cloud Console! -->
+<!-- Add HTTP referrer restrictions to only allow your domain -->
+<script>
+  // Handle Google Maps API errors
+  window.gm_authFailure = function() {
+    console.error('Google Maps authentication failed. Check API key and restrictions.');
+  };
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDN2UpD_xHvxrQ2LQjDHIlLmuRi8e4wAQQ&loading=async&libraries=places&callback=initGoogleMaps" async defer></script>
+
 <style>
   .orders-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 40px 60px;
+  }
+
+  .address-dropdown {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  .address-dropdown::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .address-dropdown::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+
+  .address-dropdown::-webkit-scrollbar-thumb {
+    background: var(--purple);
+    border-radius: 4px;
   }
 
   .orders-header {
@@ -77,6 +106,32 @@
     background: rgba(36, 29, 53, 0.8);
   }
 
+  /* Status Filter Dropdown */
+  .status-filter {
+    padding: 12px 16px;
+    background: rgba(36, 29, 53, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 180px;
+  }
+
+  .status-filter:hover {
+    border-color: var(--purple);
+    background: rgba(36, 29, 53, 0.8);
+  }
+
+  .status-filter:focus {
+    outline: none;
+    border-color: var(--purple);
+    background: rgba(36, 29, 53, 0.8);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+  }
+
   .btn {
     padding: 12px 24px;
     background: linear-gradient(135deg, var(--purple), var(--purple-light));
@@ -99,7 +154,8 @@
     background: linear-gradient(135deg, #241d35, #1d1530);
     border: 1px solid var(--border);
     border-radius: 12px;
-    overflow: hidden;
+    overflow-x: auto; /* Allow horizontal scroll if needed */
+    overflow-y: visible; /* Allow dropdown to show outside */
   }
 
   .orders-table {
@@ -183,10 +239,23 @@
     border-color: #ef4444;
   }
 
-  .status-dropdown.status-finished {
-    background: rgba(16, 185, 129, 0.2);
-    color: #10b981;
-    border-color: #10b981;
+  /* Payment Status Colors */
+  .status-dropdown.payment-unpaid {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border-color: #ef4444;
+  }
+
+  .status-dropdown.payment-partially {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+    border-color: #fbbf24;
+  }
+
+  .status-dropdown.payment-paid {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border-color: #22c55e;
   }
 
   /* Status Badge */
@@ -286,7 +355,7 @@
     padding: 8px;
     min-width: 160px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-    z-index: 1000;
+    z-index: 10000; /* Higher than notification (9999) */
     display: none;
     animation: dropdownFadeIn 0.2s ease;
   }
@@ -690,6 +759,11 @@
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+    background: rgba(23, 18, 33, 0.95);
   }
 
   .btn-close:hover {
@@ -796,43 +870,38 @@
   }
 
   .messaging-apps {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
+    width: 100%;
   }
 
-  .app-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 18px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(168, 85, 247, 0.2);
+  .messaging-apps select {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(36, 29, 53, 0.6);
+    border: 1px solid rgba(168, 85, 247, 0.3);
     border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a855f7' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
   }
 
-  .app-checkbox:hover {
+  .messaging-apps select:hover {
     border-color: var(--purple);
-    background: rgba(168, 85, 247, 0.12);
-    transform: translateY(-2px);
+    background-color: rgba(168, 85, 247, 0.12);
     box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
   }
 
-  .app-checkbox input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: var(--purple);
-  }
-
-  .app-checkbox label {
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text);
-    margin: 0;
+  .messaging-apps select:focus {
+    outline: none;
+    border-color: var(--purple);
+    background-color: rgba(36, 29, 53, 0.8);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
   }
 
   .color-picker-container {
@@ -1178,7 +1247,8 @@
   .color-option {
     aspect-ratio: 1;
     border-radius: 8px;
-    border: 2px solid rgba(168, 85, 247, 0.3);
+    border: 2px solid;
+    /* border-color set dynamically via JavaScript */
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
@@ -1246,6 +1316,38 @@
 </style>
 </head>
 <body>
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--dark-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: opacity 0.3s ease;
+  ">
+    <div style="
+      width: 60px;
+      height: 60px;
+      border: 4px solid var(--border);
+      border-top: 4px solid var(--purple);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    "></div>
+    <p style="margin-top: 20px; color: var(--text-muted); font-size: 14px;">Loading orders...</p>
+    <style>
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </div>
+
   <!-- Navbar Container -->
   <div id="navbar-container"></div>
 
@@ -1256,8 +1358,24 @@
     </div>
 
     <div class="action-bar">
-      <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Search orders...">
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Search orders...">
+        </div>
+        <select id="statusFilter" class="status-filter">
+          <option value="all">All Orders</option>
+          <optgroup label="Order Status">
+            <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </optgroup>
+          <optgroup label="Payment Status">
+            <option value="paid">Paid</option>
+            <option value="partially">Partially</option>
+            <option value="unpaid">Unpaid</option>
+          </optgroup>
+        </select>
       </div>
       <div style="display: flex; gap: 12px;">
         <button class="btn" id="btnManageColors">Manage Colors</button>
@@ -1321,7 +1439,7 @@
 
   <!-- Custom Notification -->
   <div id="customNotification" class="notification">
-    <div class="notification-icon">✓</div>
+    <div class="notification-icon"></div>
     <div class="notification-content">
       <div class="notification-title">Success!</div>
       <div class="notification-message"></div>
@@ -1354,8 +1472,8 @@
         <div class="section-title">Order Information</div>
         <div class="form-row single">
           <div class="form-group">
-            <label>Order Title *</label>
-            <input type="text" id="orderTitle" required placeholder="Enter order title">
+            <label for="orderTitle">Order Title *</label>
+            <input type="text" id="orderTitle" name="orderTitle" required placeholder="Enter order title">
           </div>
         </div>
       </div>
@@ -1365,48 +1483,112 @@
         <div class="section-title">Client Information</div>
         <div class="form-row">
           <div class="form-group">
-            <label>Client Name *</label>
-            <input type="text" id="clientName" required placeholder="Enter client name">
+            <label for="clientName">Client Name *</label>
+            <input type="text" id="clientName" name="clientName" required placeholder="Enter client name" autocomplete="name">
           </div>
           <div class="form-group">
-            <label>Email *</label>
-            <input type="email" id="clientEmail" required placeholder="client@example.com">
+            <label for="clientEmail">Email (optional)</label>
+            <input type="email" id="clientEmail" name="clientEmail" placeholder="client@example.com" autocomplete="email">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Phone Number <span class="optional">(optional)</span></label>
-            <input type="tel" id="clientPhone" placeholder="+1 (555) 123-4567">
-          </div>
-          <div class="form-group">
-            <label>Address <span class="optional">(optional)</span></label>
-            <input type="text" id="clientAddress" placeholder="Enter address">
+            <label for="clientPhone">Phone (optional)</label>
+            <input type="tel" id="clientPhone" name="clientPhone" placeholder="+1 (555) 123-4567" autocomplete="tel">
           </div>
         </div>
         <div class="form-row single">
           <div class="form-group">
-            <label>Messaging Apps</label>
+            <label for="addressAutocomplete">Address Search (optional)</label>
+            <input type="text" id="addressAutocomplete" name="addressAutocomplete" placeholder="Start typing address..." autocomplete="street-address">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="clientStreet">Street Address (optional)</label>
+            <input type="text" id="clientStreet" name="clientStreet" placeholder="123 Main St" autocomplete="street-address">
+          </div>
+          <div class="form-group">
+            <label for="clientCity">City (optional)</label>
+            <input type="text" id="clientCity" name="clientCity" placeholder="City" autocomplete="address-level2">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="clientState">State/Province (optional)</label>
+            <input type="text" id="clientState" name="clientState" placeholder="State/Province" autocomplete="address-level1">
+          </div>
+          <div class="form-group">
+            <label for="clientPostalCode">Postal Code (optional)</label>
+            <input type="text" id="clientPostalCode" name="clientPostalCode" placeholder="12345" autocomplete="postal-code">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label for="clientCountry">Country (optional)</label>
+            <input type="text" id="clientCountry" name="clientCountry" placeholder="Country" autocomplete="country-name">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label for="messaging_app">Messaging App / Platform (optional)</label>
             <div class="messaging-apps">
-              <div class="app-checkbox">
-                <input type="checkbox" id="app_etsy" value="Etsy">
-                <label for="app_etsy">Etsy</label>
-              </div>
-              <div class="app-checkbox">
-                <input type="checkbox" id="app_messenger" value="Messenger">
-                <label for="app_messenger">Messenger</label>
-              </div>
-              <div class="app-checkbox">
-                <input type="checkbox" id="app_whatsapp" value="WhatsApp">
-                <label for="app_whatsapp">WhatsApp</label>
-              </div>
-              <div class="app-checkbox">
-                <input type="checkbox" id="app_instagram" value="Instagram">
-                <label for="app_instagram">Instagram</label>
-              </div>
-              <div class="app-checkbox">
-                <input type="checkbox" id="app_email" value="Email">
-                <label for="app_email">Email</label>
-              </div>
+              <select id="messaging_app" name="messaging_app">
+                <option value="">Select messaging app or platform...</option>
+                <optgroup label="Messaging Apps">
+                  <option value="WhatsApp">WhatsApp</option>
+                  <option value="Facebook Messenger">Facebook Messenger</option>
+                  <option value="Instagram DM">Instagram Direct Message</option>
+                  <option value="Telegram">Telegram</option>
+                  <option value="Discord">Discord</option>
+                  <option value="WeChat">WeChat</option>
+                  <option value="Line">LINE</option>
+                  <option value="Viber">Viber</option>
+                  <option value="Snapchat">Snapchat</option>
+                  <option value="iMessage">iMessage</option>
+                  <option value="SMS">SMS/Text Message</option>
+                  <option value="Signal">Signal</option>
+                  <option value="Kakao Talk">Kakao Talk</option>
+                </optgroup>
+                <optgroup label="E-Commerce Marketplaces">
+                  <option value="Etsy">Etsy</option>
+                  <option value="eBay">eBay</option>
+                  <option value="Amazon">Amazon</option>
+                  <option value="Shopify">Shopify</option>
+                  <option value="Facebook Marketplace">Facebook Marketplace</option>
+                  <option value="Mercari">Mercari</option>
+                  <option value="Poshmark">Poshmark</option>
+                  <option value="Depop">Depop</option>
+                  <option value="Vinted">Vinted</option>
+                  <option value="Craigslist">Craigslist</option>
+                  <option value="OfferUp">OfferUp</option>
+                  <option value="Letgo">Letgo</option>
+                  <option value="AliExpress">AliExpress</option>
+                  <option value="Alibaba">Alibaba</option>
+                  <option value="Walmart Marketplace">Walmart Marketplace</option>
+                  <option value="Target Plus">Target Plus</option>
+                  <option value="Wish">Wish</option>
+                  <option value="Temu">Temu</option>
+                  <option value="Shein">Shein</option>
+                </optgroup>
+                <optgroup label="Social & Professional">
+                  <option value="Twitter DM">Twitter/X Direct Message</option>
+                  <option value="LinkedIn Messages">LinkedIn Messages</option>
+                  <option value="TikTok">TikTok Shop</option>
+                  <option value="Pinterest">Pinterest</option>
+                </optgroup>
+                <optgroup label="Traditional">
+                  <option value="Email">Email</option>
+                  <option value="Phone Call">Phone Call</option>
+                  <option value="In Person">In Person</option>
+                  <option value="Skype">Skype</option>
+                  <option value="Slack">Slack</option>
+                  <option value="Teams">Microsoft Teams</option>
+                </optgroup>
+                <optgroup label="Other">
+                  <option value="Other">Other</option>
+                </optgroup>
+              </select>
             </div>
           </div>
         </div>
@@ -1417,12 +1599,12 @@
         <div class="section-title">Product Information</div>
         <div class="form-row">
           <div class="form-group">
-            <label>Product Name *</label>
-            <input type="text" id="productName" required placeholder="Enter product name">
+            <label for="productName">Product Name *</label>
+            <input type="text" id="productName" name="productName" required placeholder="Enter product name">
           </div>
           <div class="form-group">
-            <label>Quantity *</label>
-            <input type="number" id="quantity" required min="1" value="1" placeholder="1">
+            <label for="quantity">Quantity *</label>
+            <input type="number" id="quantity" name="quantity" required min="1" value="1" placeholder="1">
           </div>
         </div>
       </div>
@@ -1432,7 +1614,9 @@
         <div class="section-title">Customization Options</div>
         <div class="form-row">
           <div class="form-group" style="grid-column: 1 / -1;">
-            <label>Color(s) - Select up to 3 colors</label>
+            <label>Color(s) - Select up to 4 colors</label>
+            <input type="text" id="colorSearchInput" placeholder="Search colors by name..." 
+              style="width: 100%; padding: 10px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; margin-bottom: 12px;">
             <div id="colorSelectionGrid" class="color-selection-grid">
               <!-- Colors will be populated here -->
             </div>
@@ -1442,13 +1626,14 @@
                 <!-- Selected colors will appear here -->
               </div>
             </div>
-            <input type="hidden" id="color1" value="#a855f7">
-            <input type="hidden" id="color2" value="#c084fc">
-            <input type="hidden" id="color3" value="#e9d5ff">
+            <input type="hidden" id="color1" value="">
+            <input type="hidden" id="color2" value="">
+            <input type="hidden" id="color3" value="">
+            <input type="hidden" id="color4" value="">
           </div>
           <div class="form-group">
-            <label>Material / Filament Type</label>
-            <select id="material">
+            <label for="material">Material (optional)</label>
+            <select id="material" name="material">
               <option value="">Select material</option>
               <!-- Options will be populated dynamically from Firebase -->
             </select>
@@ -1456,8 +1641,8 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Finish</label>
-            <select id="finish">
+            <label for="finish">Finish (optional)</label>
+            <select id="finish" name="finish">
               <option value="">Select finish</option>
               <option value="Matte">Matte</option>
               <option value="Glossy">Glossy</option>
@@ -1466,35 +1651,88 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Scale / Size <span class="optional">(in mm)</span></label>
-            <input type="number" id="scale" placeholder="100" min="1">
+            <label for="scale">Scale (optional)</label>
+            <input type="number" id="scale" name="scale" placeholder="100" min="1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Information -->
+      <div class="form-section">
+        <div class="section-title">Payment Information</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="orderTotal">Total Price</label>
+            <input type="number" id="orderTotal" name="orderTotal" step="0.01" min="0" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label for="amountPaid">Amount Paid</label>
+            <input type="number" id="amountPaid" name="amountPaid" step="0.01" min="0" placeholder="0.00">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="paymentMethod">Payment Method (optional)</label>
+            <select id="paymentMethod" name="paymentMethod">
+              <option value="">Not specified</option>
+              <optgroup label="Digital Payments">
+                <option value="PayPal">PayPal</option>
+                <option value="Card">Credit/Debit Card</option>
+                <option value="Wire Transfer">Wire Transfer</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Venmo">Venmo</option>
+                <option value="Zelle">Zelle</option>
+                <option value="Apple Pay">Apple Pay</option>
+                <option value="Google Pay">Google Pay</option>
+                <option value="Stripe">Stripe</option>
+                <option value="Square">Square</option>
+              </optgroup>
+              <optgroup label="Traditional">
+                <option value="Cash">Cash</option>
+                <option value="Cheque">Cheque</option>
+                <option value="Money Order">Money Order</option>
+              </optgroup>
+              <optgroup label="Cryptocurrency">
+                <option value="Bitcoin">Bitcoin</option>
+                <option value="Ethereum">Ethereum</option>
+                <option value="Crypto">Other Cryptocurrency</option>
+              </optgroup>
+              <optgroup label="Other">
+                <option value="Trade/Barter">Trade/Barter</option>
+                <option value="Store Credit">Store Credit</option>
+                <option value="Other">Other</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="paymentStatus">Payment Status</label>
+            <select id="paymentStatus" name="paymentStatus">
+              <option value="unpaid">Unpaid</option>
+              <option value="partially">Partially</option>
+              <option value="paid">Paid</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="orderStatus">Order Status</label>
+            <select id="orderStatus" name="orderStatus">
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
           </div>
         </div>
       </div>
 
       <!-- Additional Notes -->
       <div class="form-section">
-        <div class="section-title">Additional Notes</div>
+        <div class="section-title">Additional Information</div>
         <div class="form-row single">
           <div class="form-group">
-            <label>Extra Notes <span class="optional">(optional)</span></label>
-            <textarea id="extraNotes" placeholder="Add any special instructions or notes..."></textarea>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Total Price</label>
-            <input type="number" id="orderTotal" step="0.01" min="0" placeholder="0.00">
-          </div>
-          <div class="form-group">
-            <label>Status</label>
-            <select id="orderStatus">
-              <option value="pending">Pending</option>
-              <option value="processing">Processing</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-              <option value="finished">Finished</option>
-            </select>
+            <label for="extraNotes">Extra Notes (optional)</label>
+            <textarea id="extraNotes" name="extraNotes" placeholder="Add any special instructions or notes..."></textarea>
           </div>
         </div>
       </div>
@@ -1523,6 +1761,18 @@
   </div>
 
   <script>
+    // Suppress ONLY classifier.js errors (from GitHub Copilot extension)
+    // This will NOT suppress errors from your actual code
+    window.addEventListener('error', function(e) {
+      if (e.filename && e.filename.includes('classifier.js') && e.message && e.message.includes('uuid')) {
+        console.warn('[Suppressed] External extension error from classifier.js');
+        e.stopPropagation();
+        e.preventDefault();
+        return true;
+      }
+      // Let all other errors through normally
+    }, true);
+
     // Firebase and currentUser are initialized by auth.js (loaded in head)
     
     // Filament data storage
@@ -1794,9 +2044,10 @@
         const card = document.createElement('div');
         card.className = 'color-card';
         card.dataset.colorId = id;
+        const darkerBorder = getDarkerBorder(color.hex);
         card.innerHTML = `
           <input type="checkbox" class="color-checkbox" data-color-id="${id}" style="display: none; position: absolute; top: 8px; left: 8px; width: 20px; height: 20px; cursor: pointer; z-index: 5;">
-          <div class="color-preview" style="background-color: ${color.hex}"></div>
+          <div class="color-preview" style="background-color: ${color.hex}; border-color: ${darkerBorder};"></div>
           <div class="color-info">
             <div class="color-name">${color.name}</div>
             ${color.brand ? `<div class="color-brand" style="font-size: 12px; color: var(--purple-light); margin-top: 4px; font-weight: 600;">${color.brand}</div>` : ''}
@@ -1846,9 +2097,10 @@
         const card = document.createElement('div');
         card.className = 'color-card';
         card.dataset.colorId = id;
+        const darkerBorder = getDarkerBorder(color.hex);
         card.innerHTML = `
           <input type="checkbox" class="color-checkbox" data-color-id="${id}" style="display: none; position: absolute; top: 8px; left: 8px; width: 20px; height: 20px; cursor: pointer; z-index: 5;">
-          <div class="color-preview" style="background-color: ${color.hex}"></div>
+          <div class="color-preview" style="background-color: ${color.hex}; border-color: ${darkerBorder};"></div>
           <div class="color-info">
             <div class="color-name">${color.name}</div>
             ${color.brand ? `<div class="color-brand" style="font-size: 12px; color: var(--purple-light); margin-top: 4px; font-weight: 600;">${color.brand}</div>` : ''}
@@ -2489,13 +2741,68 @@
     let selectedColors = [];
     let editSelectedColors = [];
 
-    function populateColorPicker(gridId, previewId, isEdit = false) {
+    // Function to convert hex to HSL for rainbow sorting
+    function hexToHSL(hex) {
+      const r = parseInt(hex.slice(1, 3), 16) / 255;
+      const g = parseInt(hex.slice(3, 5), 16) / 255;
+      const b = parseInt(hex.slice(5, 7), 16) / 255;
+      
+      const max = Math.max(r, g, b);
+      const min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+      
+      if (max === min) {
+        h = s = 0; // achromatic (gray)
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        
+        switch (max) {
+          case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+          case g: h = ((b - r) / d + 2) / 6; break;
+          case b: h = ((r - g) / d + 4) / 6; break;
+        }
+      }
+      
+      return { h: h * 360, s: s * 100, l: l * 100 };
+    }
+
+    // Sort colors in rainbow order (by hue)
+    function sortColorsByRainbow(colors) {
+      return colors.sort((a, b) => {
+        const hslA = hexToHSL(a.hex);
+        const hslB = hexToHSL(b.hex);
+        
+        // Sort by hue first (rainbow order)
+        if (Math.abs(hslA.h - hslB.h) > 1) {
+          return hslA.h - hslB.h;
+        }
+        // If hues are similar, sort by saturation (more vibrant first)
+        if (Math.abs(hslA.s - hslB.s) > 1) {
+          return hslB.s - hslA.s;
+        }
+        // Finally sort by lightness (darker first)
+        return hslA.l - hslB.l;
+      });
+    }
+
+    // Create a darker version of a color for border
+    function getDarkerBorder(hex) {
+      const hsl = hexToHSL(hex);
+      // Reduce lightness by 20% and increase saturation slightly
+      const darkerL = Math.max(0, hsl.l - 20);
+      const darkerS = Math.min(100, hsl.s + 10);
+      return `hsl(${hsl.h}, ${darkerS}%, ${darkerL}%)`;
+    }
+
+    function populateColorPicker(gridId, previewId, isEdit = false, filterText = '') {
       const grid = document.getElementById(gridId);
       if (!grid) return;
       
       grid.innerHTML = '';
       
       const colorArray = isEdit ? editSelectedColors : selectedColors;
+      const searchTerm = filterText.toLowerCase().trim();
       
       // Add user colors first - grouped by brand
       if (Object.keys(userColorsData).length > 0) {
@@ -2513,6 +2820,13 @@
         const sortedUserBrands = Object.keys(userBrandGroups).sort();
         
         sortedUserBrands.forEach(brand => {
+          // Filter colors by search term and sort by rainbow order
+          const filteredColors = sortColorsByRainbow(
+            userBrandGroups[brand].filter(color => searchTerm === '' || color.name.toLowerCase().includes(searchTerm))
+          );
+          
+          if (filteredColors.length === 0) return; // Skip brand if no matching colors
+          
           // Brand header
           const brandHeader = document.createElement('div');
           brandHeader.style.cssText = 'grid-column: 1 / -1; padding: 12px 0 6px 0; color: var(--purple-light); font-size: 13px; font-weight: 700; border-top: 1px solid rgba(168, 85, 247, 0.2); margin-top: 8px;';
@@ -2520,10 +2834,11 @@
           grid.appendChild(brandHeader);
           
           // Sort colors within brand alphabetically by name
-          userBrandGroups[brand].sort((a, b) => a.name.localeCompare(b.name)).forEach(color => {
+          filteredColors.forEach(color => {
             const option = document.createElement('div');
             option.className = 'color-option';
             option.style.backgroundColor = color.hex;
+            option.style.borderColor = getDarkerBorder(color.hex);
             option.setAttribute('data-hex', color.hex);
             option.setAttribute('data-name', color.name);
             option.setAttribute('title', `${color.name} - ${brand}`);
@@ -2547,7 +2862,10 @@
               option.classList.add('selected');
             }
             
-            option.addEventListener('click', () => selectColor(color.hex, gridId, previewId, isEdit));
+            option.addEventListener('click', (e) => {
+              e.stopPropagation();
+              selectColor(color.hex, gridId, previewId, isEdit);
+            });
             grid.appendChild(option);
           });
         });
@@ -2569,6 +2887,13 @@
         const sortedGlobalBrands = Object.keys(globalBrandGroups).sort();
         
         sortedGlobalBrands.forEach(brand => {
+          // Filter colors by search term and sort by rainbow order
+          const filteredColors = sortColorsByRainbow(
+            globalBrandGroups[brand].filter(color => searchTerm === '' || color.name.toLowerCase().includes(searchTerm))
+          );
+          
+          if (filteredColors.length === 0) return; // Skip brand if no matching colors
+          
           // Brand header
           const brandHeader = document.createElement('div');
           brandHeader.style.cssText = 'grid-column: 1 / -1; padding: 12px 0 6px 0; color: var(--text-muted); font-size: 13px; font-weight: 700; border-top: 1px solid rgba(168, 85, 247, 0.2); margin-top: 8px;';
@@ -2576,10 +2901,11 @@
           grid.appendChild(brandHeader);
           
           // Sort colors within brand alphabetically by name
-          globalBrandGroups[brand].sort((a, b) => a.name.localeCompare(b.name)).forEach(color => {
+          filteredColors.forEach(color => {
             const option = document.createElement('div');
             option.className = 'color-option';
             option.style.backgroundColor = color.hex;
+            option.style.borderColor = getDarkerBorder(color.hex);
             option.setAttribute('data-hex', color.hex);
             option.setAttribute('data-name', color.name);
             option.setAttribute('title', `${color.name} - ${brand}`);
@@ -2603,7 +2929,10 @@
               option.classList.add('selected');
             }
             
-            option.addEventListener('click', () => selectColor(color.hex, gridId, previewId, isEdit));
+            option.addEventListener('click', (e) => {
+              e.stopPropagation();
+              selectColor(color.hex, gridId, previewId, isEdit);
+            });
             grid.appendChild(option);
           });
         });
@@ -2624,24 +2953,26 @@
         // Deselect
         colorArray.splice(index, 1);
       } else {
-        // Select (max 3)
-        if (colorArray.length < 3) {
+        // Select (max 4)
+        if (colorArray.length < 4) {
           colorArray.push(hex);
         } else {
-          showNotification('Maximum 3 colors can be selected', 'warning');
+          showNotification('Maximum 4 colors can be selected', 'warning');
           return;
         }
       }
       
       // Update hidden inputs
       if (isEdit) {
-        document.getElementById('edit_color1').value = colorArray[0] || '#a855f7';
-        document.getElementById('edit_color2').value = colorArray[1] || '#c084fc';
-        document.getElementById('edit_color3').value = colorArray[2] || '#e9d5ff';
+        document.getElementById('edit_color1').value = colorArray[0] || '';
+        document.getElementById('edit_color2').value = colorArray[1] || '';
+        document.getElementById('edit_color3').value = colorArray[2] || '';
+        document.getElementById('edit_color4').value = colorArray[3] || '';
       } else {
-        document.getElementById('color1').value = colorArray[0] || '#a855f7';
-        document.getElementById('color2').value = colorArray[1] || '#c084fc';
-        document.getElementById('color3').value = colorArray[2] || '#e9d5ff';
+        document.getElementById('color1').value = colorArray[0] || '';
+        document.getElementById('color2').value = colorArray[1] || '';
+        document.getElementById('color3').value = colorArray[2] || '';
+        document.getElementById('color4').value = colorArray[3] || '';
       }
       
       // Re-render
@@ -2750,15 +3081,27 @@
           });
         });
 
-        // Sort orders: finished orders go to the bottom
+        // Define status priority order
+        const statusPriority = {
+          'pending': 1,
+          'processing': 2,
+          'completed': 3,
+          'cancelled': 4
+        };
+        
+        // Sort orders by status priority, then by date within same status
         orders.sort((a, b) => {
-          const aFinished = a.status === 'finished';
-          const bFinished = b.status === 'finished';
+          const aStatus = a.status || 'pending';
+          const bStatus = b.status || 'pending';
+          const aPriority = statusPriority[aStatus] || 999;
+          const bPriority = statusPriority[bStatus] || 999;
           
-          if (aFinished && !bFinished) return 1;
-          if (!aFinished && bFinished) return -1;
+          // If different status, sort by priority
+          if (aPriority !== bPriority) {
+            return aPriority - bPriority;
+          }
           
-          // If both are finished or both are not finished, sort by date (newest first)
+          // If same status, sort by date (newest first)
           return (b.date || 0) - (a.date || 0);
         });
 
@@ -2772,14 +3115,29 @@
             </div>
           `;
         } else {
-          renderOrdersTable(orders);
+          const statusFilter = document.getElementById('statusFilter');
+          const filterValue = statusFilter ? statusFilter.value : 'all';
+          renderOrdersTable(orders, filterValue);
         }
       });
     }
 
     // Render orders table
-    function renderOrdersTable(orders) {
+    function renderOrdersTable(orders, filterStatus = 'all') {
       const ordersContent = document.getElementById('ordersContent');
+      
+      // Filter orders by status (order status or payment status)
+      let filteredOrders = orders;
+      if (filterStatus !== 'all') {
+        // Check if it's an order status filter
+        if (['pending', 'processing', 'completed', 'cancelled'].includes(filterStatus)) {
+          filteredOrders = orders.filter(order => (order.status || 'pending') === filterStatus);
+        }
+        // Check if it's a payment status filter
+        else if (['paid', 'partially', 'unpaid'].includes(filterStatus)) {
+          filteredOrders = orders.filter(order => (order.paymentStatus || 'unpaid') === filterStatus);
+        }
+      }
       
       const tableHTML = `
         <div class="orders-table-container">
@@ -2792,11 +3150,18 @@
                 <th>Order Name</th>
                 <th>Total</th>
                 <th>Status</th>
+                <th>Payment</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              ${orders.map(order => `
+              ${filteredOrders.map(order => {
+                const paymentStatus = order.paymentStatus || 'unpaid';
+                const total = order.total || 0;
+                const paid = order.amountPaid || 0;
+                const remaining = Math.max(0, total - paid);
+                
+                return `
                 <tr>
                   <td>#${order.id.slice(0, 7).toUpperCase()}</td>
                   <td>${formatDate(order.date)}</td>
@@ -2809,7 +3174,13 @@
                       <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
                       <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
                       <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                      <option value="finished" ${order.status === 'finished' ? 'selected' : ''}>Finished</option>
+                    </select>
+                  </td>
+                  <td>
+                    <select class="status-dropdown payment-${paymentStatus}" onchange="updatePaymentStatus('${order.id}', this.value)">
+                      <option value="unpaid" ${paymentStatus === 'unpaid' ? 'selected' : ''}>Unpaid</option>
+                      <option value="partially" ${paymentStatus === 'partially' ? 'selected' : ''}>Partially</option>
+                      <option value="paid" ${paymentStatus === 'paid' ? 'selected' : ''}>Paid</option>
                     </select>
                   </td>
                   <td>
@@ -2819,19 +3190,20 @@
                       </button>
                       <div class="actions-menu-dropdown" id="menu-${order.id}">
                         <div class="actions-menu-item" onclick="viewOrder('${order.id}'); closeAllMenus()">
-                          📝 View/Edit
+                          View/Edit
                         </div>
                         <div class="actions-menu-item" onclick="duplicateOrder('${order.id}'); closeAllMenus()">
-                          📋 Duplicate
+                          Duplicate
                         </div>
                         <div class="actions-menu-item danger" onclick="deleteOrder('${order.id}'); closeAllMenus()">
-                          🗑️ Delete
+                          Delete
                         </div>
                       </div>
                     </div>
                   </td>
                 </tr>
-              `).join('')}
+              `;
+              }).join('')}
             </tbody>
           </table>
         </div>
@@ -2854,6 +3226,54 @@
         .catch((error) => {
           showNotification('Error updating status: ' + error.message, 'error');
         });
+    }
+
+    // Update payment status from table dropdown
+    function updatePaymentStatus(orderId, newPaymentStatus) {
+      if (!currentUser) return;
+      
+      const orderRef = firebase.database().ref('orders/' + currentUser.uid + '/' + orderId);
+      
+      orderRef.update({ paymentStatus: newPaymentStatus })
+        .then(() => {
+          showNotification(`Payment status changed to ${newPaymentStatus.replace('-', ' ')}!`, 'success');
+          loadOrders(); // Refresh the table
+        })
+        .catch((error) => {
+          showNotification('Error updating payment status: ' + error.message, 'error');
+        });
+    }
+
+    // Generate alphanumeric order ID (letters and numbers only)
+    async function generateUniqueOrderId() {
+      if (!currentUser) return null;
+      
+      let attempts = 0;
+      const maxAttempts = 10;
+      
+      while (attempts < maxAttempts) {
+        // Generate a timestamp-based ID with random alphanumeric characters
+        const timestamp = Date.now().toString(36); // Base36 conversion (0-9, a-z)
+        const randomPart = Math.random().toString(36).substring(2, 10); // Random alphanumeric
+        const additionalRandom = Math.random().toString(36).substring(2, 5); // Extra randomness
+        const orderId = (timestamp + randomPart + additionalRandom).replace(/[^a-zA-Z0-9]/g, '');
+        
+        // Check if this ID already exists
+        const snapshot = await firebase.database().ref('orders/' + currentUser.uid + '/' + orderId).once('value');
+        
+        if (!snapshot.exists()) {
+          // ID is unique, return it
+          return orderId;
+        }
+        
+        // ID collision detected, try again with a small delay
+        attempts++;
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
+      
+      // Fallback: add extra random characters if all attempts fail
+      console.warn('⚠️ Multiple ID collisions detected, using extended random ID');
+      return Date.now().toString(36) + Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2);
     }
 
     // Currency helper functions
@@ -2952,7 +3372,7 @@
       const messagingApps = order.messagingApps || [];
       
       // Get colors
-      const colors = order.colors || ['#a855f7', '#c084fc', '#e9d5ff'];
+      const colors = order.colors || [];
       
       content.innerHTML = `
         <form id="editOrderForm">
@@ -2988,44 +3408,108 @@
                 <input type="text" id="edit_clientName" value="${order.clientName || ''}" placeholder="Enter client name">
               </div>
               <div class="form-group">
-                <label>Email</label>
+                <label>Email (optional)</label>
                 <input type="email" id="edit_clientEmail" value="${order.clientEmail || ''}" placeholder="client@example.com">
               </div>
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label>Phone Number</label>
+                <label>Phone (optional)</label>
                 <input type="tel" id="edit_clientPhone" value="${order.clientPhone || ''}" placeholder="+1 (555) 123-4567">
-              </div>
-              <div class="form-group">
-                <label>Address</label>
-                <input type="text" id="edit_clientAddress" value="${order.clientAddress || ''}" placeholder="Enter address">
               </div>
             </div>
             <div class="form-row single">
               <div class="form-group">
-                <label>Messaging Apps</label>
+                <label>Address Search (optional)</label>
+                <input type="text" id="edit_addressAutocomplete" placeholder="Start typing address...">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Street Address (optional)</label>
+                <input type="text" id="edit_clientStreet" value="${order.clientStreet || order.clientAddress || ''}" placeholder="123 Main St">
+              </div>
+              <div class="form-group">
+                <label>City (optional)</label>
+                <input type="text" id="edit_clientCity" value="${order.clientCity || ''}" placeholder="City">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>State/Province (optional)</label>
+                <input type="text" id="edit_clientState" value="${order.clientState || ''}" placeholder="State/Province">
+              </div>
+              <div class="form-group">
+                <label>Postal Code (optional)</label>
+                <input type="text" id="edit_clientPostalCode" value="${order.clientPostalCode || ''}" placeholder="12345">
+              </div>
+            </div>
+            <div class="form-row single">
+              <div class="form-group">
+                <label>Country (optional)</label>
+                <input type="text" id="edit_clientCountry" value="${order.clientCountry || ''}" placeholder="Country">
+              </div>
+            </div>
+            <div class="form-row single">
+              <div class="form-group">
+                <label>Messaging App / Platform (optional)</label>
                 <div class="messaging-apps">
-                  <div class="app-checkbox">
-                    <input type="checkbox" id="edit_app_etsy" value="Etsy" ${messagingApps.includes('Etsy') ? 'checked' : ''}>
-                    <label for="edit_app_etsy">Etsy</label>
-                  </div>
-                  <div class="app-checkbox">
-                    <input type="checkbox" id="edit_app_messenger" value="Messenger" ${messagingApps.includes('Messenger') ? 'checked' : ''}>
-                    <label for="edit_app_messenger">Messenger</label>
-                  </div>
-                  <div class="app-checkbox">
-                    <input type="checkbox" id="edit_app_whatsapp" value="WhatsApp" ${messagingApps.includes('WhatsApp') ? 'checked' : ''}>
-                    <label for="edit_app_whatsapp">WhatsApp</label>
-                  </div>
-                  <div class="app-checkbox">
-                    <input type="checkbox" id="edit_app_instagram" value="Instagram" ${messagingApps.includes('Instagram') ? 'checked' : ''}>
-                    <label for="edit_app_instagram">Instagram</label>
-                  </div>
-                  <div class="app-checkbox">
-                    <input type="checkbox" id="edit_app_email" value="Email" ${messagingApps.includes('Email') ? 'checked' : ''}>
-                    <label for="edit_app_email">Email</label>
-                  </div>
+                  <select id="edit_messaging_app">
+                    <option value="">Select messaging app or platform...</option>
+                    <optgroup label="Messaging Apps">
+                      <option value="WhatsApp" ${messagingApps.includes('WhatsApp') || order.messagingApp === 'WhatsApp' ? 'selected' : ''}>WhatsApp</option>
+                      <option value="Facebook Messenger" ${messagingApps.includes('Facebook Messenger') || messagingApps.includes('Messenger') || order.messagingApp === 'Facebook Messenger' ? 'selected' : ''}>Facebook Messenger</option>
+                      <option value="Instagram DM" ${messagingApps.includes('Instagram DM') || messagingApps.includes('Instagram') || order.messagingApp === 'Instagram DM' ? 'selected' : ''}>Instagram Direct Message</option>
+                      <option value="Telegram" ${messagingApps.includes('Telegram') || order.messagingApp === 'Telegram' ? 'selected' : ''}>Telegram</option>
+                      <option value="Discord" ${messagingApps.includes('Discord') || order.messagingApp === 'Discord' ? 'selected' : ''}>Discord</option>
+                      <option value="WeChat" ${messagingApps.includes('WeChat') || order.messagingApp === 'WeChat' ? 'selected' : ''}>WeChat</option>
+                      <option value="Line" ${messagingApps.includes('Line') || order.messagingApp === 'Line' ? 'selected' : ''}>LINE</option>
+                      <option value="Viber" ${messagingApps.includes('Viber') || order.messagingApp === 'Viber' ? 'selected' : ''}>Viber</option>
+                      <option value="Snapchat" ${messagingApps.includes('Snapchat') || order.messagingApp === 'Snapchat' ? 'selected' : ''}>Snapchat</option>
+                      <option value="iMessage" ${messagingApps.includes('iMessage') || order.messagingApp === 'iMessage' ? 'selected' : ''}>iMessage</option>
+                      <option value="SMS" ${messagingApps.includes('SMS') || order.messagingApp === 'SMS' ? 'selected' : ''}>SMS/Text Message</option>
+                      <option value="Signal" ${messagingApps.includes('Signal') || order.messagingApp === 'Signal' ? 'selected' : ''}>Signal</option>
+                      <option value="Kakao Talk" ${messagingApps.includes('Kakao Talk') || order.messagingApp === 'Kakao Talk' ? 'selected' : ''}>Kakao Talk</option>
+                    </optgroup>
+                    <optgroup label="E-Commerce Marketplaces">
+                      <option value="Etsy" ${messagingApps.includes('Etsy Messages') || messagingApps.includes('Etsy') || order.messagingApp === 'Etsy' || order.messagingApp === 'Etsy Messages' ? 'selected' : ''}>Etsy</option>
+                      <option value="eBay" ${messagingApps.includes('eBay Messages') || messagingApps.includes('eBay') || order.messagingApp === 'eBay' || order.messagingApp === 'eBay Messages' ? 'selected' : ''}>eBay</option>
+                      <option value="Amazon" ${messagingApps.includes('Amazon Messages') || messagingApps.includes('Amazon') || order.messagingApp === 'Amazon' || order.messagingApp === 'Amazon Messages' ? 'selected' : ''}>Amazon</option>
+                      <option value="Shopify" ${messagingApps.includes('Shopify') || order.messagingApp === 'Shopify' ? 'selected' : ''}>Shopify</option>
+                      <option value="Facebook Marketplace" ${messagingApps.includes('Facebook Marketplace') || order.messagingApp === 'Facebook Marketplace' ? 'selected' : ''}>Facebook Marketplace</option>
+                      <option value="Mercari" ${messagingApps.includes('Mercari') || order.messagingApp === 'Mercari' ? 'selected' : ''}>Mercari</option>
+                      <option value="Poshmark" ${messagingApps.includes('Poshmark') || order.messagingApp === 'Poshmark' ? 'selected' : ''}>Poshmark</option>
+                      <option value="Depop" ${messagingApps.includes('Depop') || order.messagingApp === 'Depop' ? 'selected' : ''}>Depop</option>
+                      <option value="Vinted" ${messagingApps.includes('Vinted') || order.messagingApp === 'Vinted' ? 'selected' : ''}>Vinted</option>
+                      <option value="Craigslist" ${messagingApps.includes('Craigslist') || order.messagingApp === 'Craigslist' ? 'selected' : ''}>Craigslist</option>
+                      <option value="OfferUp" ${messagingApps.includes('OfferUp') || order.messagingApp === 'OfferUp' ? 'selected' : ''}>OfferUp</option>
+                      <option value="Letgo" ${messagingApps.includes('Letgo') || order.messagingApp === 'Letgo' ? 'selected' : ''}>Letgo</option>
+                      <option value="AliExpress" ${messagingApps.includes('AliExpress') || order.messagingApp === 'AliExpress' ? 'selected' : ''}>AliExpress</option>
+                      <option value="Alibaba" ${messagingApps.includes('Alibaba') || order.messagingApp === 'Alibaba' ? 'selected' : ''}>Alibaba</option>
+                      <option value="Walmart Marketplace" ${messagingApps.includes('Walmart Marketplace') || order.messagingApp === 'Walmart Marketplace' ? 'selected' : ''}>Walmart Marketplace</option>
+                      <option value="Target Plus" ${messagingApps.includes('Target Plus') || order.messagingApp === 'Target Plus' ? 'selected' : ''}>Target Plus</option>
+                      <option value="Wish" ${messagingApps.includes('Wish') || order.messagingApp === 'Wish' ? 'selected' : ''}>Wish</option>
+                      <option value="Temu" ${messagingApps.includes('Temu') || order.messagingApp === 'Temu' ? 'selected' : ''}>Temu</option>
+                      <option value="Shein" ${messagingApps.includes('Shein') || order.messagingApp === 'Shein' ? 'selected' : ''}>Shein</option>
+                    </optgroup>
+                    <optgroup label="Social & Professional">
+                      <option value="Twitter DM" ${messagingApps.includes('Twitter DM') || order.messagingApp === 'Twitter DM' ? 'selected' : ''}>Twitter/X Direct Message</option>
+                      <option value="LinkedIn Messages" ${messagingApps.includes('LinkedIn Messages') || order.messagingApp === 'LinkedIn Messages' ? 'selected' : ''}>LinkedIn Messages</option>
+                      <option value="TikTok" ${messagingApps.includes('TikTok') || order.messagingApp === 'TikTok' ? 'selected' : ''}>TikTok Shop</option>
+                      <option value="Pinterest" ${messagingApps.includes('Pinterest') || order.messagingApp === 'Pinterest' ? 'selected' : ''}>Pinterest</option>
+                    </optgroup>
+                    <optgroup label="Traditional">
+                      <option value="Email" ${messagingApps.includes('Email') || order.messagingApp === 'Email' ? 'selected' : ''}>Email</option>
+                      <option value="Phone Call" ${messagingApps.includes('Phone Call') || order.messagingApp === 'Phone Call' ? 'selected' : ''}>Phone Call</option>
+                      <option value="In Person" ${messagingApps.includes('In Person') || order.messagingApp === 'In Person' ? 'selected' : ''}>In Person</option>
+                      <option value="Skype" ${messagingApps.includes('Skype') || order.messagingApp === 'Skype' ? 'selected' : ''}>Skype</option>
+                      <option value="Slack" ${messagingApps.includes('Slack') || order.messagingApp === 'Slack' ? 'selected' : ''}>Slack</option>
+                      <option value="Teams" ${messagingApps.includes('Teams') || order.messagingApp === 'Teams' ? 'selected' : ''}>Microsoft Teams</option>
+                    </optgroup>
+                    <optgroup label="Other">
+                      <option value="Other" ${messagingApps.includes('Other') || order.messagingApp === 'Other' ? 'selected' : ''}>Other</option>
+                    </optgroup>
+                  </select>
                 </div>
               </div>
             </div>
@@ -3051,7 +3535,9 @@
             <div class="section-title">Customization Options</div>
             <div class="form-row">
               <div class="form-group" style="grid-column: 1 / -1;">
-                <label>Color(s) - Select up to 3 colors</label>
+                <label>Color(s) - Select up to 4 colors</label>
+                <input type="text" id="editColorSearchInput" placeholder="Search colors by name..." 
+                  style="width: 100%; padding: 10px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; margin-bottom: 12px;">
                 <div id="editColorSelectionGrid" class="color-selection-grid">
                   <!-- Colors will be populated here -->
                 </div>
@@ -3061,12 +3547,13 @@
                     <!-- Selected colors will appear here -->
                   </div>
                 </div>
-                <input type="hidden" id="edit_color1" value="${colors[0] || '#a855f7'}">
-                <input type="hidden" id="edit_color2" value="${colors[1] || '#c084fc'}">
-                <input type="hidden" id="edit_color3" value="${colors[2] || '#e9d5ff'}">
+                <input type="hidden" id="edit_color1" value="${colors[0] || ''}">
+                <input type="hidden" id="edit_color2" value="${colors[1] || ''}">
+                <input type="hidden" id="edit_color3" value="${colors[2] || ''}">
+                <input type="hidden" id="edit_color4" value="${colors[3] || ''}">
               </div>
               <div class="form-group">
-                <label>Material / Filament Type</label>
+                <label>Material (optional)</label>
                 <select id="edit_material">
                   <option value="">Select material</option>
                   <!-- Options will be populated dynamically from Firebase -->
@@ -3075,7 +3562,7 @@
             </div>
             <div class="form-row">
               <div class="form-group">
-                <label>Finish</label>
+                <label>Finish (optional)</label>
                 <select id="edit_finish">
                   <option value="">Select finish</option>
                   <option value="Matte" ${order.finish === 'Matte' ? 'selected' : ''}>Matte</option>
@@ -3085,8 +3572,77 @@
                 </select>
               </div>
               <div class="form-group">
-                <label>Scale / Size (in mm)</label>
+                <label>Scale (optional)</label>
                 <input type="number" id="edit_scale" value="${order.scale || ''}" placeholder="100" min="1">
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Information -->
+          <div class="form-section">
+            <div class="section-title">Payment Information</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Total Price (${getCurrencySymbolLocal()})</label>
+                <input type="number" id="edit_total" value="${typeof convertFromUSD === 'function' ? convertFromUSD(order.total || 0, window.currentCurrency || 'USD').toFixed(2) : (order.total || 0)}" step="0.01" min="0" placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label>Amount Paid (${getCurrencySymbolLocal()})</label>
+                <input type="number" id="edit_amountPaid" value="${typeof convertFromUSD === 'function' ? convertFromUSD(order.amountPaid || 0, window.currentCurrency || 'USD').toFixed(2) : (order.amountPaid || 0)}" step="0.01" min="0" placeholder="0.00">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Payment Method (optional)</label>
+                <select id="edit_paymentMethod">
+                  <option value="" ${!order.paymentMethod ? 'selected' : ''}>Not specified</option>
+                  <optgroup label="Digital Payments">
+                    <option value="PayPal" ${order.paymentMethod === 'PayPal' ? 'selected' : ''}>PayPal</option>
+                    <option value="Card" ${order.paymentMethod === 'Card' ? 'selected' : ''}>Credit/Debit Card</option>
+                    <option value="Wire Transfer" ${order.paymentMethod === 'Wire Transfer' ? 'selected' : ''}>Wire Transfer</option>
+                    <option value="Bank Transfer" ${order.paymentMethod === 'Bank Transfer' ? 'selected' : ''}>Bank Transfer</option>
+                    <option value="Venmo" ${order.paymentMethod === 'Venmo' ? 'selected' : ''}>Venmo</option>
+                    <option value="Zelle" ${order.paymentMethod === 'Zelle' ? 'selected' : ''}>Zelle</option>
+                    <option value="Apple Pay" ${order.paymentMethod === 'Apple Pay' ? 'selected' : ''}>Apple Pay</option>
+                    <option value="Google Pay" ${order.paymentMethod === 'Google Pay' ? 'selected' : ''}>Google Pay</option>
+                    <option value="Stripe" ${order.paymentMethod === 'Stripe' ? 'selected' : ''}>Stripe</option>
+                    <option value="Square" ${order.paymentMethod === 'Square' ? 'selected' : ''}>Square</option>
+                  </optgroup>
+                  <optgroup label="Traditional">
+                    <option value="Cash" ${order.paymentMethod === 'Cash' ? 'selected' : ''}>Cash</option>
+                    <option value="Cheque" ${order.paymentMethod === 'Cheque' ? 'selected' : ''}>Cheque</option>
+                    <option value="Money Order" ${order.paymentMethod === 'Money Order' ? 'selected' : ''}>Money Order</option>
+                  </optgroup>
+                  <optgroup label="Cryptocurrency">
+                    <option value="Bitcoin" ${order.paymentMethod === 'Bitcoin' ? 'selected' : ''}>Bitcoin</option>
+                    <option value="Ethereum" ${order.paymentMethod === 'Ethereum' ? 'selected' : ''}>Ethereum</option>
+                    <option value="Crypto" ${order.paymentMethod === 'Crypto' ? 'selected' : ''}>Other Cryptocurrency</option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option value="Trade/Barter" ${order.paymentMethod === 'Trade/Barter' ? 'selected' : ''}>Trade/Barter</option>
+                    <option value="Store Credit" ${order.paymentMethod === 'Store Credit' ? 'selected' : ''}>Store Credit</option>
+                    <option value="Other" ${order.paymentMethod === 'Other' ? 'selected' : ''}>Other</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Payment Status</label>
+                <select id="edit_paymentStatus">
+                  <option value="unpaid" ${(order.paymentStatus || 'unpaid') === 'unpaid' ? 'selected' : ''}>Unpaid</option>
+                  <option value="partially" ${order.paymentStatus === 'partially' ? 'selected' : ''}>Partially</option>
+                  <option value="paid" ${order.paymentStatus === 'paid' ? 'selected' : ''}>Paid</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Order Status</label>
+                <select id="edit_status">
+                  <option value="pending" ${(order.status || 'pending') === 'pending' ? 'selected' : ''}>Pending</option>
+                  <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                  <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
+                  <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                </select>
               </div>
             </div>
           </div>
@@ -3096,24 +3652,8 @@
             <div class="section-title">Additional Information</div>
             <div class="form-row single">
               <div class="form-group">
-                <label>Extra Notes</label>
+                <label>Extra Notes (optional)</label>
                 <textarea id="edit_extraNotes" placeholder="Add any special instructions or notes...">${order.extraNotes || ''}</textarea>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Total Price (${getCurrencySymbolLocal()})</label>
-                <input type="number" id="edit_total" value="${typeof convertFromUSD === 'function' ? convertFromUSD(order.total || 0, window.currentCurrency || 'USD').toFixed(2) : (order.total || 0)}" step="0.01" min="0" placeholder="0.00">
-              </div>
-              <div class="form-group">
-                <label>Status</label>
-                <select id="edit_status">
-                  <option value="pending" ${(order.status || 'pending') === 'pending' ? 'selected' : ''}>Pending</option>
-                  <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
-                  <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
-                  <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                  <option value="finished" ${order.status === 'finished' ? 'selected' : ''}>Finished</option>
-                </select>
               </div>
             </div>
           </div>
@@ -3147,8 +3687,43 @@
         }
         
         // Populate color picker with current colors
-        editSelectedColors = order.colors || ['#a855f7', '#c084fc', '#e9d5ff'];
+        editSelectedColors = order.colors || [];
         populateColorPicker('editColorSelectionGrid', 'editSelectedColorsPreview', true);
+        
+        // Add search filter event listener for edit modal
+        const editSearchInput = document.getElementById('editColorSearchInput');
+        if (editSearchInput) {
+          editSearchInput.value = ''; // Clear search
+          editSearchInput.addEventListener('input', (e) => {
+            populateColorPicker('editColorSelectionGrid', 'editSelectedColorsPreview', true, e.target.value);
+          });
+        }
+        
+        // Add payment status auto-update for edit modal
+        const editTotalInput = document.getElementById('edit_total');
+        const editAmountPaidInput = document.getElementById('edit_amountPaid');
+        const editPaymentStatusSelect = document.getElementById('edit_paymentStatus');
+        
+        function updateEditPaymentStatus() {
+          const total = parseFloat(editTotalInput.value) || 0;
+          const paid = parseFloat(editAmountPaidInput.value) || 0;
+          
+          if (paid === 0) {
+            editPaymentStatusSelect.value = 'unpaid';
+          } else if (paid >= total && total > 0) {
+            editPaymentStatusSelect.value = 'paid';
+          } else if (paid > 0 && paid < total) {
+            editPaymentStatusSelect.value = 'partially';
+          }
+        }
+        
+        if (editTotalInput && editAmountPaidInput) {
+          editTotalInput.addEventListener('input', updateEditPaymentStatus);
+          editAmountPaidInput.addEventListener('input', updateEditPaymentStatus);
+        }
+        
+        // Initialize autocomplete for edit form
+        setTimeout(initEditAutocomplete, 200);
       }, 100);
       
       overlay.style.display = 'block';
@@ -3162,22 +3737,16 @@
     async function saveOrderChanges(orderId) {
       if (!currentUser) return;
 
-      // Collect messaging apps
-      const messagingApps = [];
-      const appCheckboxes = ['edit_app_etsy', 'edit_app_messenger', 'edit_app_whatsapp', 'edit_app_instagram', 'edit_app_email'];
-      appCheckboxes.forEach(id => {
-        const checkbox = document.getElementById(id);
-        if (checkbox && checkbox.checked) {
-          messagingApps.push(checkbox.value);
-        }
-      });
+      // Get messaging app from dropdown
+      const messagingApp = document.getElementById('edit_messaging_app').value;
 
       // Collect colors
       const colors = [
         document.getElementById('edit_color1').value,
         document.getElementById('edit_color2').value,
-        document.getElementById('edit_color3').value
-      ];
+        document.getElementById('edit_color3').value,
+        document.getElementById('edit_color4').value
+      ].filter(c => c); // Filter out empty values
 
       // Get total value and convert to USD if needed
       const totalValue = parseFloat(document.getElementById('edit_total').value) || 0;
@@ -3191,8 +3760,13 @@
         clientName: document.getElementById('edit_clientName').value.trim(),
         clientEmail: document.getElementById('edit_clientEmail').value.trim(),
         clientPhone: document.getElementById('edit_clientPhone').value.trim(),
-        clientAddress: document.getElementById('edit_clientAddress').value.trim(),
-        messagingApps: messagingApps,
+        clientStreet: document.getElementById('edit_clientStreet').value.trim(),
+        clientCity: document.getElementById('edit_clientCity').value.trim(),
+        clientState: document.getElementById('edit_clientState').value.trim(),
+        clientPostalCode: document.getElementById('edit_clientPostalCode').value.trim(),
+        clientCountry: document.getElementById('edit_clientCountry').value.trim(),
+        clientAddress: document.getElementById('edit_clientStreet').value.trim(), // Legacy field
+        messagingApp: messagingApp,
         productName: document.getElementById('edit_productName').value.trim(),
         quantity: parseInt(document.getElementById('edit_quantity').value) || 1,
         colors: colors,
@@ -3201,6 +3775,11 @@
         scale: document.getElementById('edit_scale').value,
         extraNotes: document.getElementById('edit_extraNotes').value.trim(),
         total: totalInUSD,
+        amountPaid: typeof convertToUSD === 'function' 
+          ? convertToUSD(parseFloat(document.getElementById('edit_amountPaid').value) || 0, window.currentCurrency || 'USD')
+          : (parseFloat(document.getElementById('edit_amountPaid').value) || 0),
+        paymentMethod: document.getElementById('edit_paymentMethod').value,
+        paymentStatus: document.getElementById('edit_paymentStatus').value,
         status: document.getElementById('edit_status').value
       };
 
@@ -3260,7 +3839,7 @@
           '',
           'Duplicate Order',
           'Duplicate'
-        ).then((confirmed) => {
+        ).then(async (confirmed) => {
           if (confirmed) {
             // Create a new order with the same data but new ID and timestamp
             const duplicatedOrder = {
@@ -3269,8 +3848,14 @@
               status: 'pending' // Reset status to pending for new order
             };
             
-            // Push creates a new unique ID automatically
-            firebase.database().ref('orders/' + currentUser.uid).push(duplicatedOrder)
+            // Create unique alphanumeric ID and save order
+            const newOrderId = await generateUniqueOrderId();
+            if (!newOrderId) {
+              showNotification('Error generating order ID', 'error');
+              return;
+            }
+            
+            firebase.database().ref('orders/' + currentUser.uid + '/' + newOrderId).set(duplicatedOrder)
               .then(() => {
                 showNotification('Order duplicated successfully!', 'success');
                 loadOrders();
@@ -3305,6 +3890,14 @@
       });
     }
 
+    // Status filter dropdown
+    const statusFilter = document.getElementById('statusFilter');
+    if (statusFilter) {
+      statusFilter.addEventListener('change', () => {
+        loadOrders();
+      });
+    }
+
     // New order button
     document.getElementById('btnNewOrder').addEventListener('click', () => {
       if (!currentUser) {
@@ -3322,7 +3915,7 @@
       
       // Reset form and selected colors
       form.reset();
-      selectedColors = ['#a855f7', '#c084fc', '#e9d5ff'];
+      selectedColors = [];
       
       // Update Total Price label with current currency
       const totalLabel = form.querySelector('label[for="orderTotal"]');
@@ -3343,6 +3936,38 @@
       // Populate color picker
       setTimeout(() => {
         populateColorPicker('colorSelectionGrid', 'selectedColorsPreview', false);
+        
+        // Add search filter event listener
+        const searchInput = document.getElementById('colorSearchInput');
+        if (searchInput) {
+          searchInput.value = ''; // Clear search
+          searchInput.addEventListener('input', (e) => {
+            populateColorPicker('colorSelectionGrid', 'selectedColorsPreview', false, e.target.value);
+          });
+        }
+        
+        // Add payment status auto-update
+        const orderTotalInput = document.getElementById('orderTotal');
+        const amountPaidInput = document.getElementById('amountPaid');
+        const paymentStatusSelect = document.getElementById('paymentStatus');
+        
+        function updatePaymentStatus() {
+          const total = parseFloat(orderTotalInput.value) || 0;
+          const paid = parseFloat(amountPaidInput.value) || 0;
+          
+          if (paid === 0) {
+            paymentStatusSelect.value = 'unpaid';
+          } else if (paid >= total && total > 0) {
+            paymentStatusSelect.value = 'paid';
+          } else if (paid > 0 && paid < total) {
+            paymentStatusSelect.value = 'partially';
+          }
+        }
+        
+        if (orderTotalInput && amountPaidInput) {
+          orderTotalInput.addEventListener('input', updatePaymentStatus);
+          amountPaidInput.addEventListener('input', updatePaymentStatus);
+        }
       }, 100);
       
       overlay.style.display = 'block';
@@ -3364,7 +3989,7 @@
     }
 
     // Handle new order form submission
-    document.getElementById('newOrderForm').addEventListener('submit', (e) => {
+    document.getElementById('newOrderForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       
       if (!currentUser) {
@@ -3385,20 +4010,31 @@
         clientName: document.getElementById('clientName').value.trim(),
         clientEmail: document.getElementById('clientEmail').value.trim(),
         clientPhone: document.getElementById('clientPhone').value.trim(),
-        clientAddress: document.getElementById('clientAddress').value.trim(),
+        clientStreet: document.getElementById('clientStreet').value.trim(),
+        clientCity: document.getElementById('clientCity').value.trim(),
+        clientState: document.getElementById('clientState').value.trim(),
+        clientPostalCode: document.getElementById('clientPostalCode').value.trim(),
+        clientCountry: document.getElementById('clientCountry').value.trim(),
+        clientAddress: document.getElementById('clientStreet').value.trim(), // Legacy field for backwards compatibility
         messagingApps: [],
         productName: document.getElementById('productName').value.trim(),
         quantity: parseInt(document.getElementById('quantity').value) || 1,
         colors: [
           document.getElementById('color1').value,
           document.getElementById('color2').value,
-          document.getElementById('color3').value
-        ],
+          document.getElementById('color3').value,
+          document.getElementById('color4').value
+        ].filter(c => c), // Filter out empty values
         material: document.getElementById('material').value,
         finish: document.getElementById('finish').value,
         scale: document.getElementById('scale').value,
         extraNotes: document.getElementById('extraNotes').value.trim(),
         total: totalInUSD,
+        amountPaid: typeof convertToUSD === 'function' 
+          ? convertToUSD(parseFloat(document.getElementById('amountPaid').value) || 0, window.currentCurrency || 'USD')
+          : (parseFloat(document.getElementById('amountPaid').value) || 0),
+        paymentMethod: document.getElementById('paymentMethod').value,
+        paymentStatus: document.getElementById('paymentStatus').value,
         status: document.getElementById('orderStatus').value
       };
       
@@ -3411,8 +4047,14 @@
         }
       });
       
-      // Save to Firebase
-      firebase.database().ref('orders/' + currentUser.uid).push(orderData)
+      // Save to Firebase with unique alphanumeric ID
+      const newOrderId = await generateUniqueOrderId();
+      if (!newOrderId) {
+        showNotification('Error generating order ID', 'error');
+        return;
+      }
+      
+      firebase.database().ref('orders/' + currentUser.uid + '/' + newOrderId).set(orderData)
         .then(() => {
           showNotification('Order created successfully!', 'success');
           closeNewOrderModal();
@@ -3421,6 +4063,255 @@
         .catch((error) => {
           showNotification('Error creating order: ' + error.message, 'error');
         });
+    });
+
+    // Google Places Autocomplete initialization (Latest API - 2025)
+    let autocompleteCreate, autocompleteEdit;
+    let placesService;
+
+    function initAutocomplete() {
+      if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+        console.warn('Google Places API not loaded');
+        return;
+      }
+
+      try {
+        console.log('Initializing address autocomplete...');
+        
+        // Initialize autocomplete for create form using input events
+        const inputCreate = document.getElementById('addressAutocomplete');
+        if (inputCreate) {
+          setupAutocompleteInput(inputCreate, false);
+        }
+      } catch (error) {
+        console.error('Error initializing autocomplete:', error);
+      }
+    }
+
+    function initEditAutocomplete() {
+      if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+        console.warn('Google Places API not loaded');
+        return;
+      }
+
+      try {
+        // Initialize autocomplete for edit form
+        const inputEdit = document.getElementById('edit_addressAutocomplete');
+        if (inputEdit) {
+          setupAutocompleteInput(inputEdit, true);
+        }
+      } catch (error) {
+        console.error('Error initializing edit autocomplete:', error);
+      }
+    }
+
+    async function setupAutocompleteInput(input, isEdit) {
+      if (!input) return;
+      
+      let debounceTimer;
+      const dropdown = createDropdown(input);
+      
+      input.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const value = this.value;
+        
+        if (value.length < 3) {
+          dropdown.style.display = 'none';
+          return;
+        }
+        
+        debounceTimer = setTimeout(async () => {
+          try {
+            // Use the new Places API (2025+)
+            const {Place} = await google.maps.importLibrary("places");
+            const request = {
+              textQuery: value,
+              fields: ['displayName', 'formattedAddress', 'addressComponents']
+              // Removed includedType as it's causing issues
+            };
+            
+            const {places} = await Place.searchByText(request);
+            
+            if (places && places.length > 0) {
+              displayPredictionsNew(places, dropdown, isEdit, input);
+            } else {
+              dropdown.style.display = 'none';
+            }
+          } catch (error) {
+            console.error('Error fetching predictions:', error);
+            // Fallback to old method if new one fails
+            useFallbackAutocomplete(value, dropdown, isEdit, input);
+          }
+        }, 300);
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.style.display = 'none';
+        }
+      });
+    }
+    
+    function useFallbackAutocomplete(value, dropdown, isEdit, input) {
+      // Simple fallback - just let user type manually
+      console.log('Using manual address entry (fallback)');
+      dropdown.style.display = 'none';
+    }
+    
+    function createDropdown(input) {
+      let dropdown = input.nextElementSibling;
+      if (!dropdown || !dropdown.classList.contains('address-dropdown')) {
+        dropdown = document.createElement('div');
+        dropdown.className = 'address-dropdown';
+        dropdown.style.cssText = 'position: absolute; background: #1d1530; border: 1px solid var(--border); border-radius: 8px; max-height: 300px; overflow-y: auto; z-index: 1000; width: 100%; margin-top: 4px; display: none;';
+        input.parentNode.style.position = 'relative';
+        input.parentNode.appendChild(dropdown);
+      }
+      return dropdown;
+    }
+    
+    function displayPredictionsNew(places, dropdown, isEdit, input) {
+      dropdown.innerHTML = '';
+      dropdown.style.display = 'block';
+      
+      places.forEach(place => {
+        const item = document.createElement('div');
+        item.className = 'address-item';
+        item.style.cssText = 'padding: 12px 16px; cursor: pointer; border-bottom: 1px solid rgba(168, 85, 247, 0.1); color: var(--text); transition: background 0.2s;';
+        item.textContent = place.formattedAddress || place.displayName;
+        
+        item.addEventListener('mouseenter', function() {
+          this.style.background = 'rgba(168, 85, 247, 0.1)';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+          this.style.background = 'transparent';
+        });
+        
+        item.addEventListener('click', function() {
+          input.value = place.formattedAddress || place.displayName;
+          if (place.addressComponents) {
+            fillAddressFieldsNew(place.addressComponents, isEdit);
+          }
+          dropdown.style.display = 'none';
+        });
+        
+        dropdown.appendChild(item);
+      });
+    }
+
+    function fillAddressFieldsNew(addressComponents, isEdit) {
+      const prefix = isEdit ? 'edit_' : '';
+      let street = '';
+      let city = '';
+      let state = '';
+      let postalCode = '';
+      let country = '';
+
+      // Parse new address components format
+      addressComponents.forEach(component => {
+        const types = component.types || [];
+        
+        if (types.includes('street_number')) {
+          street = component.longText + ' ';
+        }
+        if (types.includes('route')) {
+          street += component.longText;
+        }
+        if (types.includes('locality')) {
+          city = component.longText;
+        }
+        if (types.includes('administrative_area_level_1')) {
+          state = component.shortText || component.longText;
+        }
+        if (types.includes('postal_code')) {
+          postalCode = component.longText;
+        }
+        if (types.includes('country')) {
+          country = component.longText;
+        }
+      });
+
+      // Fill the form fields
+      const streetInput = document.getElementById(prefix + 'clientStreet');
+      const cityInput = document.getElementById(prefix + 'clientCity');
+      const stateInput = document.getElementById(prefix + 'clientState');
+      const postalInput = document.getElementById(prefix + 'clientPostalCode');
+      const countryInput = document.getElementById(prefix + 'clientCountry');
+
+      if (streetInput) streetInput.value = street.trim();
+      if (cityInput) cityInput.value = city;
+      if (stateInput) stateInput.value = state;
+      if (postalInput) postalInput.value = postalCode;
+      if (countryInput) countryInput.value = country;
+      
+      console.log('Address filled:', {street, city, state, postalCode, country});
+    }
+    
+    // Legacy support for old address format
+    function fillAddressFields(addressComponents, isEdit) {
+      const prefix = isEdit ? 'edit_' : '';
+      let street = '';
+      let city = '';
+      let state = '';
+      let postalCode = '';
+      let country = '';
+
+      // Parse address components (old format)
+      addressComponents.forEach(component => {
+        const types = component.types;
+        
+        if (types.includes('street_number')) {
+          street = component.long_name + ' ';
+        }
+        if (types.includes('route')) {
+          street += component.long_name;
+        }
+        if (types.includes('locality')) {
+          city = component.long_name;
+        }
+        if (types.includes('administrative_area_level_1')) {
+          state = component.short_name;
+        }
+        if (types.includes('postal_code')) {
+          postalCode = component.long_name;
+        }
+        if (types.includes('country')) {
+          country = component.long_name;
+        }
+      });
+
+      // Fill the form fields
+      const streetInput = document.getElementById(prefix + 'clientStreet');
+      const cityInput = document.getElementById(prefix + 'clientCity');
+      const stateInput = document.getElementById(prefix + 'clientState');
+      const postalInput = document.getElementById(prefix + 'clientPostalCode');
+      const countryInput = document.getElementById(prefix + 'clientCountry');
+
+      if (streetInput) streetInput.value = street.trim();
+      if (cityInput) cityInput.value = city;
+      if (stateInput) stateInput.value = state;
+      if (postalInput) postalInput.value = postalCode;
+      if (countryInput) countryInput.value = country;
+    }
+
+    // Callback for when Google Maps API loads
+    window.initGoogleMaps = function() {
+      console.log('Google Maps API loaded successfully');
+      setTimeout(initAutocomplete, 100);
+    };
+    
+    // Fallback if callback doesn't fire
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+          console.log('Google Maps API ready (fallback)');
+          initAutocomplete();
+        } else {
+          console.warn('Google Maps API not loaded. Address autocomplete will not work.');
+        }
+      }, 2000);
     });
 
     // Search functionality
@@ -3694,6 +4585,52 @@
         }
       });
     });
+
+    // Hide loading overlay
+    function hideLoadingOverlay() {
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      if (loadingOverlay) {
+        loadingOverlay.style.opacity = '0';
+        setTimeout(() => {
+          loadingOverlay.style.display = 'none';
+        }, 300);
+      }
+    }
+
+    // Track initialization
+    let authInitialized = false;
+    let firebaseConnected = false;
+
+    function checkInitComplete() {
+      if (authInitialized && firebaseConnected) {
+        hideLoadingOverlay();
+      }
+    }
+
+    // Initialize Firebase tracking
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+        // Check Firebase connection
+        firebase.database().ref('.info/connected').on('value', snapshot => {
+          if (snapshot.val() === true) {
+            console.log('✅ Connected to Firebase');
+            firebaseConnected = true;
+            checkInitComplete();
+          }
+        });
+
+        firebase.auth().onAuthStateChanged((user) => {
+          console.log('Orders: Auth state changed:', user ? 'Logged in' : 'Logged out');
+          authInitialized = true;
+          checkInitComplete();
+        });
+      }
+    });
+
+    // Fallback: Hide loading overlay after max 5 seconds
+    setTimeout(() => {
+      hideLoadingOverlay();
+    }, 5000);
   </script>
 </body>
 </html>

@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Model Admin - Vixvvo Tools</title>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/shared-styles.css">
+
+<script src="../js/navbar-helper.js"></script>
+<script src="../js/navbar-loader.js"></script>
+<script src="../js/settings-dropdown.js"></script>
+<script src="../js/navbar-auth.js"></script>
+<script src="../js/auth.js"></script>
+
+<style>
+  .admin-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 60px;
+  }
+
+  .admin-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .page-title {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+
+  .highlight {
+    background: linear-gradient(135deg, #a855f7, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+
+  .stat-card {
+    background: linear-gradient(135deg, #1d1530, #241d35);
+    border: 2px solid var(--purple);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--purple-light);
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .models-table {
+    background: linear-gradient(135deg, #1d1530, #241d35);
+    border: 2px solid var(--purple);
+    border-radius: 16px;
+    padding: 32px;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    text-align: left;
+    padding: 16px;
+    border-bottom: 2px solid var(--purple);
+    color: var(--text);
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+  }
+
+  td {
+    padding: 16px;
+    border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  tr:hover {
+    background: rgba(168, 85, 247, 0.05);
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .user-details {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .user-email {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .user-id {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: monospace;
+  }
+
+  .file-name {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .file-size {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-view {
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    color: white;
+  }
+
+  .btn-view:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px;
+    color: var(--text-muted);
+  }
+
+  .loading {
+    text-align: center;
+    padding: 48px;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(168, 85, 247, 0.2);
+    border-radius: 50%;
+    border-top-color: var(--purple);
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .access-denied {
+    text-align: center;
+    padding: 48px;
+    background: linear-gradient(135deg, #1d1530, #241d35);
+    border: 2px solid #ef4444;
+    border-radius: 16px;
+    margin-top: 48px;
+  }
+
+  .access-denied h2 {
+    color: #ef4444;
+    font-size: 32px;
+    margin-bottom: 16px;
+  }
+</style>
+</head>
+<body>
+<div id="navbar-container"></div>
+
+<div class="admin-container">
+  <div class="admin-header">
+    <h1 class="page-title">Model <span class="highlight">Admin</span></h1>
+    <p style="color: var(--text-muted); font-size: 18px;">View all uploaded models across all users</p>
+  </div>
+
+  <div id="accessDenied" style="display: none;" class="access-denied">
+    <h2>🔒 Access Denied</h2>
+    <p style="color: var(--text-muted);">This page is only accessible to administrators.</p>
+  </div>
+
+  <div id="adminContent" style="display: none;">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="totalUsers">0</div>
+        <div class="stat-label">Total Users</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalModels">0</div>
+        <div class="stat-label">Total Models</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalSize">0 MB</div>
+        <div class="stat-label">Total Storage</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="latestUpload">-</div>
+        <div class="stat-label">Latest Upload</div>
+      </div>
+    </div>
+
+    <div class="models-table">
+      <h2 style="margin-bottom: 24px; color: var(--text);">All Uploaded Models</h2>
+      <div id="tableContent">
+        <div class="loading">
+          <div class="spinner"></div>
+          <p style="margin-top: 16px; color: var(--text-muted);">Loading models...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentUser = null;
+  let isAdmin = false;
+
+  // Check admin status
+  firebase.auth().onAuthStateChanged(async (user) => {
+    currentUser = user;
+    
+    if (!user) {
+      document.getElementById('accessDenied').style.display = 'block';
+      return;
+    }
+
+    // Check if user is admin
+    try {
+      const userRef = await firebase.database().ref(`users/${user.uid}`).once('value');
+      const userData = userRef.val();
+      isAdmin = userData && userData.role === 'admin';
+
+      if (isAdmin) {
+        document.getElementById('adminContent').style.display = 'block';
+        loadAllModels();
+      } else {
+        document.getElementById('accessDenied').style.display = 'block';
+      }
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      document.getElementById('accessDenied').style.display = 'block';
+    }
+  });
+
+  async function loadAllModels() {
+    try {
+      // Get all users who have uploaded models
+      const modelsRef = firebase.database().ref('models');
+      const snapshot = await modelsRef.once('value');
+      
+      if (!snapshot.exists()) {
+        document.getElementById('tableContent').innerHTML = `
+          <div class="empty-state">
+            <div style="font-size: 48px; margin-bottom: 16px;">📦</div>
+            <div>No models uploaded yet</div>
+          </div>
+        `;
+        return;
+      }
+
+      const allModels = [];
+      const userIds = new Set();
+      let totalSize = 0;
+      let latestTimestamp = 0;
+
+      // Get all models from all users
+      snapshot.forEach((userSnapshot) => {
+        const userId = userSnapshot.key;
+        userIds.add(userId);
+
+        userSnapshot.forEach((modelSnapshot) => {
+          const model = modelSnapshot.val();
+          allModels.push({
+            id: modelSnapshot.key,
+            userId: userId,
+            ...model
+          });
+          totalSize += model.fileSize || 0;
+          if (model.uploadedAt > latestTimestamp) {
+            latestTimestamp = model.uploadedAt;
+          }
+        });
+      });
+
+      // Get user emails
+      const userEmails = {};
+      for (const userId of userIds) {
+        try {
+          const userRef = await firebase.database().ref(`users/${userId}`).once('value');
+          const userData = userRef.val();
+          userEmails[userId] = userData?.email || userData?.username || 'Unknown User';
+        } catch (error) {
+          userEmails[userId] = 'Unknown User';
+        }
+      }
+
+      // Update stats
+      document.getElementById('totalUsers').textContent = userIds.size;
+      document.getElementById('totalModels').textContent = allModels.length;
+      document.getElementById('totalSize').textContent = formatFileSize(totalSize);
+      document.getElementById('latestUpload').textContent = latestTimestamp ? formatRelativeTime(latestTimestamp) : '-';
+
+      // Sort by upload date (newest first)
+      allModels.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
+
+      // Display table
+      const tableHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Model Name</th>
+              <th>File</th>
+              <th>Size</th>
+              <th>Uploaded</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${allModels.map(model => `
+              <tr>
+                <td>
+                  <div class="user-info">
+                    <div class="user-avatar">${(userEmails[model.userId] || 'U')[0].toUpperCase()}</div>
+                    <div class="user-details">
+                      <div class="user-email">${escapeHtml(userEmails[model.userId] || 'Unknown')}</div>
+                      <div class="user-id">${model.userId.substring(0, 12)}...</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="file-name">${escapeHtml(model.name)}</div>
+                </td>
+                <td>
+                  <div class="file-name">${escapeHtml(model.fileName)}</div>
+                  <div class="file-size">${model.fileType || 'unknown'}</div>
+                </td>
+                <td>${formatFileSize(model.fileSize)}</td>
+                <td>${formatDate(model.uploadedAt)}</td>
+                <td>
+                  <button class="btn-small btn-view" onclick="viewModel('${escapeHtml(model.downloadURL)}', '${escapeHtml(model.fileName)}')">
+                    📥 Download
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+
+      document.getElementById('tableContent').innerHTML = tableHTML;
+    } catch (error) {
+      console.error('Error loading models:', error);
+      document.getElementById('tableContent').innerHTML = `
+        <div class="empty-state">
+          <div style="color: #ef4444; font-size: 48px; margin-bottom: 16px;">❌</div>
+          <div>Error loading models: ${error.message}</div>
+        </div>
+      `;
+    }
+  }
+
+  function viewModel(downloadURL, fileName) {
+    const link = document.createElement('a');
+    link.href = downloadURL;
+    link.download = fileName;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function formatFileSize(bytes) {
+    if (!bytes || bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  function formatDate(timestamp) {
+    if (!timestamp) return 'Unknown';
+    const date = new Date(timestamp);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  function formatRelativeTime(timestamp) {
+    if (!timestamp) return '-';
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    return `${days}d ago`;
+  }
+
+  function escapeHtml(text) {
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return String(text).replace(/[&<>"']/g, m => map[m]);
+  }
+</script>
+</body>
+</html>
