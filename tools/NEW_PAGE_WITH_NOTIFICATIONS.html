@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Page - Vixvvo</title>
+  <link rel="stylesheet" href="../css/shared-styles.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <style>
+    /* Page-specific styles here */
+    
+  </style>
+</head>
+<body>
+  <!-- Navbar Component -->
+  <div id="navbar-container"></div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Page Title</h1>
+    
+    <!-- Your content here -->
+    
+    <button onclick="showNotification('Test success notification!', 'success')">Test Success</button>
+    <button onclick="showNotification('Something went wrong!', 'error')">Test Error</button>
+    <button onclick="showNotification('Please check your input', 'warning')">Test Warning</button>
+  </div>
+
+  <!-- Include Notification Component (ALWAYS INCLUDE THIS) -->
+  <div id="notification-component"></div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  
+  <!-- Initialize Firebase -->
+  <script src="../js/firebase-config.js"></script>
+  
+  <!-- Load Notification Component -->
+  <script>
+    fetch('../components/notification.html')
+      .then(response => response.text())
+      .then(html => document.getElementById('notification-component').innerHTML = html);
+  </script>
+  
+  <!-- Load Navbar -->
+  <script src="../js/navbar-loader.js"></script>
+
+  <!-- Page Scripts -->
+  <script>
+    // Wait for Firebase to initialize
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        console.log('User logged in:', user.uid);
+        // User-specific initialization here
+      } else {
+        console.log('No user logged in');
+        // Guest user initialization here
+      }
+    });
+
+    // Your page-specific JavaScript here
+    
+    // Example: Button click handlers
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize your page here
+    });
+
+    // Example: Form submission
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      
+      try {
+        // Do something
+        showNotification('Action completed successfully!', 'success');
+      } catch (error) {
+        showNotification('Error: ' + error.message, 'error');
+      }
+    }
+
+    // Example: Validation
+    function validateInput(input) {
+      if (!input) {
+        showNotification('Please fill in all required fields', 'warning');
+        return false;
+      }
+      return true;
+    }
+
+    // Example: Firebase operation
+    async function saveData(data) {
+      const user = firebase.auth().currentUser;
+      
+      if (!user) {
+        showNotification('Please login to continue', 'warning', 'Login Required');
+        return;
+      }
+
+      try {
+        await firebase.database().ref('path/' + user.uid).push(data);
+        showNotification('Data saved successfully!', 'success');
+      } catch (error) {
+        showNotification('Failed to save data: ' + error.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>

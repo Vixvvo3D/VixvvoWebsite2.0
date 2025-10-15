@@ -52,14 +52,19 @@ $('#doLogin').onclick = ()=>{
   const email = $('#loginEmail').value.trim();
   const pass  = $('#loginPass').value;
   auth.signInWithEmailAndPassword(email, pass)
-    .then(()=>{ overlay.style.display='none'; modal.style.display='none'; })
+    .then(()=>{ 
+      overlay.style.display='none'; 
+      modal.style.display='none'; 
+      // Reload page to fetch all user data
+      window.location.reload();
+    })
     .catch(()=>{ $('#loginErr').textContent='Wrong email or password.'; });
 };
 
 auth.onAuthStateChanged(user=>{
   btnLogin.textContent = user ? 'Logout' : 'Login';
   btnLogin.onclick = user
-    ? ()=>auth.signOut()
+    ? ()=>{ auth.signOut().then(() => window.location.reload()); }
     : ()=>{ $('#loginErr').textContent=''; overlay.style.display='block'; modal.style.display='grid'; };
   refreshPrintersUI();
   refreshFilamentsUI();

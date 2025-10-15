@@ -11,6 +11,45 @@
   --border: rgba(168, 85, 247, .15);
 }
 
+/* Custom Scrollbar Styling - Global */
+* {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(168, 85, 247, 0.5) rgba(0, 0, 0, 0.2);
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.6), rgba(192, 132, 252, 0.5));
+  border-radius: 10px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.8), rgba(192, 132, 252, 0.7));
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(135deg, #a855f7, #c084fc);
+}
+
+/* Scrollbar corner */
+*::-webkit-scrollbar-corner {
+  background: rgba(0, 0, 0, 0.2);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -19,7 +58,9 @@
 
 html {
   scroll-behavior: smooth;
-  background: linear-gradient(135deg, #1a1625 0%, #0f0b16 50%, #1d1530 100%);
+  background: repeating-linear-gradient(135deg, #1a1625 0px, #0f0b16 400px, #1d1530 800px, #0f0b16 1200px, #1a1625 1600px);
+  background-size: 1600px 1600px;
+  background-attachment: fixed;
   overscroll-behavior-y: none;
 }
 
@@ -29,7 +70,9 @@ body {
     radial-gradient(ellipse at 20% 30%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 70%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
     radial-gradient(ellipse at 50% 50%, rgba(192, 132, 252, 0.1) 0%, transparent 50%),
-    linear-gradient(135deg, #1a1625 0%, #0f0b16 50%, #1d1530 100%);
+    repeating-linear-gradient(135deg, #1a1625 0px, #0f0b16 400px, #1d1530 800px, #0f0b16 1200px, #1a1625 1600px);
+  background-size: 1600px 1600px;
+  background-attachment: fixed;
   color: var(--text);
   overflow-x: hidden;
   min-height: 100vh;
@@ -189,6 +232,30 @@ nav {
 .settings-role {
   font-size: 11px;
   color: var(--text-muted);
+}
+
+.quick-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.quick-link {
+  display: block;
+  padding: 10px 12px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+
+.quick-link:hover {
+  background: rgba(168, 85, 247, 0.1);
+  color: var(--purple-light);
+  transform: translateX(4px);
 }
 
 .settings-currency-row {

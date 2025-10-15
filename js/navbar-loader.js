@@ -53,6 +53,13 @@
       link.href = pathPrefix + originalHref;
     });
 
+    // Adjust quick links in dropdown
+    const quickLinks = document.querySelectorAll('.quick-links a[data-href]');
+    quickLinks.forEach(link => {
+      const originalHref = link.getAttribute('data-href');
+      link.href = pathPrefix + originalHref;
+    });
+
     // Adjust settings link in dropdown
     const settingsLink = document.querySelector('#btnSettingsPage[data-href]');
     if (settingsLink) {

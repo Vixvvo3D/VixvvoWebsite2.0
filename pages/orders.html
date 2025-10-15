@@ -1,0 +1,3699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Orders - Vixvvo Tools</title>
+
+<!-- Add Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-functions-compat.js"></script>
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/shared-styles.css">
+
+<!-- Load shared navbar helper and scripts -->
+<script src="../js/navbar-helper.js"></script>
+<script src="../js/navbar-loader.js"></script>
+<script src="../js/settings-dropdown.js"></script>
+<script src="../js/navbar-auth.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/currency.js"></script>
+
+<style>
+  .orders-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 60px;
+  }
+
+  .orders-header {
+    margin-bottom: 32px;
+  }
+
+  .orders-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .orders-subtitle {
+    color: var(--text-muted);
+    font-size: 16px;
+  }
+
+  /* Action Bar */
+  .action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 250px;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(36, 29, 53, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .search-box input:focus {
+    outline: none;
+    border-color: var(--purple);
+    background: rgba(36, 29, 53, 0.8);
+  }
+
+  .btn {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4);
+  }
+
+  /* Orders Table */
+  .orders-table-container {
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .orders-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .orders-table thead {
+    background: rgba(168, 85, 247, 0.1);
+  }
+
+  .orders-table th {
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--purple-light);
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  .orders-table td {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .orders-table tbody tr {
+    transition: background 0.2s ease;
+  }
+
+  .orders-table tbody tr:hover {
+    background: rgba(168, 85, 247, 0.05);
+  }
+
+  /* Status Dropdown */
+  .status-dropdown {
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    max-width: 120px;
+  }
+
+  .status-dropdown:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
+  }
+
+  .status-dropdown:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+  }
+
+  .status-dropdown.status-pending {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+    border-color: #fbbf24;
+  }
+
+  .status-dropdown.status-processing {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+    border-color: #3b82f6;
+  }
+
+  .status-dropdown.status-completed {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border-color: #22c55e;
+  }
+
+  .status-dropdown.status-cancelled {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border-color: #ef4444;
+  }
+
+  .status-dropdown.status-finished {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border-color: #10b981;
+  }
+
+  /* Status Badge */
+  .status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .status-pending {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fbbf24;
+  }
+
+  .status-processing {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+  }
+
+  .status-completed {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+  }
+
+  .status-cancelled {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+  }
+
+  .status-finished {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+  }
+
+  /* Action Buttons */
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-action {
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-action:hover {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: var(--purple);
+    color: var(--purple-light);
+  }
+
+  /* Actions Dropdown Menu */
+  .actions-menu {
+    position: relative;
+    display: inline-block;
+  }
+
+  .actions-menu-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+  }
+
+  .actions-menu-btn:hover {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: var(--purple);
+    color: var(--purple-light);
+    transform: translateY(-1px);
+  }
+
+  .actions-menu-dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 160px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    display: none;
+    animation: dropdownFadeIn 0.2s ease;
+  }
+
+  .actions-menu-dropdown.show {
+    display: block;
+  }
+
+  @keyframes dropdownFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .actions-menu-item {
+    padding: 10px 14px;
+    color: var(--text);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .actions-menu-item:hover {
+    background: rgba(168, 85, 247, 0.15);
+    color: var(--purple-light);
+    transform: translateX(4px);
+  }
+
+  .actions-menu-item.danger:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+
+  .empty-state h3 {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  /* Login Required Message */
+  .login-required {
+    text-align: center;
+    padding: 60px 20px;
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .login-required h3 {
+    font-size: 24px;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .login-required p {
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  /* Notification Styles - Modern Toast Design */
+  .notification {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    transform: translateX(400px);
+    background: #1e172e;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(168, 85, 247, 0.1);
+    z-index: 9999;
+    min-width: 320px;
+    max-width: 420px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .notification.show {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+
+  .notification-icon {
+    font-size: 28px;
+    min-width: 28px;
+    text-align: center;
+    filter: drop-shadow(0 0 8px currentColor);
+  }
+
+  .notification-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .notification-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .notification-message {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .notification-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    line-height: 1;
+    opacity: 0.6;
+  }
+
+  .notification-close:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    opacity: 1;
+  }
+
+  /* Success variant */
+  .notification.success {
+    border-color: rgba(16, 185, 129, 0.4);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(30, 23, 46, 0.95) 50%);
+  }
+
+  .notification.success .notification-icon {
+    color: #10b981;
+  }
+
+  /* Error variant */
+  .notification.error {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(30, 23, 46, 0.95) 50%);
+  }
+
+  .notification.error .notification-icon {
+    color: #ef4444;
+  }
+
+  /* Warning variant */
+  .notification.warning {
+    border-color: rgba(245, 158, 11, 0.4);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(30, 23, 46, 0.95) 50%);
+  }
+
+  .notification.warning .notification-icon {
+    color: #f59e0b;
+  }
+
+  /* Progress bar animation */
+  .notification::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--purple), var(--purple-light));
+    border-radius: 0 0 12px 12px;
+    animation: notificationProgress 3s linear forwards;
+  }
+
+  .notification.success::after {
+    background: linear-gradient(90deg, #10b981, #34d399);
+  }
+
+  .notification.error::after {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+  }
+
+  @keyframes notificationProgress {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0%;
+    }
+  }
+
+  /* Confirm Dialog Styles */
+  .confirm-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 2px solid var(--purple);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.8);
+    z-index: 10002;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    max-width: 500px;
+    width: 90%;
+    display: block;
+  }
+
+  .confirm-dialog.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+  }
+
+  .confirm-icon {
+    font-size: 56px;
+    text-align: center;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .confirm-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .confirm-message {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .confirm-buttons {
+    display: flex;
+    gap: 12px;
+  }
+
+  .confirm-buttons .btn {
+    flex: 1;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    color: white;
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--purple-light), var(--purple));
+    transform: translateY(-2px);
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+  }
+
+  .btn-danger:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-2px);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    color: var(--text);
+  }
+
+  .btn-ghost:hover {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: var(--purple);
+    transform: translateY(-2px);
+  }
+
+  /* Overlay Background */
+  #overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 9998;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  #overlay.show {
+    opacity: 1;
+  }
+
+  /* New Order Modal & View Order Modal */
+  .order-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background: #1e172e;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 20px;
+    padding: 0;
+    box-shadow: 
+      0 25px 80px rgba(0, 0, 0, 0.9),
+      0 0 0 1px rgba(168, 85, 247, 0.1) inset;
+    z-index: 9999;
+    width: 90%;
+    max-width: 850px;
+    max-height: 88vh;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
+  }
+
+  .order-modal.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: all;
+  }
+
+  /* Modal Content Wrapper */
+  .modal-content-wrapper {
+    max-height: 88vh;
+    overflow-y: auto;
+    padding: 40px;
+  }
+
+  .order-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+    position: relative;
+  }
+
+  .order-modal-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 120px;
+    height: 2px;
+    background: var(--purple);
+  }
+
+  .order-modal-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+  }
+
+  .btn-close {
+    background: rgba(168, 85, 247, 0.1);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    color: var(--purple-light);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+
+  .btn-close:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: #ef4444;
+    transform: rotate(90deg) scale(1.1);
+  }
+
+  .form-section {
+    margin-bottom: 36px;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+    border: 1px solid rgba(168, 85, 247, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .form-section:hover {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(168, 85, 247, 0.2);
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--purple-light);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 14px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(168, 85, 247, 0.2);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .form-row.single {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .form-group label .optional {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 12px;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 14px 18px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--purple);
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .form-group input::placeholder,
+  .form-group textarea::placeholder {
+    color: rgba(168, 85, 247, 0.3);
+  }
+
+  .form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  .messaging-apps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .app-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .app-checkbox:hover {
+    border-color: var(--purple);
+    background: rgba(168, 85, 247, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
+  }
+
+  .app-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--purple);
+  }
+
+  .app-checkbox label {
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin: 0;
+  }
+
+  .color-picker-container {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .color-input {
+    width: 60px;
+    height: 44px;
+    border: 2px solid rgba(168, 85, 247, 0.3);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: transparent;
+  }
+
+  .color-input:hover {
+    border-color: var(--purple);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+  }
+
+  .extra-features {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .feature-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .feature-checkbox:hover {
+    border-color: var(--purple);
+    background: rgba(168, 85, 247, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
+  }
+
+  .feature-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--purple);
+  }
+
+  .feature-checkbox label {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin: 0;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 32px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(168, 85, 247, 0.2);
+  }
+
+  .modal-actions .btn {
+    padding: 14px 28px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .modal-actions .btn:hover {
+    transform: translateY(-2px);
+  }
+
+  /* View Order Modal Specific Styles */
+  .view-field {
+    margin-bottom: 20px;
+  }
+
+  .view-field-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(168, 85, 247, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .view-field-value {
+    font-size: 15px;
+    color: var(--text);
+    padding: 14px 16px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(168, 85, 247, 0.15);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .view-field-value.editable {
+    cursor: pointer;
+    position: relative;
+  }
+
+  .view-field-value.editable::after {
+    content: '';
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    font-size: 14px;
+  }
+
+  .view-field-value.editable:hover {
+    border-color: var(--purple);
+    background: rgba(168, 85, 247, 0.08);
+    transform: translateX(2px);
+  }
+
+  .view-field-value.editable:hover::after {
+    opacity: 1;
+  }
+
+  .chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: rgba(168, 85, 247, 0.15);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--purple-light);
+    transition: all 0.3s ease;
+  }
+
+  .chip:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+  }
+
+  .status-change-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: var(--purple);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+  }
+
+  .status-change-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(168, 85, 247, 0.5);
+  }
+
+  .status-change-btn:active {
+    transform: translateY(-1px);
+  }
+
+  /* Color Management Styles */
+  .preset-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .preset-tab {
+    padding: 12px 24px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    bottom: -2px;
+  }
+
+  .preset-tab:hover {
+    color: var(--text);
+    background: rgba(168, 85, 247, 0.05);
+  }
+
+  .preset-tab.active {
+    color: var(--purple-light);
+    border-bottom-color: var(--purple);
+  }
+
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  .tab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .tab-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .colors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    min-height: 200px;
+  }
+
+  .color-card {
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .color-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.2);
+    border-color: var(--purple);
+  }
+
+  .color-preview {
+    width: 100%;
+    height: 50px;
+    border-radius: 8px;
+    border: 2px solid rgba(168, 85, 247, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .color-preview:hover {
+    border-color: var(--purple);
+    transform: scale(1.02);
+  }
+
+  .color-info {
+    flex: 1;
+  }
+
+  .color-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .color-hex {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'Monaco', 'Courier New', monospace;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .color-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .color-card .btn-action {
+    flex: 1;
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .empty-colors-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+
+  .empty-colors-state h4 {
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .modal-footer {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  /* Color Picker Dropdown in Order Forms */
+  .color-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 10px;
+    margin-top: 8px;
+  }
+
+  .color-option {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    border: 2px solid rgba(168, 85, 247, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    overflow: hidden;
+  }
+
+  .color-option:hover {
+    border-color: var(--purple);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+  }
+
+  .color-option.selected {
+    border-color: var(--purple);
+    border-width: 3px;
+    box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.3);
+  }
+
+  .color-option-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+    word-wrap: break-word;
+    line-height: 1.1;
+    max-width: 100%;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+  }
+
+  @media (max-width: 768px) {
+    .orders-container {
+      padding: 20px;
+    }
+
+    .orders-table-container {
+      overflow-x: auto;
+    }
+
+    .orders-table {
+      min-width: 600px;
+    }
+
+    .notification,
+    .confirm-dialog {
+      min-width: 90vw;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .extra-features {
+      grid-template-columns: 1fr;
+    }
+
+    .order-modal {
+      width: 95%;
+      padding: 20px;
+    }
+  }
+</style>
+</head>
+<body>
+  <!-- Navbar Container -->
+  <div id="navbar-container"></div>
+
+  <div class="orders-container">
+    <div class="orders-header">
+      <h1 class="orders-title">Orders</h1>
+      <p class="orders-subtitle">Manage and track your orders</p>
+    </div>
+
+    <div class="action-bar">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search orders...">
+      </div>
+      <div style="display: flex; gap: 12px;">
+        <button class="btn" id="btnManageColors">Manage Colors</button>
+        <button class="btn" id="btnNewOrder">New Order</button>
+      </div>
+    </div>
+
+    <div id="ordersContent">
+      <!-- Content will be loaded here -->
+    </div>
+  </div>
+
+  <!-- Color Management Modal -->
+  <div id="colorManagementModal" class="order-modal" style="display: none;">
+    <div class="modal-content-wrapper" style="max-width: 900px; position: relative;">
+      <div class="modal-header">
+        <h2>Color Management</h2>
+      </div>
+      
+      <div style="position: absolute; top: 20px; right: 20px; z-index: 1000;">
+        <button class="btn btn-primary" onclick="closeColorManagementModal()">Close & Save</button>
+      </div>
+      
+      <div class="preset-tabs">
+        <button class="preset-tab active" data-tab="globalColors">Global Colors</button>
+        <button class="preset-tab" data-tab="userColors">Your Colors</button>
+      </div>
+
+      <div id="globalColors" class="tab-content active">
+        <div class="tab-header">
+          <h3>Global Color Library</h3>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-ghost" id="btnCancelGlobalSelection" style="display: none;" onclick="cancelGlobalSelection()">Cancel</button>
+            <button class="btn btn-danger" id="btnMassDeleteGlobalColors" style="display: none;" onclick="massDeleteGlobalColors()">Mass Delete</button>
+            <button class="btn btn-primary" id="btnAddGlobalColor" style="display: none;">+ Add Global Color</button>
+          </div>
+        </div>
+        <div id="globalColorsGrid" class="colors-grid">
+          <!-- Global colors will be rendered here -->
+        </div>
+      </div>
+
+      <div id="userColors" class="tab-content" style="display: none;">
+        <div class="tab-header">
+          <h3>Your Personal Colors</h3>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-ghost" id="btnCancelUserSelection" style="display: none;" onclick="cancelUserSelection()">Cancel</button>
+            <button class="btn btn-danger" id="btnMassDeleteUserColors" onclick="massDeleteUserColors()">Mass Delete</button>
+            <button class="btn btn-primary" id="btnAddUserColor">+ Add Color</button>
+          </div>
+        </div>
+        <div id="userColorsGrid" class="colors-grid">
+          <!-- User colors will be rendered here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay for modals and notifications -->
+  <div id="overlay"></div>
+
+  <!-- Custom Notification -->
+  <div id="customNotification" class="notification">
+    <div class="notification-icon">✓</div>
+    <div class="notification-content">
+      <div class="notification-title">Success!</div>
+      <div class="notification-message"></div>
+    </div>
+    <button class="notification-close" onclick="hideNotification()">×</button>
+  </div>
+
+  <!-- Custom Confirm Dialog -->
+  <div id="customConfirm" class="confirm-dialog">
+    <div class="confirm-icon"></div>
+    <div class="confirm-title">Are you sure?</div>
+    <div class="confirm-message"></div>
+    <div class="confirm-buttons">
+      <button id="confirmYes" class="btn btn-danger">Confirm</button>
+      <button id="confirmNo" class="btn btn-ghost">Cancel</button>
+    </div>
+  </div>
+
+  <!-- New Order Modal -->
+  <div id="newOrderModal" class="order-modal">
+    <div class="modal-content-wrapper">
+      <div class="order-modal-header">
+        <h2 class="order-modal-title">Create New Order</h2>
+        <button class="btn-close" onclick="closeNewOrderModal()">×</button>
+      </div>
+
+      <form id="newOrderForm">
+      <!-- Order Information -->
+      <div class="form-section">
+        <div class="section-title">Order Information</div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label>Order Title *</label>
+            <input type="text" id="orderTitle" required placeholder="Enter order title">
+          </div>
+        </div>
+      </div>
+
+      <!-- Client Information -->
+      <div class="form-section">
+        <div class="section-title">Client Information</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Client Name *</label>
+            <input type="text" id="clientName" required placeholder="Enter client name">
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="clientEmail" required placeholder="client@example.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phone Number <span class="optional">(optional)</span></label>
+            <input type="tel" id="clientPhone" placeholder="+1 (555) 123-4567">
+          </div>
+          <div class="form-group">
+            <label>Address <span class="optional">(optional)</span></label>
+            <input type="text" id="clientAddress" placeholder="Enter address">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label>Messaging Apps</label>
+            <div class="messaging-apps">
+              <div class="app-checkbox">
+                <input type="checkbox" id="app_etsy" value="Etsy">
+                <label for="app_etsy">Etsy</label>
+              </div>
+              <div class="app-checkbox">
+                <input type="checkbox" id="app_messenger" value="Messenger">
+                <label for="app_messenger">Messenger</label>
+              </div>
+              <div class="app-checkbox">
+                <input type="checkbox" id="app_whatsapp" value="WhatsApp">
+                <label for="app_whatsapp">WhatsApp</label>
+              </div>
+              <div class="app-checkbox">
+                <input type="checkbox" id="app_instagram" value="Instagram">
+                <label for="app_instagram">Instagram</label>
+              </div>
+              <div class="app-checkbox">
+                <input type="checkbox" id="app_email" value="Email">
+                <label for="app_email">Email</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Information -->
+      <div class="form-section">
+        <div class="section-title">Product Information</div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Product Name *</label>
+            <input type="text" id="productName" required placeholder="Enter product name">
+          </div>
+          <div class="form-group">
+            <label>Quantity *</label>
+            <input type="number" id="quantity" required min="1" value="1" placeholder="1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Customization Options -->
+      <div class="form-section">
+        <div class="section-title">Customization Options</div>
+        <div class="form-row">
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>Color(s) - Select up to 3 colors</label>
+            <div id="colorSelectionGrid" class="color-selection-grid">
+              <!-- Colors will be populated here -->
+            </div>
+            <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
+              <span style="font-size: 12px; color: var(--text-muted);">Selected:</span>
+              <div id="selectedColorsPreview" style="display: flex; gap: 8px;">
+                <!-- Selected colors will appear here -->
+              </div>
+            </div>
+            <input type="hidden" id="color1" value="#a855f7">
+            <input type="hidden" id="color2" value="#c084fc">
+            <input type="hidden" id="color3" value="#e9d5ff">
+          </div>
+          <div class="form-group">
+            <label>Material / Filament Type</label>
+            <select id="material">
+              <option value="">Select material</option>
+              <!-- Options will be populated dynamically from Firebase -->
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Finish</label>
+            <select id="finish">
+              <option value="">Select finish</option>
+              <option value="Matte">Matte</option>
+              <option value="Glossy">Glossy</option>
+              <option value="Textured">Textured</option>
+              <option value="Smooth">Smooth</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Scale / Size <span class="optional">(in mm)</span></label>
+            <input type="number" id="scale" placeholder="100" min="1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Notes -->
+      <div class="form-section">
+        <div class="section-title">Additional Notes</div>
+        <div class="form-row single">
+          <div class="form-group">
+            <label>Extra Notes <span class="optional">(optional)</span></label>
+            <textarea id="extraNotes" placeholder="Add any special instructions or notes..."></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Total Price</label>
+            <input type="number" id="orderTotal" step="0.01" min="0" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="orderStatus">
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="finished">Finished</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Actions -->
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeNewOrderModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create Order</button>
+      </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- View Order Modal -->
+  <div id="viewOrderModal" class="order-modal">
+    <div class="modal-content-wrapper">
+      <div class="order-modal-header">
+        <h2 class="order-modal-title">Order Details</h2>
+        <button class="btn-close" onclick="closeViewOrderModal()">×</button>
+      </div>
+
+      <div id="viewOrderContent">
+        <!-- Content will be dynamically loaded -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Firebase and currentUser are initialized by auth.js (loaded in head)
+    
+    // Filament data storage
+    let filamentsData = {};
+    let userFilamentsData = {};
+    
+    // Wait for auth to be ready and load orders
+    document.addEventListener('DOMContentLoaded', () => {
+      // Add a listener to auth state changes to load orders, filaments, and colors
+      firebase.auth().onAuthStateChanged(async (user) => {
+        // Load currency first if user is logged in
+        if (user) {
+          await loadSavedCurrency(user);
+        }
+        // Then load orders with correct currency
+        loadOrders();
+        loadFilaments(user);
+        loadColors(user);
+      });
+      
+      // Add event listeners for color management
+      const btnManageColors = document.getElementById('btnManageColors');
+      if (btnManageColors) {
+        btnManageColors.addEventListener('click', openColorManagementModal);
+      }
+      
+      const btnAddGlobalColor = document.getElementById('btnAddGlobalColor');
+      if (btnAddGlobalColor) {
+        btnAddGlobalColor.addEventListener('click', addGlobalColor);
+      }
+      
+      const btnAddUserColor = document.getElementById('btnAddUserColor');
+      if (btnAddUserColor) {
+        btnAddUserColor.addEventListener('click', addUserColor);
+      }
+    });
+    
+    // Load filaments from Firebase
+    function loadFilaments(user) {
+      // Load global filaments
+      const filamentsRef = firebase.database().ref('filaments');
+      filamentsRef.on('value', snapshot => {
+        filamentsData = {};
+        const data = snapshot.val();
+        
+        if (data) {
+          Object.entries(data).forEach(([key, value]) => {
+            filamentsData[key] = {
+              id: key,
+              type: value.type,
+              brand: value.brand,
+              spoolWeight: value.spoolWeight,
+              spoolCost: value.spoolCost
+            };
+          });
+        }
+        
+        console.log('Loaded global filaments:', Object.keys(filamentsData).length);
+        populateMaterialDropdowns();
+      });
+      
+      // Load user filaments if logged in
+      if (user) {
+        const userFilamentsRef = firebase.database().ref(`userFilaments/${user.uid}`);
+        userFilamentsRef.on('value', snapshot => {
+          userFilamentsData = {};
+          
+          if (snapshot.exists()) {
+            snapshot.forEach(child => {
+              const filament = child.val();
+              userFilamentsData[child.key] = {
+                id: child.key,
+                type: filament.type,
+                brand: filament.brand,
+                spoolWeight: filament.spoolWeight,
+                spoolCost: filament.spoolCost
+              };
+            });
+          }
+          
+          console.log('Loaded user filaments:', Object.keys(userFilamentsData).length);
+          populateMaterialDropdowns();
+        });
+      } else {
+        // Clear user filaments when logged out
+        userFilamentsData = {};
+        populateMaterialDropdowns();
+      }
+    }
+    
+    // Populate material dropdowns with filaments
+    function populateMaterialDropdowns() {
+      const materialSelects = ['material', 'edit_material'];
+      
+      materialSelects.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        
+        const currentValue = select.value;
+        select.innerHTML = '<option value="">Select material</option>';
+        
+        // Add user filaments first if available - grouped by brand
+        if (Object.keys(userFilamentsData).length > 0) {
+          // Group user filaments by brand
+          const userBrandGroups = {};
+          Object.entries(userFilamentsData).forEach(([id, filament]) => {
+            const brand = filament.brand || 'Unknown Brand';
+            if (!userBrandGroups[brand]) {
+              userBrandGroups[brand] = [];
+            }
+            userBrandGroups[brand].push({ id, ...filament });
+          });
+          
+          // Sort brands alphabetically
+          const sortedUserBrands = Object.keys(userBrandGroups).sort();
+          
+          sortedUserBrands.forEach(brand => {
+            const brandGroup = document.createElement('optgroup');
+            brandGroup.label = `Your Library - ${brand}`;
+            
+            // Sort filaments within brand alphabetically
+            userBrandGroups[brand].sort((a, b) => a.type.localeCompare(b.type)).forEach(filament => {
+              const option = document.createElement('option');
+              option.value = filament.type;
+              option.textContent = filament.type;
+              option.setAttribute('data-source', 'user');
+              option.setAttribute('data-id', filament.id);
+              brandGroup.appendChild(option);
+            });
+            
+            select.appendChild(brandGroup);
+          });
+        }
+        
+        // Add global filaments - grouped by brand
+        if (Object.keys(filamentsData).length > 0) {
+          // Group global filaments by brand
+          const globalBrandGroups = {};
+          Object.entries(filamentsData).forEach(([id, filament]) => {
+            const brand = filament.brand || 'Unknown Brand';
+            if (!globalBrandGroups[brand]) {
+              globalBrandGroups[brand] = [];
+            }
+            globalBrandGroups[brand].push({ id, ...filament });
+          });
+          
+          // Sort brands alphabetically
+          const sortedGlobalBrands = Object.keys(globalBrandGroups).sort();
+          
+          sortedGlobalBrands.forEach(brand => {
+            const brandGroup = document.createElement('optgroup');
+            brandGroup.label = `Global Library - ${brand}`;
+            
+            // Sort filaments within brand alphabetically
+            globalBrandGroups[brand].sort((a, b) => a.type.localeCompare(b.type)).forEach(filament => {
+              const option = document.createElement('option');
+              option.value = filament.type;
+              option.textContent = filament.type;
+              option.setAttribute('data-source', 'global');
+              option.setAttribute('data-id', filament.id);
+              brandGroup.appendChild(option);
+            });
+            
+            select.appendChild(brandGroup);
+          });
+        }
+        
+        // Restore previous selection if it exists
+        if (currentValue) {
+          select.value = currentValue;
+        }
+      });
+      
+      console.log('Material dropdowns populated');
+    }
+
+    // Color Management System
+    let globalColorsData = {};
+    let userColorsData = {};
+    let isAdmin = false;
+
+    // Load colors from Firebase
+    function loadColors(user) {
+      // Load global colors
+      const globalColorsRef = firebase.database().ref('colors');
+      globalColorsRef.on('value', snapshot => {
+        globalColorsData = {};
+        const data = snapshot.val();
+        
+        if (data) {
+          Object.entries(data).forEach(([key, value]) => {
+            globalColorsData[key] = {
+              id: key,
+              name: value.name,
+              hex: value.hex,
+              brand: value.brand || ''
+            };
+          });
+        }
+        
+        console.log('Loaded global colors:', Object.keys(globalColorsData).length);
+        renderGlobalColors();
+      });
+      
+      // Load user colors if logged in
+      if (user) {
+        const userColorsRef = firebase.database().ref(`userColors/${user.uid}`);
+        userColorsRef.on('value', snapshot => {
+          userColorsData = {};
+          
+          if (snapshot.exists()) {
+            snapshot.forEach(child => {
+              const color = child.val();
+              userColorsData[child.key] = {
+                id: child.key,
+                name: color.name,
+                hex: color.hex,
+                brand: color.brand || ''
+              };
+            });
+          }
+          
+          console.log('Loaded user colors:', Object.keys(userColorsData).length);
+          renderUserColors();
+        });
+        
+        // Check if user is admin
+        firebase.database().ref(`users/${user.uid}/role`).once('value', snapshot => {
+          isAdmin = snapshot.val() === 'admin';
+          const btnAddGlobalColor = document.getElementById('btnAddGlobalColor');
+          const btnMassDeleteGlobalColors = document.getElementById('btnMassDeleteGlobalColors');
+          
+          if (btnAddGlobalColor) {
+            btnAddGlobalColor.style.display = isAdmin ? 'inline-block' : 'none';
+          }
+          if (btnMassDeleteGlobalColors) {
+            btnMassDeleteGlobalColors.style.display = isAdmin ? 'inline-block' : 'none';
+          }
+          
+          renderGlobalColors(); // Re-render to show/hide edit buttons
+        });
+      } else {
+        // Clear user colors when logged out
+        userColorsData = {};
+        isAdmin = false;
+        renderUserColors();
+        renderGlobalColors();
+      }
+    }
+
+    // Render global colors
+    function renderGlobalColors() {
+      const grid = document.getElementById('globalColorsGrid');
+      if (!grid) return;
+      
+      grid.innerHTML = '';
+      
+      if (Object.keys(globalColorsData).length === 0) {
+        grid.innerHTML = `
+          <div class="empty-colors-state">
+            <h4>No Global Colors Yet</h4>
+            <p>${isAdmin ? 'Click "Add Global Color" to create the first color.' : 'No global colors available.'}</p>
+          </div>
+        `;
+        return;
+      }
+      
+      Object.entries(globalColorsData).forEach(([id, color]) => {
+        const card = document.createElement('div');
+        card.className = 'color-card';
+        card.dataset.colorId = id;
+        card.innerHTML = `
+          <input type="checkbox" class="color-checkbox" data-color-id="${id}" style="display: none; position: absolute; top: 8px; left: 8px; width: 20px; height: 20px; cursor: pointer; z-index: 5;">
+          <div class="color-preview" style="background-color: ${color.hex}"></div>
+          <div class="color-info">
+            <div class="color-name">${color.name}</div>
+            ${color.brand ? `<div class="color-brand" style="font-size: 12px; color: var(--purple-light); margin-top: 4px; font-weight: 600;">${color.brand}</div>` : ''}
+            <div class="color-hex">${color.hex}</div>
+          </div>
+          ${isAdmin ? `
+            <div class="color-actions">
+              <button class="btn-action" onclick="editGlobalColor('${id}')">Edit</button>
+              <button class="btn-action" onclick="deleteGlobalColor('${id}')">Delete</button>
+            </div>
+          ` : ''}
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Render user colors
+    function renderUserColors() {
+      const grid = document.getElementById('userColorsGrid');
+      if (!grid) return;
+      
+      const user = firebase.auth().currentUser;
+      
+      if (!user) {
+        grid.innerHTML = `
+          <div class="empty-colors-state">
+            <h4>Login to Add Your Colors</h4>
+            <p>Create and manage your personal color library.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      grid.innerHTML = '';
+      
+      if (Object.keys(userColorsData).length === 0) {
+        grid.innerHTML = `
+          <div class="empty-colors-state">
+            <h4>No Personal Colors Yet</h4>
+            <p>Click "Add Color" to create your first color.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      Object.entries(userColorsData).forEach(([id, color]) => {
+        const card = document.createElement('div');
+        card.className = 'color-card';
+        card.dataset.colorId = id;
+        card.innerHTML = `
+          <input type="checkbox" class="color-checkbox" data-color-id="${id}" style="display: none; position: absolute; top: 8px; left: 8px; width: 20px; height: 20px; cursor: pointer; z-index: 5;">
+          <div class="color-preview" style="background-color: ${color.hex}"></div>
+          <div class="color-info">
+            <div class="color-name">${color.name}</div>
+            ${color.brand ? `<div class="color-brand" style="font-size: 12px; color: var(--purple-light); margin-top: 4px; font-weight: 600;">${color.brand}</div>` : ''}
+            <div class="color-hex">${color.hex}</div>
+          </div>
+          <div class="color-actions">
+            <button class="btn-action" onclick="editUserColor('${id}')">Edit</button>
+            <button class="btn-action" onclick="deleteUserColor('${id}')">Delete</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Color modal functions
+    function openColorManagementModal() {
+      const modal = document.getElementById('colorManagementModal');
+      const overlay = document.getElementById('overlay');
+      
+      modal.style.display = 'block';
+      overlay.style.display = 'block';
+      
+      setTimeout(() => {
+        overlay.classList.add('show');
+        modal.classList.add('show');
+      }, 10);
+    }
+
+    function closeColorManagementModal() {
+      const modal = document.getElementById('colorManagementModal');
+      const overlay = document.getElementById('overlay');
+      
+      modal.classList.remove('show');
+      overlay.classList.remove('show');
+      
+      setTimeout(() => {
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+      }, 400);
+    }
+
+    // Tab switching
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('preset-tab')) {
+        const tabName = e.target.getAttribute('data-tab');
+        
+        // Update tabs
+        document.querySelectorAll('.preset-tab').forEach(tab => tab.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        // Update content
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.classList.remove('active');
+          content.style.display = 'none';
+        });
+        
+        const targetContent = document.getElementById(tabName);
+        if (targetContent) {
+          targetContent.classList.add('active');
+          targetContent.style.display = 'block';
+        }
+      }
+    });
+
+    // Add/Edit/Delete color functions
+    function addGlobalColor() {
+      if (!isAdmin) {
+        showNotification('Only admins can add global colors', 'error');
+        return;
+      }
+      
+      showCombinedColorPrompt('Add Global Color', '', '#a855f7', '', (colors) => {
+        const colorsRef = firebase.database().ref('colors');
+        let successCount = 0;
+        let errorCount = 0;
+        
+        const promises = colors.map(color => {
+          return colorsRef.push({
+            name: color.name,
+            hex: color.hex,
+            brand: color.brand || ''
+          }).then(() => {
+            successCount++;
+          }).catch(error => {
+            console.error('Error adding color:', error);
+            errorCount++;
+          });
+        });
+        
+        Promise.all(promises).then(() => {
+          if (errorCount > 0) {
+            showNotification(`Added ${successCount} colors, ${errorCount} failed`, 'warning');
+          } else {
+            showNotification(`Successfully added ${successCount} color(s)!`, 'success');
+          }
+        });
+      });
+    }
+
+    function editGlobalColor(id) {
+      if (!isAdmin) {
+        showNotification('Only admins can edit global colors', 'error');
+        return;
+      }
+      
+      const color = globalColorsData[id];
+      if (!color) return;
+      
+      showCombinedColorPrompt('Edit Global Color', color.name, color.hex, color.brand || '', (colors) => {
+        if (colors.length > 0) {
+          const updatedColor = colors[0];
+          firebase.database().ref(`colors/${id}`).update({
+            name: updatedColor.name,
+            hex: updatedColor.hex,
+            brand: updatedColor.brand || ''
+          }).then(() => {
+            showNotification('Global color updated successfully!', 'success');
+          }).catch(error => {
+            showNotification('Error updating color: ' + error.message, 'error');
+          });
+        }
+      }, true);
+    }
+
+    function deleteGlobalColor(id) {
+      if (!isAdmin) {
+        showNotification('Only admins can delete global colors', 'error');
+        return;
+      }
+      
+      const color = globalColorsData[id];
+      showConfirm(
+        `Delete "${color.name}"?`,
+        'This action cannot be undone.',
+        'Delete Color',
+        'Delete'
+      ).then(confirmed => {
+        if (confirmed) {
+          firebase.database().ref(`colors/${id}`).remove()
+            .then(() => {
+              showNotification('Global color deleted successfully!', 'success');
+            })
+            .catch(error => {
+              showNotification('Error deleting color: ' + error.message, 'error');
+            });
+        }
+      });
+    }
+
+    function addUserColor() {
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        showNotification('Please login to add colors', 'error');
+        return;
+      }
+      
+      showCombinedColorPrompt('Add Your Color', '', '#a855f7', '', (colors) => {
+        const colorsRef = firebase.database().ref(`userColors/${user.uid}`);
+        let successCount = 0;
+        let errorCount = 0;
+        
+        const promises = colors.map(color => {
+          return colorsRef.push({
+            name: color.name,
+            hex: color.hex,
+            brand: color.brand || ''
+          }).then(() => {
+            successCount++;
+          }).catch(error => {
+            console.error('Error adding color:', error);
+            errorCount++;
+          });
+        });
+        
+        Promise.all(promises).then(() => {
+          if (errorCount > 0) {
+            showNotification(`Added ${successCount} colors, ${errorCount} failed`, 'warning');
+          } else {
+            showNotification(`Successfully added ${successCount} color(s)!`, 'success');
+          }
+        });
+      });
+    }
+
+    function editUserColor(id) {
+      const user = firebase.auth().currentUser;
+      if (!user) return;
+      
+      const color = userColorsData[id];
+      if (!color) return;
+      
+      showCombinedColorPrompt('Edit Your Color', color.name, color.hex, color.brand || '', (colors) => {
+        if (colors.length > 0) {
+          const updatedColor = colors[0];
+          firebase.database().ref(`userColors/${user.uid}/${id}`).update({
+            name: updatedColor.name,
+            hex: updatedColor.hex,
+            brand: updatedColor.brand || ''
+          }).then(() => {
+            showNotification('Color updated successfully!', 'success');
+          }).catch(error => {
+            showNotification('Error updating color: ' + error.message, 'error');
+          });
+        }
+      }, true);
+    }
+
+    function deleteUserColor(id) {
+      const user = firebase.auth().currentUser;
+      if (!user) return;
+      
+      const color = userColorsData[id];
+      showConfirm(
+        `Delete "${color.name}"?`,
+        'This action cannot be undone.',
+        'Delete Color',
+        'Delete'
+      ).then(confirmed => {
+        if (confirmed) {
+          firebase.database().ref(`userColors/${user.uid}/${id}`).remove()
+            .then(() => {
+              showNotification('Color deleted successfully!', 'success');
+            })
+            .catch(error => {
+              showNotification('Error deleting color: ' + error.message, 'error');
+            });
+        }
+      });
+    }
+
+    // Mass delete functions
+    let globalSelectionMode = false;
+
+    function massDeleteGlobalColors() {
+      if (!isAdmin) {
+        showNotification('Only admins can delete global colors', 'error');
+        return;
+      }
+      
+      const colorCount = Object.keys(globalColorsData).length;
+      
+      if (colorCount === 0) {
+        showNotification('No colors to delete', 'warning');
+        return;
+      }
+      
+      const btn = document.getElementById('btnMassDeleteGlobalColors');
+      const cancelBtn = document.getElementById('btnCancelGlobalSelection');
+      const checkboxes = document.querySelectorAll('#globalColorsGrid .color-checkbox');
+      
+      if (!globalSelectionMode) {
+        // Enter selection mode
+        globalSelectionMode = true;
+        btn.textContent = 'Delete Selected';
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-primary');
+        cancelBtn.style.display = 'inline-block';
+        checkboxes.forEach(cb => cb.style.display = 'block');
+      } else {
+        // Delete selected colors
+        const selectedIds = Array.from(checkboxes)
+          .filter(cb => cb.checked)
+          .map(cb => cb.dataset.colorId);
+        
+        if (selectedIds.length === 0) {
+          showNotification('Please select colors to delete', 'warning');
+          return;
+        }
+        
+        showConfirm(
+          `Delete ${selectedIds.length} selected color${selectedIds.length > 1 ? 's' : ''}?`,
+          'This action cannot be undone and will affect all users!',
+          'Mass Delete Warning',
+          'Delete Selected'
+        ).then(confirmed => {
+          if (confirmed) {
+            const deletePromises = selectedIds.map(id => 
+              firebase.database().ref(`colors/${id}`).remove()
+            );
+            
+            Promise.all(deletePromises)
+              .then(() => {
+                showNotification(`Successfully deleted ${selectedIds.length} color${selectedIds.length > 1 ? 's' : ''}!`, 'success');
+                // Exit selection mode
+                globalSelectionMode = false;
+                btn.textContent = 'Mass Delete';
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-danger');
+                cancelBtn.style.display = 'none';
+                checkboxes.forEach(cb => {
+                  cb.style.display = 'none';
+                  cb.checked = false;
+                });
+              })
+              .catch(error => {
+                showNotification('Error deleting colors: ' + error.message, 'error');
+              });
+          }
+        });
+      }
+    }
+
+    let userSelectionMode = false;
+
+    function massDeleteUserColors() {
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        showNotification('Please login to delete colors', 'error');
+        return;
+      }
+      
+      const colorCount = Object.keys(userColorsData).length;
+      
+      if (colorCount === 0) {
+        showNotification('No colors to delete', 'warning');
+        return;
+      }
+      
+      const btn = document.getElementById('btnMassDeleteUserColors');
+      const cancelBtn = document.getElementById('btnCancelUserSelection');
+      const checkboxes = document.querySelectorAll('#userColorsGrid .color-checkbox');
+      
+      if (!userSelectionMode) {
+        // Enter selection mode
+        userSelectionMode = true;
+        btn.textContent = 'Delete Selected';
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-primary');
+        cancelBtn.style.display = 'inline-block';
+        checkboxes.forEach(cb => cb.style.display = 'block');
+      } else {
+        // Delete selected colors
+        const selectedIds = Array.from(checkboxes)
+          .filter(cb => cb.checked)
+          .map(cb => cb.dataset.colorId);
+        
+        if (selectedIds.length === 0) {
+          showNotification('Please select colors to delete', 'warning');
+          return;
+        }
+        
+        showConfirm(
+          `Delete ${selectedIds.length} selected color${selectedIds.length > 1 ? 's' : ''}?`,
+          'This action cannot be undone!',
+          'Mass Delete Warning',
+          'Delete Selected'
+        ).then(confirmed => {
+          if (confirmed) {
+            const deletePromises = selectedIds.map(id => 
+              firebase.database().ref(`userColors/${user.uid}/${id}`).remove()
+            );
+            
+            Promise.all(deletePromises)
+              .then(() => {
+                showNotification(`Successfully deleted ${selectedIds.length} color${selectedIds.length > 1 ? 's' : ''}!`, 'success');
+                // Exit selection mode
+                userSelectionMode = false;
+                btn.textContent = 'Mass Delete';
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-danger');
+                cancelBtn.style.display = 'none';
+                checkboxes.forEach(cb => {
+                  cb.style.display = 'none';
+                  cb.checked = false;
+                });
+              })
+              .catch(error => {
+                showNotification('Error deleting colors: ' + error.message, 'error');
+              });
+          }
+        });
+      }
+    }
+
+    // Cancel selection mode functions
+    function cancelGlobalSelection() {
+      globalSelectionMode = false;
+      const btn = document.getElementById('btnMassDeleteGlobalColors');
+      const cancelBtn = document.getElementById('btnCancelGlobalSelection');
+      const checkboxes = document.querySelectorAll('#globalColorsGrid .color-checkbox');
+      
+      btn.textContent = 'Mass Delete';
+      btn.classList.remove('btn-primary');
+      btn.classList.add('btn-danger');
+      cancelBtn.style.display = 'none';
+      checkboxes.forEach(cb => {
+        cb.style.display = 'none';
+        cb.checked = false;
+      });
+    }
+
+    function cancelUserSelection() {
+      userSelectionMode = false;
+      const btn = document.getElementById('btnMassDeleteUserColors');
+      const cancelBtn = document.getElementById('btnCancelUserSelection');
+      const checkboxes = document.querySelectorAll('#userColorsGrid .color-checkbox');
+      
+      btn.textContent = 'Mass Delete';
+      btn.classList.remove('btn-primary');
+      btn.classList.add('btn-danger');
+      cancelBtn.style.display = 'none';
+      checkboxes.forEach(cb => {
+        cb.style.display = 'none';
+        cb.checked = false;
+      });
+    }
+
+    // Show combined color input prompt (single or batch)
+    function showCombinedColorPrompt(title, defaultName, defaultColor, defaultBrand, callback, isSingleEdit = false) {
+      const promptHTML = `
+        <div style="text-align: left;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: var(--text);">Color Name</label>
+          <input type="text" id="colorNameInput" value="${defaultName}" placeholder="e.g., Sky Blue" 
+                 style="width: 100%; padding: 12px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(168,85,247,0.3); border-radius: 8px; color: white; font-size: 14px; margin-bottom: 12px; font-family: 'Inter', sans-serif;">
+          
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: var(--text);">Brand</label>
+          <input type="text" id="colorBrandInput" value="${defaultBrand}" placeholder="e.g., Prusa, Bambu Lab" 
+                 style="width: 100%; padding: 12px 14px; background: rgba(0,0,0,0.3); border: 1px solid rgba(168,85,247,0.3); border-radius: 8px; color: white; font-size: 14px; margin-bottom: 16px; font-family: 'Inter', sans-serif;">
+          
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: var(--text);">Color</label>
+          <input type="color" id="colorHexInput" value="${defaultColor}"
+                 style="width: 100%; height: 60px; cursor: pointer; border: 2px solid rgba(168,85,247,0.3); border-radius: 8px; margin-bottom: ${isSingleEdit ? '0' : '20px'};">
+          
+          ${!isSingleEdit ? `
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(168,85,247,0.2);">
+              <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: var(--text);">Batch Add (paste multiple, separate with semicolon)</label>
+              <div style="background: rgba(168,85,247,0.1); border-left: 3px solid var(--purple); padding: 10px 14px; border-radius: 6px; margin-bottom: 12px;">
+                <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 6px 0; font-weight: 600;">Format: ["#hexcode"]["Name"]["Brand"];</p>
+                <code style="font-size: 11px; color: var(--purple-light); font-family: monospace; display: block; line-height: 1.5;">
+                  ["#a855f7"]["Purple"]["Prusa"];<br>
+                  ["#3b82f6"]["Blue"]["Bambu Lab"];
+                </code>
+              </div>
+              <textarea id="bulkColorInput" placeholder='["#a855f7"]["Purple"]["Prusa"];\n["#3b82f6"]["Blue"]["Bambu Lab"];'
+                        style="width: 100%; height: 120px; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(168,85,247,0.3); border-radius: 8px; color: white; font-family: monospace; font-size: 12px; resize: vertical; line-height: 1.6;"></textarea>
+            </div>
+          ` : ''}
+        </div>
+      `;
+      
+      const confirmDialog = document.getElementById('customConfirm');
+      const confirmTitle = confirmDialog.querySelector('.confirm-title');
+      const confirmMessage = confirmDialog.querySelector('.confirm-message');
+      const confirmYes = document.getElementById('confirmYes');
+      const confirmNo = document.getElementById('confirmNo');
+      const overlay = document.getElementById('overlay');
+      
+      // Clone buttons to remove all old event listeners
+      const newConfirmYes = confirmYes.cloneNode(true);
+      const newConfirmNo = confirmNo.cloneNode(true);
+      confirmYes.parentNode.replaceChild(newConfirmYes, confirmYes);
+      confirmNo.parentNode.replaceChild(newConfirmNo, confirmNo);
+      
+      confirmTitle.textContent = title;
+      confirmMessage.innerHTML = promptHTML;
+      newConfirmYes.textContent = 'Save';
+      newConfirmYes.className = 'btn btn-primary';
+      newConfirmNo.textContent = 'Cancel';
+      newConfirmNo.className = 'btn btn-ghost';
+      
+      // Increase overlay z-index to appear above color management modal
+      overlay.style.zIndex = '10001';
+      overlay.style.display = 'block';
+      setTimeout(() => {
+        overlay.classList.add('show');
+        confirmDialog.classList.add('show');
+      }, 10);
+      
+      const handleYes = () => {
+        const name = document.getElementById('colorNameInput').value.trim();
+        const brand = document.getElementById('colorBrandInput').value.trim();
+        const hex = document.getElementById('colorHexInput').value;
+        const bulkInput = document.getElementById('bulkColorInput');
+        const bulkText = bulkInput ? bulkInput.value.trim() : '';
+        
+        let colors = [];
+        
+        // If bulk input has content, prioritize that
+        if (bulkText) {
+          // Parse format: ["#hexcode"]["Name"]["Brand"];
+          const colorRegex = /\["([#][0-9a-fA-F]{6})"\]\["([^"]+)"\](?:\["([^"]*)"\])?;?/g;
+          let match;
+          
+          while ((match = colorRegex.exec(bulkText)) !== null) {
+            colors.push({
+              hex: match[1],
+              name: match[2],
+              brand: match[3] || ''
+            });
+          }
+          
+          if (colors.length === 0) {
+            showNotification('No valid colors found. Check format: ["#hexcode"]["Name"]["Brand"];', 'error');
+            return;
+          }
+        } else if (name) {
+          // Single color from form fields
+          colors.push({ name, hex, brand });
+        } else {
+          showNotification('Please enter a color name or use batch add', 'error');
+          return;
+        }
+        
+        newConfirmYes.removeEventListener('click', handleYes);
+        newConfirmNo.removeEventListener('click', handleNo);
+        
+        confirmDialog.classList.remove('show');
+        overlay.classList.remove('show');
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          overlay.style.zIndex = '9998'; // Reset to default z-index
+        }, 400);
+        
+        callback(colors);
+      };
+      
+      const handleNo = () => {
+        newConfirmYes.removeEventListener('click', handleYes);
+        newConfirmNo.removeEventListener('click', handleNo);
+        
+        confirmDialog.classList.remove('show');
+        overlay.classList.remove('show');
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          overlay.style.zIndex = '9998'; // Reset to default z-index
+        }, 400);
+      };
+      
+      newConfirmYes.addEventListener('click', handleYes);
+      newConfirmNo.addEventListener('click', handleNo);
+    }
+
+    // Legacy bulk add functions - now integrated into main add function
+    function bulkAddGlobalColors() {
+      addGlobalColor(); // Redirect to unified function
+    }
+
+    function bulkAddUserColors() {
+      addUserColor(); // Redirect to unified function
+    }
+
+    function showBulkColorPrompt(title, callback) {
+      // Legacy function - kept for compatibility
+      const promptHTML = `
+        <div style="text-align: left;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: var(--text);">Paste Colors (One per line)</label>
+          <div style="background: rgba(168,85,247,0.1); border-left: 3px solid var(--purple); padding: 10px 14px; border-radius: 6px; margin-bottom: 12px;">
+            <p style="font-size: 11px; color: var(--text-muted); margin: 0 0 6px 0; font-weight: 600;">Format: ["#hexcode"]["Name"]["Brand"];</p>
+            <code style="font-size: 11px; color: var(--purple-light); font-family: monospace; display: block; line-height: 1.5;">
+              ["#a855f7"]["Purple"]["Prusa"];<br>
+              ["#3b82f6"]["Blue"]["Bambu Lab"];<br>
+              ["#ef4444"]["Red"]["Polymaker"];
+            </code>
+          </div>
+          <textarea id="bulkColorInput" placeholder='["#a855f7"]["Purple"]["Prusa"];\n["#3b82f6"]["Blue"]["Bambu Lab"];\n["#ef4444"]["Red"]["Polymaker"];'
+                    style="width: 100%; height: 180px; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(168,85,247,0.3); border-radius: 8px; color: white; font-family: monospace; font-size: 13px; resize: vertical; line-height: 1.6;"></textarea>
+        </div>
+      `;
+      
+      const confirmDialog = document.getElementById('customConfirm');
+      const confirmTitle = confirmDialog.querySelector('.confirm-title');
+      const confirmMessage = confirmDialog.querySelector('.confirm-message');
+      const confirmYes = document.getElementById('confirmYes');
+      const confirmNo = document.getElementById('confirmNo');
+      const overlay = document.getElementById('overlay');
+      
+      confirmTitle.textContent = title;
+      confirmMessage.innerHTML = promptHTML;
+      confirmYes.textContent = 'Import';
+      confirmYes.className = 'btn btn-primary';
+      confirmNo.textContent = 'Cancel';
+      confirmNo.className = 'btn btn-ghost';
+      
+      // Increase overlay z-index to appear above color management modal
+      overlay.style.zIndex = '10001';
+      overlay.style.display = 'block';
+      setTimeout(() => {
+        overlay.classList.add('show');
+        confirmDialog.classList.add('show');
+      }, 10);
+      
+      const handleYes = () => {
+        const input = document.getElementById('bulkColorInput').value.trim();
+        
+        if (!input) {
+          showNotification('Please enter color data', 'error');
+          return;
+        }
+        
+        // Parse the input format: ["#hexcode"]["Name"]["Brand"];
+        const colorRegex = /\["([#][0-9a-fA-F]{6})"\]\["([^"]+)"\](?:\["([^"]*)"\])?;?/g;
+        const colors = [];
+        let match;
+        
+        while ((match = colorRegex.exec(input)) !== null) {
+          colors.push({
+            hex: match[1],
+            name: match[2],
+            brand: match[3] || ''
+          });
+        }
+        
+        if (colors.length === 0) {
+          showNotification('No valid colors found. Check format: ["#hexcode"]["Name"]["Brand"];', 'error');
+          return;
+        }
+        
+        confirmYes.removeEventListener('click', handleYes);
+        confirmNo.removeEventListener('click', handleNo);
+        
+        confirmDialog.classList.remove('show');
+        overlay.classList.remove('show');
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          overlay.style.zIndex = '9998'; // Reset to default z-index
+        }, 400);
+        
+        callback(colors);
+      };
+      
+      const handleNo = () => {
+        confirmYes.removeEventListener('click', handleYes);
+        confirmNo.removeEventListener('click', handleNo);
+        
+        confirmDialog.classList.remove('show');
+        overlay.classList.remove('show');
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          overlay.style.zIndex = '9998'; // Reset to default z-index
+        }, 400);
+      };
+      
+      confirmYes.addEventListener('click', handleYes);
+      confirmNo.addEventListener('click', handleNo);
+    }
+
+    // Color selection for order forms
+    let selectedColors = [];
+    let editSelectedColors = [];
+
+    function populateColorPicker(gridId, previewId, isEdit = false) {
+      const grid = document.getElementById(gridId);
+      if (!grid) return;
+      
+      grid.innerHTML = '';
+      
+      const colorArray = isEdit ? editSelectedColors : selectedColors;
+      
+      // Add user colors first - grouped by brand
+      if (Object.keys(userColorsData).length > 0) {
+        // Group user colors by brand
+        const userBrandGroups = {};
+        Object.entries(userColorsData).forEach(([id, color]) => {
+          const brand = color.brand || 'Unknown Brand';
+          if (!userBrandGroups[brand]) {
+            userBrandGroups[brand] = [];
+          }
+          userBrandGroups[brand].push({ id, ...color });
+        });
+        
+        // Sort brands alphabetically
+        const sortedUserBrands = Object.keys(userBrandGroups).sort();
+        
+        sortedUserBrands.forEach(brand => {
+          // Brand header
+          const brandHeader = document.createElement('div');
+          brandHeader.style.cssText = 'grid-column: 1 / -1; padding: 12px 0 6px 0; color: var(--purple-light); font-size: 13px; font-weight: 700; border-top: 1px solid rgba(168, 85, 247, 0.2); margin-top: 8px;';
+          brandHeader.textContent = `Your Library - ${brand}`;
+          grid.appendChild(brandHeader);
+          
+          // Sort colors within brand alphabetically by name
+          userBrandGroups[brand].sort((a, b) => a.name.localeCompare(b.name)).forEach(color => {
+            const option = document.createElement('div');
+            option.className = 'color-option';
+            option.style.backgroundColor = color.hex;
+            option.setAttribute('data-hex', color.hex);
+            option.setAttribute('data-name', color.name);
+            option.setAttribute('title', `${color.name} - ${brand}`);
+            
+            // Calculate brightness to determine text color
+            const r = parseInt(color.hex.slice(1, 3), 16);
+            const g = parseInt(color.hex.slice(3, 5), 16);
+            const b = parseInt(color.hex.slice(5, 7), 16);
+            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            const textColor = brightness > 128 ? '#000000' : '#ffffff';
+            
+            // Add label inside the color box
+            const label = document.createElement('span');
+            label.className = 'color-option-label';
+            label.textContent = color.name;
+            label.style.color = textColor;
+            label.style.textShadow = brightness > 128 ? '0 1px 2px rgba(255,255,255,0.5)' : '0 1px 2px rgba(0,0,0,0.5)';
+            option.appendChild(label);
+            
+            if (colorArray.includes(color.hex)) {
+              option.classList.add('selected');
+            }
+            
+            option.addEventListener('click', () => selectColor(color.hex, gridId, previewId, isEdit));
+            grid.appendChild(option);
+          });
+        });
+      }
+      
+      // Add global colors - grouped by brand
+      if (Object.keys(globalColorsData).length > 0) {
+        // Group global colors by brand
+        const globalBrandGroups = {};
+        Object.entries(globalColorsData).forEach(([id, color]) => {
+          const brand = color.brand || 'Unknown Brand';
+          if (!globalBrandGroups[brand]) {
+            globalBrandGroups[brand] = [];
+          }
+          globalBrandGroups[brand].push({ id, ...color });
+        });
+        
+        // Sort brands alphabetically
+        const sortedGlobalBrands = Object.keys(globalBrandGroups).sort();
+        
+        sortedGlobalBrands.forEach(brand => {
+          // Brand header
+          const brandHeader = document.createElement('div');
+          brandHeader.style.cssText = 'grid-column: 1 / -1; padding: 12px 0 6px 0; color: var(--text-muted); font-size: 13px; font-weight: 700; border-top: 1px solid rgba(168, 85, 247, 0.2); margin-top: 8px;';
+          brandHeader.textContent = `Global Library - ${brand}`;
+          grid.appendChild(brandHeader);
+          
+          // Sort colors within brand alphabetically by name
+          globalBrandGroups[brand].sort((a, b) => a.name.localeCompare(b.name)).forEach(color => {
+            const option = document.createElement('div');
+            option.className = 'color-option';
+            option.style.backgroundColor = color.hex;
+            option.setAttribute('data-hex', color.hex);
+            option.setAttribute('data-name', color.name);
+            option.setAttribute('title', `${color.name} - ${brand}`);
+            
+            // Calculate brightness to determine text color
+            const r = parseInt(color.hex.slice(1, 3), 16);
+            const g = parseInt(color.hex.slice(3, 5), 16);
+            const b = parseInt(color.hex.slice(5, 7), 16);
+            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            const textColor = brightness > 128 ? '#000000' : '#ffffff';
+            
+            // Add label inside the color box
+            const label = document.createElement('span');
+            label.className = 'color-option-label';
+            label.textContent = color.name;
+            label.style.color = textColor;
+            label.style.textShadow = brightness > 128 ? '0 1px 2px rgba(255,255,255,0.5)' : '0 1px 2px rgba(0,0,0,0.5)';
+            option.appendChild(label);
+            
+            if (colorArray.includes(color.hex)) {
+              option.classList.add('selected');
+            }
+            
+            option.addEventListener('click', () => selectColor(color.hex, gridId, previewId, isEdit));
+            grid.appendChild(option);
+          });
+        });
+      }
+      
+      if (Object.keys(userColorsData).length === 0 && Object.keys(globalColorsData).length === 0) {
+        grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: var(--text-muted);">No colors available. Add colors in the Color Management section.</div>';
+      }
+      
+      updateColorPreview(previewId, isEdit);
+    }
+
+    function selectColor(hex, gridId, previewId, isEdit) {
+      const colorArray = isEdit ? editSelectedColors : selectedColors;
+      const index = colorArray.indexOf(hex);
+      
+      if (index > -1) {
+        // Deselect
+        colorArray.splice(index, 1);
+      } else {
+        // Select (max 3)
+        if (colorArray.length < 3) {
+          colorArray.push(hex);
+        } else {
+          showNotification('Maximum 3 colors can be selected', 'warning');
+          return;
+        }
+      }
+      
+      // Update hidden inputs
+      if (isEdit) {
+        document.getElementById('edit_color1').value = colorArray[0] || '#a855f7';
+        document.getElementById('edit_color2').value = colorArray[1] || '#c084fc';
+        document.getElementById('edit_color3').value = colorArray[2] || '#e9d5ff';
+      } else {
+        document.getElementById('color1').value = colorArray[0] || '#a855f7';
+        document.getElementById('color2').value = colorArray[1] || '#c084fc';
+        document.getElementById('color3').value = colorArray[2] || '#e9d5ff';
+      }
+      
+      // Re-render
+      populateColorPicker(gridId, previewId, isEdit);
+    }
+
+    function updateColorPreview(previewId, isEdit) {
+      const preview = document.getElementById(previewId);
+      if (!preview) return;
+      
+      const colorArray = isEdit ? editSelectedColors : selectedColors;
+      
+      preview.innerHTML = '';
+      
+      if (colorArray.length === 0) {
+        preview.innerHTML = '<span style="font-size: 12px; color: var(--text-muted);">No colors selected</span>';
+        return;
+      }
+      
+      colorArray.forEach(hex => {
+        // Find color name from userColorsData or globalColorsData
+        let colorName = 'Unknown';
+        
+        // Search in user colors
+        for (const [id, color] of Object.entries(userColorsData)) {
+          if (color.hex === hex) {
+            colorName = color.name;
+            break;
+          }
+        }
+        
+        // If not found in user colors, search in global colors
+        if (colorName === 'Unknown') {
+          for (const [id, color] of Object.entries(globalColorsData)) {
+            if (color.hex === hex) {
+              colorName = color.name;
+              break;
+            }
+          }
+        }
+        
+        // Calculate brightness to determine text color
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        const textColor = brightness > 128 ? '#000000' : '#ffffff';
+        
+        const colorBox = document.createElement('div');
+        colorBox.style.cssText = `
+          min-width: 80px;
+          height: 50px;
+          background-color: ${hex};
+          border: 2px solid rgba(168, 85, 247, 0.5);
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 4px 8px;
+          position: relative;
+          overflow: hidden;
+        `;
+        
+        const nameLabel = document.createElement('span');
+        nameLabel.textContent = colorName;
+        nameLabel.style.cssText = `
+          color: ${textColor};
+          font-size: 11px;
+          font-weight: 700;
+          text-align: center;
+          text-shadow: ${brightness > 128 ? '0 1px 2px rgba(255,255,255,0.5)' : '0 1px 2px rgba(0,0,0,0.5)'};
+          word-wrap: break-word;
+          line-height: 1.2;
+          max-width: 100%;
+        `;
+        
+        colorBox.appendChild(nameLabel);
+        preview.appendChild(colorBox);
+      });
+    }
+
+    // Load orders
+    function loadOrders() {
+      const ordersContent = document.getElementById('ordersContent');
+
+      if (!currentUser) {
+        ordersContent.innerHTML = `
+          <div class="login-required">
+            <h3>Login Required</h3>
+            <p>Please login to view your orders</p>
+            <button class="btn" onclick="window.parent.location.href='../index.html'">Go to Home</button>
+          </div>
+        `;
+        return;
+      }
+
+      // Load orders from database
+      const ordersRef = firebase.database().ref('orders/' + currentUser.uid);
+      
+      ordersRef.once('value', (snapshot) => {
+        const orders = [];
+        snapshot.forEach((childSnapshot) => {
+          orders.push({
+            id: childSnapshot.key,
+            ...childSnapshot.val()
+          });
+        });
+
+        // Sort orders: finished orders go to the bottom
+        orders.sort((a, b) => {
+          const aFinished = a.status === 'finished';
+          const bFinished = b.status === 'finished';
+          
+          if (aFinished && !bFinished) return 1;
+          if (!aFinished && bFinished) return -1;
+          
+          // If both are finished or both are not finished, sort by date (newest first)
+          return (b.date || 0) - (a.date || 0);
+        });
+
+        if (orders.length === 0) {
+          ordersContent.innerHTML = `
+            <div class="orders-table-container">
+              <div class="empty-state">
+                <h3>No Orders Yet</h3>
+                <p>You haven't created any orders. Click "New Order" to get started!</p>
+              </div>
+            </div>
+          `;
+        } else {
+          renderOrdersTable(orders);
+        }
+      });
+    }
+
+    // Render orders table
+    function renderOrdersTable(orders) {
+      const ordersContent = document.getElementById('ordersContent');
+      
+      const tableHTML = `
+        <div class="orders-table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Order Name</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${orders.map(order => `
+                <tr>
+                  <td>#${order.id.slice(0, 7).toUpperCase()}</td>
+                  <td>${formatDate(order.date)}</td>
+                  <td>${order.clientName || order.customer || 'N/A'}</td>
+                  <td>${order.orderTitle || order.productName || 'N/A'}</td>
+                  <td>${formatCurrencyLocal(order.total)}</td>
+                  <td>
+                    <select class="status-dropdown status-${order.status || 'pending'}" onchange="updateOrderStatus('${order.id}', this.value)">
+                      <option value="pending" ${(order.status || 'pending') === 'pending' ? 'selected' : ''}>Pending</option>
+                      <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                      <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
+                      <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                      <option value="finished" ${order.status === 'finished' ? 'selected' : ''}>Finished</option>
+                    </select>
+                  </td>
+                  <td>
+                    <div class="actions-menu">
+                      <button class="actions-menu-btn" onclick="toggleActionsMenu(event, '${order.id}')">
+                        ⋮
+                      </button>
+                      <div class="actions-menu-dropdown" id="menu-${order.id}">
+                        <div class="actions-menu-item" onclick="viewOrder('${order.id}'); closeAllMenus()">
+                          📝 View/Edit
+                        </div>
+                        <div class="actions-menu-item" onclick="duplicateOrder('${order.id}'); closeAllMenus()">
+                          📋 Duplicate
+                        </div>
+                        <div class="actions-menu-item danger" onclick="deleteOrder('${order.id}'); closeAllMenus()">
+                          🗑️ Delete
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      ordersContent.innerHTML = tableHTML;
+    }
+
+    // Update order status from table dropdown
+    function updateOrderStatus(orderId, newStatus) {
+      if (!currentUser) return;
+      
+      const orderRef = firebase.database().ref('orders/' + currentUser.uid + '/' + orderId);
+      
+      orderRef.update({ status: newStatus })
+        .then(() => {
+          showNotification(`Status changed to ${newStatus}!`, 'success');
+          loadOrders(); // Refresh the table to re-sort
+        })
+        .catch((error) => {
+          showNotification('Error updating status: ' + error.message, 'error');
+        });
+    }
+
+    // Currency helper functions
+    // Use currency.js functions if available, otherwise fallback
+    function getCurrencySymbolLocal() {
+      // Use getCurrencyLabel for form labels (shows "CAD ($)" format)
+      if (typeof getCurrencyLabel === 'function') {
+        return getCurrencyLabel(window.currentCurrency || 'USD');
+      }
+      // Fallback to basic symbol
+      if (typeof getCurrencySymbol === 'function') {
+        return getCurrencySymbol(window.currentCurrency || 'USD');
+      }
+      return '$';
+    }
+
+    function formatCurrencyLocal(amountUSD) {
+      // Use currency.js conversion if available
+      if (typeof formatCurrency === 'function') {
+        const result = formatCurrency(amountUSD, window.currentCurrency || 'USD');
+        console.log(`Formatting ${amountUSD} USD as ${window.currentCurrency}: ${result}`);
+        return result;
+      }
+      // Fallback
+      console.log('Warning: formatCurrency function not available, using fallback');
+      const value = parseFloat(amountUSD) || 0;
+      return `$${value.toFixed(2)}`;
+    }
+
+    // Actions menu functions
+    function toggleActionsMenu(event, orderId) {
+      event.stopPropagation();
+      const menu = document.getElementById(`menu-${orderId}`);
+      const allMenus = document.querySelectorAll('.actions-menu-dropdown');
+      
+      // Close all other menus
+      allMenus.forEach(m => {
+        if (m.id !== `menu-${orderId}`) {
+          m.classList.remove('show');
+        }
+      });
+      
+      // Toggle current menu
+      menu.classList.toggle('show');
+    }
+
+    function closeAllMenus() {
+      const allMenus = document.querySelectorAll('.actions-menu-dropdown');
+      allMenus.forEach(menu => menu.classList.remove('show'));
+    }
+
+    // Close menus when clicking outside
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.actions-menu')) {
+        closeAllMenus();
+      }
+    });
+
+    // Format date
+    function formatDate(timestamp) {
+      if (!timestamp) return 'N/A';
+      const date = new Date(timestamp);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    }
+
+    // Order actions
+    let currentViewingOrderId = null;
+
+    function viewOrder(orderId) {
+      if (!currentUser) return;
+      
+      currentViewingOrderId = orderId;
+      const orderRef = firebase.database().ref('orders/' + currentUser.uid + '/' + orderId);
+      
+      orderRef.once('value', (snapshot) => {
+        const order = snapshot.val();
+        if (!order) {
+          showNotification('Order not found', 'error');
+          return;
+        }
+        
+        displayOrderDetails(orderId, order);
+      });
+    }
+
+    function displayOrderDetails(orderId, order) {
+      const modal = document.getElementById('viewOrderModal');
+      const content = document.getElementById('viewOrderContent');
+      const overlay = document.getElementById('overlay');
+      
+      // Get selected messaging apps
+      const messagingApps = order.messagingApps || [];
+      
+      // Get colors
+      const colors = order.colors || ['#a855f7', '#c084fc', '#e9d5ff'];
+      
+      content.innerHTML = `
+        <form id="editOrderForm">
+          <!-- Order Information -->
+          <div class="form-section">
+            <div class="section-title">Order Information</div>
+            <div class="form-row single">
+              <div class="form-group">
+                <label>Order ID (Read-only)</label>
+                <input type="text" value="#${orderId.slice(0, 7).toUpperCase()}" disabled style="opacity: 0.6;">
+              </div>
+            </div>
+            <div class="form-row single">
+              <div class="form-group">
+                <label>Order Title</label>
+                <input type="text" id="edit_orderTitle" value="${order.orderTitle || ''}" placeholder="Enter order title">
+              </div>
+            </div>
+            <div class="form-row single">
+              <div class="form-group">
+                <label>Date Created (Read-only)</label>
+                <input type="text" value="${formatDate(order.date)}" disabled style="opacity: 0.6;">
+              </div>
+            </div>
+          </div>
+
+          <!-- Client Information -->
+          <div class="form-section">
+            <div class="section-title">Client Information</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Client Name</label>
+                <input type="text" id="edit_clientName" value="${order.clientName || ''}" placeholder="Enter client name">
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="edit_clientEmail" value="${order.clientEmail || ''}" placeholder="client@example.com">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="edit_clientPhone" value="${order.clientPhone || ''}" placeholder="+1 (555) 123-4567">
+              </div>
+              <div class="form-group">
+                <label>Address</label>
+                <input type="text" id="edit_clientAddress" value="${order.clientAddress || ''}" placeholder="Enter address">
+              </div>
+            </div>
+            <div class="form-row single">
+              <div class="form-group">
+                <label>Messaging Apps</label>
+                <div class="messaging-apps">
+                  <div class="app-checkbox">
+                    <input type="checkbox" id="edit_app_etsy" value="Etsy" ${messagingApps.includes('Etsy') ? 'checked' : ''}>
+                    <label for="edit_app_etsy">Etsy</label>
+                  </div>
+                  <div class="app-checkbox">
+                    <input type="checkbox" id="edit_app_messenger" value="Messenger" ${messagingApps.includes('Messenger') ? 'checked' : ''}>
+                    <label for="edit_app_messenger">Messenger</label>
+                  </div>
+                  <div class="app-checkbox">
+                    <input type="checkbox" id="edit_app_whatsapp" value="WhatsApp" ${messagingApps.includes('WhatsApp') ? 'checked' : ''}>
+                    <label for="edit_app_whatsapp">WhatsApp</label>
+                  </div>
+                  <div class="app-checkbox">
+                    <input type="checkbox" id="edit_app_instagram" value="Instagram" ${messagingApps.includes('Instagram') ? 'checked' : ''}>
+                    <label for="edit_app_instagram">Instagram</label>
+                  </div>
+                  <div class="app-checkbox">
+                    <input type="checkbox" id="edit_app_email" value="Email" ${messagingApps.includes('Email') ? 'checked' : ''}>
+                    <label for="edit_app_email">Email</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Information -->
+          <div class="form-section">
+            <div class="section-title">Product Information</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Product Name</label>
+                <input type="text" id="edit_productName" value="${order.productName || ''}" placeholder="Enter product name">
+              </div>
+              <div class="form-group">
+                <label>Quantity</label>
+                <input type="number" id="edit_quantity" value="${order.quantity || 1}" min="1" placeholder="1">
+              </div>
+            </div>
+          </div>
+
+          <!-- Customization Options -->
+          <div class="form-section">
+            <div class="section-title">Customization Options</div>
+            <div class="form-row">
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Color(s) - Select up to 3 colors</label>
+                <div id="editColorSelectionGrid" class="color-selection-grid">
+                  <!-- Colors will be populated here -->
+                </div>
+                <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center;">
+                  <span style="font-size: 12px; color: var(--text-muted);">Selected:</span>
+                  <div id="editSelectedColorsPreview" style="display: flex; gap: 8px;">
+                    <!-- Selected colors will appear here -->
+                  </div>
+                </div>
+                <input type="hidden" id="edit_color1" value="${colors[0] || '#a855f7'}">
+                <input type="hidden" id="edit_color2" value="${colors[1] || '#c084fc'}">
+                <input type="hidden" id="edit_color3" value="${colors[2] || '#e9d5ff'}">
+              </div>
+              <div class="form-group">
+                <label>Material / Filament Type</label>
+                <select id="edit_material">
+                  <option value="">Select material</option>
+                  <!-- Options will be populated dynamically from Firebase -->
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Finish</label>
+                <select id="edit_finish">
+                  <option value="">Select finish</option>
+                  <option value="Matte" ${order.finish === 'Matte' ? 'selected' : ''}>Matte</option>
+                  <option value="Glossy" ${order.finish === 'Glossy' ? 'selected' : ''}>Glossy</option>
+                  <option value="Textured" ${order.finish === 'Textured' ? 'selected' : ''}>Textured</option>
+                  <option value="Smooth" ${order.finish === 'Smooth' ? 'selected' : ''}>Smooth</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Scale / Size (in mm)</label>
+                <input type="number" id="edit_scale" value="${order.scale || ''}" placeholder="100" min="1">
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Notes -->
+          <div class="form-section">
+            <div class="section-title">Additional Information</div>
+            <div class="form-row single">
+              <div class="form-group">
+                <label>Extra Notes</label>
+                <textarea id="edit_extraNotes" placeholder="Add any special instructions or notes...">${order.extraNotes || ''}</textarea>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Total Price (${getCurrencySymbolLocal()})</label>
+                <input type="number" id="edit_total" value="${typeof convertFromUSD === 'function' ? convertFromUSD(order.total || 0, window.currentCurrency || 'USD').toFixed(2) : (order.total || 0)}" step="0.01" min="0" placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label>Status</label>
+                <select id="edit_status">
+                  <option value="pending" ${(order.status || 'pending') === 'pending' ? 'selected' : ''}>Pending</option>
+                  <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                  <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
+                  <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                  <option value="finished" ${order.status === 'finished' ? 'selected' : ''}>Finished</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Actions -->
+          <div class="modal-actions">
+            <button type="button" class="btn btn-danger" onclick="deleteOrderFromView('${orderId}')">Delete Order</button>
+            <button type="button" class="btn btn-ghost" onclick="closeViewOrderModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      `;
+
+      // Add form submit handler and populate dropdowns
+      setTimeout(() => {
+        const form = document.getElementById('editOrderForm');
+        if (form) {
+          form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveOrderChanges(orderId);
+          });
+        }
+        
+        // Populate material dropdown with current selection
+        populateMaterialDropdowns();
+        
+        // Restore the selected material
+        const editMaterialSelect = document.getElementById('edit_material');
+        if (editMaterialSelect && order.material) {
+          editMaterialSelect.value = order.material;
+        }
+        
+        // Populate color picker with current colors
+        editSelectedColors = order.colors || ['#a855f7', '#c084fc', '#e9d5ff'];
+        populateColorPicker('editColorSelectionGrid', 'editSelectedColorsPreview', true);
+      }, 100);
+      
+      overlay.style.display = 'block';
+      setTimeout(() => {
+        overlay.classList.add('show');
+        modal.classList.add('show');
+      }, 10);
+    }
+
+    // Function to save order changes
+    async function saveOrderChanges(orderId) {
+      if (!currentUser) return;
+
+      // Collect messaging apps
+      const messagingApps = [];
+      const appCheckboxes = ['edit_app_etsy', 'edit_app_messenger', 'edit_app_whatsapp', 'edit_app_instagram', 'edit_app_email'];
+      appCheckboxes.forEach(id => {
+        const checkbox = document.getElementById(id);
+        if (checkbox && checkbox.checked) {
+          messagingApps.push(checkbox.value);
+        }
+      });
+
+      // Collect colors
+      const colors = [
+        document.getElementById('edit_color1').value,
+        document.getElementById('edit_color2').value,
+        document.getElementById('edit_color3').value
+      ];
+
+      // Get total value and convert to USD if needed
+      const totalValue = parseFloat(document.getElementById('edit_total').value) || 0;
+      const totalInUSD = typeof convertToUSD === 'function' 
+        ? convertToUSD(totalValue, window.currentCurrency || 'USD')
+        : totalValue;
+
+      // Build updated order object
+      const updatedOrder = {
+        orderTitle: document.getElementById('edit_orderTitle').value.trim(),
+        clientName: document.getElementById('edit_clientName').value.trim(),
+        clientEmail: document.getElementById('edit_clientEmail').value.trim(),
+        clientPhone: document.getElementById('edit_clientPhone').value.trim(),
+        clientAddress: document.getElementById('edit_clientAddress').value.trim(),
+        messagingApps: messagingApps,
+        productName: document.getElementById('edit_productName').value.trim(),
+        quantity: parseInt(document.getElementById('edit_quantity').value) || 1,
+        colors: colors,
+        material: document.getElementById('edit_material').value,
+        finish: document.getElementById('edit_finish').value,
+        scale: document.getElementById('edit_scale').value,
+        extraNotes: document.getElementById('edit_extraNotes').value.trim(),
+        total: totalInUSD,
+        status: document.getElementById('edit_status').value
+      };
+
+      try {
+        await firebase.database().ref('orders/' + currentUser.uid + '/' + orderId).update(updatedOrder);
+        showNotification('Order updated successfully!', 'success');
+        closeViewOrderModal();
+        loadOrders();
+      } catch (error) {
+        console.error('Error updating order:', error);
+        showNotification('Error updating order', 'error');
+      }
+    }
+
+    function deleteOrderFromView(orderId) {
+      showConfirm(
+        'Are you sure you want to delete this order? This action cannot be undone.',
+        '',
+        'Delete Order',
+        'Delete'
+      ).then((confirmed) => {
+        if (confirmed) {
+          deleteOrder(orderId);
+          closeViewOrderModal();
+        }
+      });
+    }
+
+    function closeViewOrderModal() {
+      const modal = document.getElementById('viewOrderModal');
+      const overlay = document.getElementById('overlay');
+      
+      modal.classList.remove('show');
+      overlay.classList.remove('show');
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 400);
+      
+      currentViewingOrderId = null;
+    }
+
+    function duplicateOrder(orderId) {
+      if (!currentUser) return;
+      
+      const orderRef = firebase.database().ref('orders/' + currentUser.uid + '/' + orderId);
+      
+      orderRef.once('value', (snapshot) => {
+        const originalOrder = snapshot.val();
+        
+        if (!originalOrder) {
+          showNotification('Order not found', 'error');
+          return;
+        }
+        
+        showConfirm(
+          'Create a duplicate of this order?',
+          '',
+          'Duplicate Order',
+          'Duplicate'
+        ).then((confirmed) => {
+          if (confirmed) {
+            // Create a new order with the same data but new ID and timestamp
+            const duplicatedOrder = {
+              ...originalOrder,
+              date: Date.now(),
+              status: 'pending' // Reset status to pending for new order
+            };
+            
+            // Push creates a new unique ID automatically
+            firebase.database().ref('orders/' + currentUser.uid).push(duplicatedOrder)
+              .then(() => {
+                showNotification('Order duplicated successfully!', 'success');
+                loadOrders();
+              })
+              .catch((error) => {
+                showNotification('Error duplicating order: ' + error.message, 'error');
+              });
+          }
+        });
+      });
+    }
+
+    function deleteOrder(orderId) {
+      if (!currentUser) return;
+      
+      showConfirm(
+        'Are you sure you want to delete this order?',
+        '',
+        'Delete Order',
+        'Delete'
+      ).then((confirmed) => {
+        if (confirmed) {
+          firebase.database().ref('orders/' + currentUser.uid + '/' + orderId).remove()
+            .then(() => {
+              showNotification('Order deleted successfully!', 'success');
+              loadOrders();
+            })
+            .catch((error) => {
+              showNotification('Error deleting order: ' + error.message, 'error');
+            });
+        }
+      });
+    }
+
+    // New order button
+    document.getElementById('btnNewOrder').addEventListener('click', () => {
+      if (!currentUser) {
+        showNotification('Please login to create an order', '', 'Login Required');
+        return;
+      }
+      
+      openNewOrderModal();
+    });
+
+    function openNewOrderModal() {
+      const modal = document.getElementById('newOrderModal');
+      const overlay = document.getElementById('overlay');
+      const form = document.getElementById('newOrderForm');
+      
+      // Reset form and selected colors
+      form.reset();
+      selectedColors = ['#a855f7', '#c084fc', '#e9d5ff'];
+      
+      // Update Total Price label with current currency
+      const totalLabel = form.querySelector('label[for="orderTotal"]');
+      if (!totalLabel) {
+        // If no 'for' attribute, find the label before the orderTotal input
+        const totalInput = document.getElementById('orderTotal');
+        const label = totalInput?.previousElementSibling;
+        if (label && label.tagName === 'LABEL') {
+          label.textContent = `Total Price (${getCurrencySymbolLocal()})`;
+        }
+      } else {
+        totalLabel.textContent = `Total Price (${getCurrencySymbolLocal()})`;
+      }
+      
+      // Populate filament dropdown
+      populateMaterialDropdowns();
+      
+      // Populate color picker
+      setTimeout(() => {
+        populateColorPicker('colorSelectionGrid', 'selectedColorsPreview', false);
+      }, 100);
+      
+      overlay.style.display = 'block';
+      setTimeout(() => {
+        overlay.classList.add('show');
+        modal.classList.add('show');
+      }, 10);
+    }
+
+    function closeNewOrderModal() {
+      const modal = document.getElementById('newOrderModal');
+      const overlay = document.getElementById('overlay');
+      
+      modal.classList.remove('show');
+      overlay.classList.remove('show');
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 400);
+    }
+
+    // Handle new order form submission
+    document.getElementById('newOrderForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      if (!currentUser) {
+        showNotification('Please login to create an order', '', 'Login Required');
+        return;
+      }
+      
+      // Get total value and convert to USD if needed
+      const totalValue = parseFloat(document.getElementById('orderTotal').value) || 0;
+      const totalInUSD = typeof convertToUSD === 'function' 
+        ? convertToUSD(totalValue, window.currentCurrency || 'USD')
+        : totalValue;
+
+      // Collect form data
+      const orderData = {
+        date: Date.now(),
+        orderTitle: document.getElementById('orderTitle').value.trim(),
+        clientName: document.getElementById('clientName').value.trim(),
+        clientEmail: document.getElementById('clientEmail').value.trim(),
+        clientPhone: document.getElementById('clientPhone').value.trim(),
+        clientAddress: document.getElementById('clientAddress').value.trim(),
+        messagingApps: [],
+        productName: document.getElementById('productName').value.trim(),
+        quantity: parseInt(document.getElementById('quantity').value) || 1,
+        colors: [
+          document.getElementById('color1').value,
+          document.getElementById('color2').value,
+          document.getElementById('color3').value
+        ],
+        material: document.getElementById('material').value,
+        finish: document.getElementById('finish').value,
+        scale: document.getElementById('scale').value,
+        extraNotes: document.getElementById('extraNotes').value.trim(),
+        total: totalInUSD,
+        status: document.getElementById('orderStatus').value
+      };
+      
+      // Collect selected messaging apps
+      const appCheckboxes = ['app_etsy', 'app_messenger', 'app_whatsapp', 'app_instagram', 'app_email'];
+      appCheckboxes.forEach(id => {
+        const checkbox = document.getElementById(id);
+        if (checkbox.checked) {
+          orderData.messagingApps.push(checkbox.value);
+        }
+      });
+      
+      // Save to Firebase
+      firebase.database().ref('orders/' + currentUser.uid).push(orderData)
+        .then(() => {
+          showNotification('Order created successfully!', 'success');
+          closeNewOrderModal();
+          loadOrders();
+        })
+        .catch((error) => {
+          showNotification('Error creating order: ' + error.message, 'error');
+        });
+    });
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const rows = document.querySelectorAll('.orders-table tbody tr');
+      
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+      });
+    });
+
+    /* Custom Notification System */
+    function showNotification(message, type = 'success', title = '') {
+      const notification = document.getElementById('customNotification');
+      
+      // Remove previous type classes
+      notification.classList.remove('success', 'error', 'warning');
+      
+      // Set icon and title based on type
+      let icon = '✓';
+      let notificationTitle = title || 'Success!';
+      
+      if (type === 'error') {
+        icon = '✕';
+        notificationTitle = title || 'Error';
+      } else if (type === 'warning') {
+        icon = '⚠';
+        notificationTitle = title || 'Warning';
+      }
+      
+      // Update content
+      notification.querySelector('.notification-icon').textContent = icon;
+      notification.querySelector('.notification-title').textContent = notificationTitle;
+      notification.querySelector('.notification-message').textContent = message;
+      
+      // Add type class and show
+      notification.classList.add(type);
+      notification.classList.add('show');
+      
+      // Auto-hide after 3 seconds
+      setTimeout(() => {
+        hideNotification();
+      }, 3000);
+    }
+
+    function hideNotification() {
+      const notification = document.getElementById('customNotification');
+      notification.classList.remove('show');
+    }
+
+    /* Custom Confirm Dialog */
+    function showConfirm(message, icon = '', title = 'Are you sure?', buttonText = 'Confirm') {
+      return new Promise((resolve) => {
+        const confirmDialog = document.getElementById('customConfirm');
+        const overlay = document.getElementById('overlay');
+        const yesBtn = document.getElementById('confirmYes');
+        const noBtn = document.getElementById('confirmNo');
+        
+        confirmDialog.querySelector('.confirm-icon').textContent = icon;
+        confirmDialog.querySelector('.confirm-title').textContent = title;
+        confirmDialog.querySelector('.confirm-message').textContent = message;
+        yesBtn.textContent = buttonText;
+        
+        // Increase overlay z-index to appear above color management modal
+        overlay.style.zIndex = '10001';
+        overlay.style.display = 'block';
+        confirmDialog.classList.add('show');
+        
+        const cleanup = () => {
+          confirmDialog.classList.remove('show');
+          setTimeout(() => {
+            overlay.style.display = 'none';
+            overlay.style.zIndex = '9998'; // Reset to default z-index
+          }, 300);
+        };
+        
+        yesBtn.onclick = () => {
+          cleanup();
+          resolve(true);
+        };
+        
+        noBtn.onclick = () => {
+          cleanup();
+          resolve(false);
+        };
+      });
+    }
+
+    // Currency handling variables
+    window.currentCurrency = 'USD';
+    window.lastSavedCurrency = 'USD';
+
+    // Function to update the save button state
+    function updateSaveButton() {
+      const user = firebase.auth().currentUser;
+      const currencySelect = document.getElementById('currencySelect');
+      const btnSaveCurrency = document.getElementById('btnSaveCurrency');
+      
+      if (!currencySelect || !btnSaveCurrency) return;
+      
+      if (user) {
+        // Show button only if logged in
+        btnSaveCurrency.style.display = 'block';
+        
+        // Check if current currency is different from saved
+        if (currencySelect.value !== window.lastSavedCurrency) {
+          btnSaveCurrency.textContent = 'Save';
+          btnSaveCurrency.disabled = false;
+          btnSaveCurrency.style.opacity = '1';
+        } else {
+          btnSaveCurrency.textContent = 'Saved';
+          btnSaveCurrency.disabled = true;
+          btnSaveCurrency.style.opacity = '0.5';
+        }
+      } else {
+        // Hide button if not logged in
+        btnSaveCurrency.style.display = 'none';
+      }
+    }
+
+    // Save currency preference to Firebase
+    function saveCurrencyPreference() {
+      const user = firebase.auth().currentUser;
+      const currencySelect = document.getElementById('currencySelect');
+      const btnSaveCurrency = document.getElementById('btnSaveCurrency');
+      
+      if (!user) {
+        console.log('⚠️ Not logged in, currency not saved');
+        showNotification('Please login to save your currency preference', 'warning', 'Login Required');
+        return;
+      }
+      
+      window.currentCurrency = currencySelect.value;
+      console.log('Saving currency preference:', window.currentCurrency);
+      
+      btnSaveCurrency.disabled = true;
+      btnSaveCurrency.textContent = 'Saving...';
+      
+      // Save to Firebase
+      firebase.database().ref('users/' + user.uid + '/currency').set(window.currentCurrency)
+        .then(() => {
+          console.log('Currency saved to Firebase:', window.currentCurrency);
+          window.lastSavedCurrency = window.currentCurrency;
+          btnSaveCurrency.textContent = 'Saved';
+          showNotification('Currency preference saved!', 'success');
+          
+          // Reload page after 1 second to show new currency
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
+        })
+        .catch(error => {
+          console.error('Error saving currency:', error);
+          btnSaveCurrency.textContent = 'Error';
+          showNotification('Failed to save currency. Please try again.', 'error');
+          
+          setTimeout(() => {
+            updateSaveButton();
+          }, 3000);
+        });
+    }
+
+    // Load saved currency from Firebase
+    function loadSavedCurrency(user) {
+      if (!user) return Promise.resolve();
+      
+      return firebase.database().ref('users/' + user.uid + '/currency').once('value')
+        .then(snapshot => {
+          const savedCurrency = snapshot.val();
+          if (savedCurrency) {
+            console.log('Loaded saved currency:', savedCurrency);
+            window.currentCurrency = savedCurrency;
+            window.lastSavedCurrency = savedCurrency;
+            
+            const currencySelect = document.getElementById('currencySelect');
+            if (currencySelect) {
+              currencySelect.value = savedCurrency;
+            }
+            updateSaveButton();
+          }
+        })
+        .catch(error => {
+          console.error('Error loading currency:', error);
+        });
+    }
+
+    // Initialize button handlers after navbar loads
+    document.addEventListener('navbarLoaded', function() {
+      const btnLoginNav = document.getElementById('btnLoginNav');
+      const btnLoginSettings = document.getElementById('btnLoginSettings');
+      const btnLogoutSettings = document.getElementById('btnLogoutSettings');
+      const btnSettingsPage = document.getElementById('btnSettingsPage');
+      const settingsDropdown = document.getElementById('settingsDropdown');
+      const btnSettings = document.getElementById('btnSettings');
+      const currencySelect = document.getElementById('currencySelect');
+      const btnSaveCurrency = document.getElementById('btnSaveCurrency');
+
+      // Login button in nav (visible when logged out)
+      if (btnLoginNav) {
+        btnLoginNav.addEventListener('click', () => {
+          window.location.href = '../index.html?login=true';
+        });
+      }
+
+      // Login button in settings dropdown
+      if (btnLoginSettings) {
+        btnLoginSettings.addEventListener('click', () => {
+          window.location.href = '../index.html?login=true';
+        });
+      }
+
+      // Logout button in settings dropdown
+      if (btnLogoutSettings) {
+        btnLogoutSettings.addEventListener('click', () => {
+          showConfirm('Are you sure you want to log out?', '', 'Logout', 'Logout').then((confirmed) => {
+            if (confirmed) {
+              if (settingsDropdown) settingsDropdown.classList.remove('active');
+              if (btnSettings) btnSettings.classList.remove('active');
+              
+              firebase.auth().signOut().then(() => {
+                console.log('User logged out');
+                showNotification('You have been logged out successfully.', 'success', 'Goodbye!');
+                // Reload page to clear all user data
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1500);
+              }).catch((error) => {
+                console.error('Logout error:', error);
+                showNotification('Logout failed. Please try again.', 'error');
+              });
+            }
+          });
+        });
+      }
+
+      // Settings page button
+      if (btnSettingsPage) {
+        btnSettingsPage.addEventListener('click', () => {
+          window.location.href = 'settings.html';
+        });
+      }
+
+      // Currency select handler
+      if (currencySelect) {
+        currencySelect.addEventListener('change', function() {
+          window.currentCurrency = this.value;
+          console.log('Currency changed to:', window.currentCurrency);
+          updateSaveButton();
+        });
+      }
+
+      // Currency save button handler
+      if (btnSaveCurrency) {
+        btnSaveCurrency.addEventListener('click', saveCurrencyPreference);
+      }
+
+      // Load saved currency when user is logged in
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          loadSavedCurrency(user);
+        } else {
+          // Reset to USD when logged out
+          window.currentCurrency = 'USD';
+          window.lastSavedCurrency = 'USD';
+          if (currencySelect) {
+            currencySelect.value = 'USD';
+          }
+          updateSaveButton();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

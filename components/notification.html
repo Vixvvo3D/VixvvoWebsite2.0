@@ -1,0 +1,234 @@
+<!-- 
+  MODERN TOAST NOTIFICATION COMPONENT
+  
+  How to use in any page:
+  1. Include this file in your HTML: 
+     <div id="notification-component"></div>
+     <script>
+       fetch('../components/notification.html')
+         .then(response => response.text())
+         .then(html => document.getElementById('notification-component').innerHTML = html);
+     </script>
+  
+  2. Call the function:
+     showNotification(message, type, title)
+     
+     Parameters:
+     - message: The notification message (string)
+     - type: 'success', 'error', or 'warning' (default: 'success')
+     - title: Optional custom title (default: based on type)
+     
+  Examples:
+     showNotification('Order created successfully!', 'success');
+     showNotification('Something went wrong', 'error');
+     showNotification('Please login first', 'warning', 'Login Required');
+-->
+
+<style>
+  /* Notification Styles - Modern Toast Design */
+  .notification {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    transform: translateX(400px);
+    background: #1e172e;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(168, 85, 247, 0.1);
+    z-index: 9999;
+    min-width: 320px;
+    max-width: 420px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .notification.show {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+
+  .notification-icon {
+    font-size: 28px;
+    min-width: 28px;
+    text-align: center;
+    filter: drop-shadow(0 0 8px currentColor);
+  }
+
+  .notification-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .notification-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #f3f4f6;
+    line-height: 1.3;
+  }
+
+  .notification-message {
+    font-size: 14px;
+    color: #9ca3af;
+    line-height: 1.4;
+  }
+
+  .notification-close {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    line-height: 1;
+    opacity: 0.6;
+  }
+
+  .notification-close:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #f3f4f6;
+    opacity: 1;
+  }
+
+  /* Success variant */
+  .notification.success {
+    border-color: rgba(16, 185, 129, 0.4);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(30, 23, 46, 0.95) 50%);
+  }
+
+  .notification.success .notification-icon {
+    color: #10b981;
+  }
+
+  /* Error variant */
+  .notification.error {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(30, 23, 46, 0.95) 50%);
+  }
+
+  .notification.error .notification-icon {
+    color: #ef4444;
+  }
+
+  /* Warning variant */
+  .notification.warning {
+    border-color: rgba(245, 158, 11, 0.4);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(30, 23, 46, 0.95) 50%);
+  }
+
+  .notification.warning .notification-icon {
+    color: #f59e0b;
+  }
+
+  /* Progress bar animation */
+  .notification::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #a855f7, #c084fc);
+    border-radius: 0 0 12px 12px;
+    animation: notificationProgress 3s linear forwards;
+  }
+
+  .notification.success::after {
+    background: linear-gradient(90deg, #10b981, #34d399);
+  }
+
+  .notification.error::after {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+  }
+
+  .notification.warning::after {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  }
+
+  @keyframes notificationProgress {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0%;
+    }
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    .notification {
+      top: 12px;
+      right: 12px;
+      left: 12px;
+      min-width: auto;
+      max-width: none;
+    }
+  }
+</style>
+
+<!-- Notification HTML -->
+<div id="customNotification" class="notification">
+  <div class="notification-icon">✓</div>
+  <div class="notification-content">
+    <div class="notification-title">Success!</div>
+    <div class="notification-message"></div>
+  </div>
+  <button class="notification-close" onclick="hideNotification()">×</button>
+</div>
+
+<script>
+  /**
+   * Show a toast notification
+   * @param {string} message - The notification message
+   * @param {string} type - 'success', 'error', or 'warning' (default: 'success')
+   * @param {string} title - Optional custom title
+   */
+  function showNotification(message, type = 'success', title = '') {
+    const notification = document.getElementById('customNotification');
+    
+    // Remove previous type classes
+    notification.classList.remove('success', 'error', 'warning');
+    
+    // Set icon and title based on type
+    let icon = '✓';
+    let notificationTitle = title || 'Success!';
+    
+    if (type === 'error') {
+      icon = '✕';
+      notificationTitle = title || 'Error';
+    } else if (type === 'warning') {
+      icon = '⚠';
+      notificationTitle = title || 'Warning';
+    }
+    
+    // Update content
+    notification.querySelector('.notification-icon').textContent = icon;
+    notification.querySelector('.notification-title').textContent = notificationTitle;
+    notification.querySelector('.notification-message').textContent = message;
+    
+    // Add type class and show
+    notification.classList.add(type);
+    notification.classList.add('show');
+    
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      hideNotification();
+    }, 3000);
+  }
+
+  /**
+   * Manually hide the notification
+   */
+  function hideNotification() {
+    const notification = document.getElementById('customNotification');
+    notification.classList.remove('show');
+  }
+</script>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Your Page Title - Vixvvo Tools</title>
+
+<!-- ========================================
+     FIREBASE SDKs - REQUIRED
+     These must be loaded first
+     ======================================== -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-functions-compat.js"></script>
+
+<!-- ========================================
+     FONTS
+     ======================================== -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- ========================================
+     SHARED STYLES - REQUIRED
+     ======================================== -->
+<link rel="stylesheet" href="../css/shared-styles.css">
+
+<!-- ========================================
+     NAVBAR SYSTEM - REQUIRED FOR FULL FUNCTIONALITY
+     These scripts enable:
+     - Navbar loading
+     - Settings dropdown
+     - Login/Logout buttons
+     - User authentication display
+     - Currency selector
+     ======================================== -->
+<script src="../js/navbar-helper.js"></script>
+<script src="../js/navbar-loader.js"></script>
+<script src="../js/settings-dropdown.js"></script>
+<script src="../js/navbar-auth.js"></script>
+<script src="../js/auth.js"></script>
+
+<style>
+  /* ========================================
+     PAGE-SPECIFIC STYLES
+     Add your custom styles here
+     ======================================== */
+  
+  .page-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 60px;
+  }
+  
+  .page-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  
+  .page-title {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+  
+  .page-title .highlight {
+    background: linear-gradient(135deg, #a855f7, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .page-subtitle {
+    color: var(--text-muted);
+    font-size: 18px;
+  }
+
+  /* ========================================
+     NOTIFICATION & CONFIRM DIALOG STYLES
+     REQUIRED FOR DIALOGS TO WORK
+     ======================================== */
+  
+  .notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 2px solid var(--purple);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.8);
+    z-index: 400;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    display: block;
+  }
+
+  .notification.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+  }
+
+  .notification-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .notification-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .notification-message {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .notification-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .notification-buttons .btn {
+    padding: 12px 32px;
+  }
+
+  .confirm-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 2px solid var(--purple);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.8);
+    z-index: 400;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    max-width: 420px;
+    width: 90%;
+    display: block;
+  }
+
+  .confirm-dialog.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+  }
+
+  .confirm-icon {
+    font-size: 56px;
+    text-align: center;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .confirm-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .confirm-message {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .confirm-buttons {
+    display: flex;
+    gap: 12px;
+  }
+
+  .confirm-buttons .btn {
+    flex: 1;
+    padding: 14px;
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, .4);
+  }
+</style>
+</head>
+<body>
+  <!-- ========================================
+       NAVBAR CONTAINER - REQUIRED
+       Will be auto-populated by navbar-loader.js
+       ======================================== -->
+  <div id="navbar-container"></div>
+  
+  <!-- ========================================
+       YOUR PAGE CONTENT GOES HERE
+       ======================================== -->
+  <div class="page-container">
+    <div class="page-header">
+      <h1 class="page-title">Your <span class="highlight">Page</span></h1>
+      <p class="page-subtitle">Add your page description here</p>
+    </div>
+    
+    <!-- Add your content here -->
+    <div class="content">
+      <p>Your content goes here...</p>
+    </div>
+  </div>
+
+  <!-- ========================================
+       OVERLAY - REQUIRED FOR DIALOGS
+       ======================================== -->
+  <div id="overlay"></div>
+
+  <!-- ========================================
+       NOTIFICATION DIALOG - REQUIRED
+       For showing success/error messages
+       ======================================== -->
+  <div id="customNotification" class="notification">
+    <div class="notification-icon"></div>
+    <div class="notification-title">Success!</div>
+    <div class="notification-message"></div>
+    <div class="notification-buttons">
+      <button class="btn btn-primary" onclick="hideNotification()">Got it!</button>
+    </div>
+  </div>
+
+  <!-- ========================================
+       CONFIRM DIALOG - REQUIRED
+       For showing confirmation prompts
+       ======================================== -->
+  <div id="customConfirm" class="confirm-dialog">
+    <div class="confirm-icon"></div>
+    <div class="confirm-title">Are you sure?</div>
+    <div class="confirm-message"></div>
+    <div class="confirm-buttons">
+      <button id="confirmYes" class="btn btn-danger">Confirm</button>
+      <button id="confirmNo" class="btn btn-ghost">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ========================================
+       JAVASCRIPT - REQUIRED FOR FULL FUNCTIONALITY
+       ======================================== -->
+  <script>
+    // ========================================
+    // NOTIFICATION SYSTEM
+    // ========================================
+    function showNotification(message, icon = '', title = 'Success!') {
+      const notification = document.getElementById('customNotification');
+      const overlay = document.getElementById('overlay');
+      
+      notification.querySelector('.notification-icon').textContent = icon;
+      notification.querySelector('.notification-title').textContent = title;
+      notification.querySelector('.notification-message').textContent = message;
+      
+      overlay.style.display = 'block';
+      notification.classList.add('show');
+    }
+
+    function hideNotification() {
+      const notification = document.getElementById('customNotification');
+      const overlay = document.getElementById('overlay');
+      
+      notification.classList.remove('show');
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 300);
+    }
+
+    // ========================================
+    // CONFIRM DIALOG SYSTEM
+    // ========================================
+    function showConfirm(message, icon = '', title = 'Are you sure?', buttonText = 'Confirm') {
+      return new Promise((resolve) => {
+        const confirmDialog = document.getElementById('customConfirm');
+        const overlay = document.getElementById('overlay');
+        const yesBtn = document.getElementById('confirmYes');
+        const noBtn = document.getElementById('confirmNo');
+        
+        confirmDialog.querySelector('.confirm-icon').textContent = icon;
+        confirmDialog.querySelector('.confirm-title').textContent = title;
+        confirmDialog.querySelector('.confirm-message').textContent = message;
+        yesBtn.textContent = buttonText;
+        
+        overlay.style.display = 'block';
+        confirmDialog.classList.add('show');
+        
+        const cleanup = () => {
+          confirmDialog.classList.remove('show');
+          setTimeout(() => {
+            overlay.style.display = 'none';
+          }, 300);
+        };
+        
+        yesBtn.onclick = () => {
+          cleanup();
+          resolve(true);
+        };
+        
+        noBtn.onclick = () => {
+          cleanup();
+          resolve(false);
+        };
+      });
+    }
+
+    // ========================================
+    // CURRENCY HANDLING
+    // ========================================
+    window.currentCurrency = 'USD';
+    window.lastSavedCurrency = 'USD';
+
+    function updateSaveButton() {
+      const user = firebase.auth().currentUser;
+      const currencySelect = document.getElementById('currencySelect');
+      const btnSaveCurrency = document.getElementById('btnSaveCurrency');
+      
+      if (!currencySelect || !btnSaveCurrency) return;
+      
+      if (user) {
+        btnSaveCurrency.style.display = 'block';
+        
+        if (currencySelect.value !== window.lastSavedCurrency) {
+          btnSaveCurrency.textContent = 'Save';
+          btnSaveCurrency.disabled = false;
+          btnSaveCurrency.style.opacity = '1';
+        } else {
+          btnSaveCurrency.textContent = 'Saved';
+          btnSaveCurrency.disabled = true;
+          btnSaveCurrency.style.opacity = '0.5';
+        }
+      } else {
+        btnSaveCurrency.style.display = 'none';
+      }
+    }
+
+    function saveCurrencyPreference() {
+      const user = firebase.auth().currentUser;
+      const currencySelect = document.getElementById('currencySelect');
+      const btnSaveCurrency = document.getElementById('btnSaveCurrency');
+      
+      if (!user) {
+        console.log('⚠️ Not logged in, currency not saved');
+        showNotification('Please login to save your currency preference', '', 'Login Required');
+        return;
+      }
+      
+      window.currentCurrency = currencySelect.value;
+      console.log('Saving currency preference:', window.currentCurrency);
+      
+      btnSaveCurrency.disabled = true;
+      btnSaveCurrency.textContent = 'Saving...';
+      
+      firebase.database().ref('users/' + user.uid + '/currency').set(window.currentCurrency)
+        .then(() => {
+          console.log('✅ Currency saved to Firebase:', window.currentCurrency);
+          window.lastSavedCurrency = window.currentCurrency;
+          btnSaveCurrency.textContent = 'Saved';
+          showNotification('Currency preference saved!', '✓', 'Success');
+          
+          setTimeout(() => {
+            updateSaveButton();
+          }, 2000);
+        })
+        .catch(error => {
+          console.error('❌ Error saving currency:', error);
+          btnSaveCurrency.textContent = 'Error';
+          showNotification('Failed to save currency. Please try again.', '', 'Error');
+          
+          setTimeout(() => {
+            updateSaveButton();
+          }, 3000);
+        });
+    }
+
+    function loadSavedCurrency(user) {
+      if (!user) return;
+      
+      firebase.database().ref('users/' + user.uid + '/currency').once('value')
+        .then(snapshot => {
+          const savedCurrency = snapshot.val();
+          if (savedCurrency) {
+            console.log('✅ Loaded saved currency:', savedCurrency);
+            window.currentCurrency = savedCurrency;
+            window.lastSavedCurrency = savedCurrency;
+            
+            const currencySelect = document.getElementById('currencySelect');
+            if (currencySelect) {
+              currencySelect.value = savedCurrency;
+            }
+            updateSaveButton();
+          }
+        })
+        .catch(error => {
+          console.error('Error loading currency:', error);
+        });
+    }
+
+    // ========================================
+    // NAVBAR BUTTON HANDLERS
+    // Initialize after navbar loads
+    // ========================================
+    document.addEventListener('navbarLoaded', function() {
+      console.log('✅ Navbar loaded, initializing handlers...');
+      
+      const btnLoginNav = document.getElementById('btnLoginNav');
+      const btnLoginSettings = document.getElementById('btnLoginSettings');
+      const btnLogoutSettings = document.getElementById('btnLogoutSettings');
+      const btnSettingsPage = document.getElementById('btnSettingsPage');
+      const settingsDropdown = document.getElementById('settingsDropdown');
+      const btnSettings = document.getElementById('btnSettings');
+      const currencySelect = document.getElementById('currencySelect');
+      const btnSaveCurrency = document.getElementById('btnSaveCurrency');
+
+      // Login button in nav (visible when logged out)
+      if (btnLoginNav) {
+        btnLoginNav.addEventListener('click', () => {
+          window.location.href = '../index.html?login=true';
+        });
+      }
+
+      // Login button in settings dropdown
+      if (btnLoginSettings) {
+        btnLoginSettings.addEventListener('click', () => {
+          window.location.href = '../index.html?login=true';
+        });
+      }
+
+      // Logout button in settings dropdown
+      if (btnLogoutSettings) {
+        btnLogoutSettings.addEventListener('click', () => {
+          showConfirm('Are you sure you want to log out?', '', 'Logout', 'Logout').then((confirmed) => {
+            if (confirmed) {
+              if (settingsDropdown) settingsDropdown.classList.remove('active');
+              if (btnSettings) btnSettings.classList.remove('active');
+              
+              firebase.auth().signOut().then(() => {
+                console.log('User logged out');
+                showNotification('You have been logged out successfully.', '', 'Goodbye!');
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1500);
+              }).catch((error) => {
+                console.error('Logout error:', error);
+                showNotification('Logout failed. Please try again.', '', 'Error');
+              });
+            }
+          });
+        });
+      }
+
+      // Settings page button
+      if (btnSettingsPage) {
+        btnSettingsPage.addEventListener('click', () => {
+          window.location.href = 'settings.html';
+        });
+      }
+
+      // Currency select handler
+      if (currencySelect) {
+        currencySelect.addEventListener('change', function() {
+          window.currentCurrency = this.value;
+          console.log('Currency changed to:', window.currentCurrency);
+          updateSaveButton();
+        });
+      }
+
+      // Currency save button handler
+      if (btnSaveCurrency) {
+        btnSaveCurrency.addEventListener('click', saveCurrencyPreference);
+      }
+
+      // Load saved currency when user is logged in
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          loadSavedCurrency(user);
+        } else {
+          window.currentCurrency = 'USD';
+          window.lastSavedCurrency = 'USD';
+          if (currencySelect) {
+            currencySelect.value = 'USD';
+          }
+        }
+        updateSaveButton();
+      });
+    });
+
+    // ========================================
+    // YOUR CUSTOM PAGE JAVASCRIPT
+    // Add your page-specific code below
+    // ========================================
+    
+    // Your code here...
+    
+  </script>
+</body>
+</html>

@@ -17,7 +17,12 @@
 <link rel="stylesheet" href="../css/shared-styles.css">
 
 <!-- Load shared navbar -->
+<script src="../js/navbar-helper.js"></script>
 <script src="../js/navbar-loader.js"></script>
+<script src="../js/settings-dropdown.js"></script>
+<script src="../js/navbar-auth.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/currency.js"></script>
 
 <style>
   
@@ -390,6 +395,7 @@
     overflow-x: auto;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
+    justify-content: center;
   }
 
   .tabs-nav::-webkit-scrollbar {
@@ -569,6 +575,7 @@
               <label>Display Name</label>
               <input type="text" id="displayNameInput" placeholder="Your display name">
               <p class="settings-item-description">This is how your name will appear across the site</p>
+              <p id="usernameAvailability" style="font-size: 13px; margin-top: 8px; display: none;"></p>
             </div>
 
             <button class="btn btn-primary" style="width: 100%; margin-top: 16px;" id="btnUpdateProfile">
@@ -764,29 +771,19 @@
       return;
     }
 
-    // Toggle settings dropdown
-    btnSettings.addEventListener('click', (e) => {
-      e.stopPropagation();
-      settingsDropdown.classList.toggle('active');
-      btnSettings.classList.toggle('active');
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!settingsDropdown.contains(e.target) && e.target !== btnSettings) {
-        settingsDropdown.classList.remove('active');
-        btnSettings.classList.remove('active');
-      }
-    });
-
-    settingsDropdown.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
+    // Dropdown toggle functionality is now handled by settings-dropdown.js
 
     // Login button
     if (btnLoginNav) {
       btnLoginNav.addEventListener('click', () => {
-        window.location.href = '../index.html';
+        window.location.href = '../index.html?login=true';
+      });
+    }
+
+    // Login button in settings dropdown
+    if (btnLoginSettings) {
+      btnLoginSettings.addEventListener('click', () => {
+        window.location.href = '../index.html?login=true';
       });
     }
 
@@ -797,7 +794,8 @@
           if (confirmed) {
             auth.signOut().then(() => {
               showNotification('You have been logged out successfully.', false);
-              window.location.href = '/';
+              // Reload page to clear all user data
+              window.location.reload();
             });
           }
         });
@@ -1026,8 +1024,95 @@
     });
   }
 
+  // Real-time username availability checker
+  let usernameCheckTimeout;
+  const displayNameInput = document.getElementById('displayNameInput');
+  const usernameAvailability = document.getElementById('usernameAvailability');
+
+  displayNameInput.addEventListener('input', () => {
+    const newUsername = displayNameInput.value.trim();
+    
+    // Clear previous timeout
+    clearTimeout(usernameCheckTimeout);
+    
+    // Hide message if empty
+    if (!newUsername) {
+      usernameAvailability.style.display = 'none';
+      return;
+    }
+
+    // Basic validation
+    if (newUsername.length < 3) {
+      usernameAvailability.textContent = '⚠️ Username must be at least 3 characters';
+      usernameAvailability.style.color = '#f59e0b';
+      usernameAvailability.style.display = 'block';
+      return;
+    }
+
+    if (newUsername.length > 20) {
+      usernameAvailability.textContent = '⚠️ Username must be 20 characters or less';
+      usernameAvailability.style.color = '#f59e0b';
+      usernameAvailability.style.display = 'block';
+      return;
+    }
+
+    const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!usernameRegex.test(newUsername)) {
+      usernameAvailability.textContent = '⚠️ Only letters, numbers, hyphens, and underscores allowed';
+      usernameAvailability.style.color = '#f59e0b';
+      usernameAvailability.style.display = 'block';
+      return;
+    }
+
+    // Check if same as current username
+    if (currentUser && newUsername.toLowerCase() === (currentUser.displayName || '').toLowerCase()) {
+      usernameAvailability.textContent = 'ℹ️ This is your current username';
+      usernameAvailability.style.color = '#6b7280';
+      usernameAvailability.style.display = 'block';
+      return;
+    }
+
+    // Show checking message
+    usernameAvailability.textContent = '🔍 Checking availability...';
+    usernameAvailability.style.color = '#6b7280';
+    usernameAvailability.style.display = 'block';
+
+    // Debounce the database check
+    usernameCheckTimeout = setTimeout(async () => {
+      if (!currentUser) return;
+
+      try {
+        const usernamesSnapshot = await db.ref('usernames').once('value');
+        const usernames = usernamesSnapshot.val() || {};
+        
+        // Check if username exists and belongs to a different user
+        let isTaken = false;
+        for (const [uid, username] of Object.entries(usernames)) {
+          if (username.toLowerCase() === newUsername.toLowerCase() && uid !== currentUser.uid) {
+            isTaken = true;
+            break;
+          }
+        }
+
+        if (isTaken) {
+          usernameAvailability.textContent = '❌ Username is already in use';
+          usernameAvailability.style.color = '#ef4444';
+        } else {
+          usernameAvailability.textContent = '✓ Username is available';
+          usernameAvailability.style.color = '#10b981';
+        }
+        usernameAvailability.style.display = 'block';
+      } catch (error) {
+        console.error('Error checking username:', error);
+        usernameAvailability.textContent = '⚠️ Error checking availability';
+        usernameAvailability.style.color = '#f59e0b';
+        usernameAvailability.style.display = 'block';
+      }
+    }, 500); // Wait 500ms after user stops typing
+  });
+
     // Update Profile
-  document.getElementById('btnUpdateProfile').addEventListener('click', () => {
+  document.getElementById('btnUpdateProfile').addEventListener('click', async () => {
     const newDisplayName = document.getElementById('displayNameInput').value.trim();
     
     if (!newDisplayName) {
@@ -1035,15 +1120,72 @@
       return;
     }
 
+    // Validate username format
+    if (newDisplayName.length < 3) {
+      showNotification('Username must be at least 3 characters long', true);
+      return;
+    }
+
+    if (newDisplayName.length > 20) {
+      showNotification('Username must be 20 characters or less', true);
+      return;
+    }
+
+    // Check if username contains only valid characters
+    const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+    if (!usernameRegex.test(newDisplayName)) {
+      showNotification('Username can only contain letters, numbers, hyphens, and underscores', true);
+      return;
+    }
+
     if (currentUser) {
-      currentUser.updateProfile({
-        displayName: newDisplayName
-      }).then(() => {
+      try {
+        // Check if the username is the same as current
+        const currentDisplayName = currentUser.displayName || '';
+        if (newDisplayName.toLowerCase() === currentDisplayName.toLowerCase()) {
+          showNotification('This is already your username', true);
+          return;
+        }
+
+        // Check if username is already taken by someone else
+        const usernamesSnapshot = await db.ref('usernames').once('value');
+        const usernames = usernamesSnapshot.val() || {};
+        
+        // Check if username exists and belongs to a different user
+        for (const [uid, username] of Object.entries(usernames)) {
+          if (username.toLowerCase() === newDisplayName.toLowerCase() && uid !== currentUser.uid) {
+            showNotification('Username is already in use. Please choose a different one.', true);
+            return;
+          }
+        }
+
+        // Update Firebase Auth profile
+        await currentUser.updateProfile({
+          displayName: newDisplayName
+        });
+
+        // Update username in users node
+        await db.ref('users/' + currentUser.uid + '/username').set(newDisplayName);
+
+        // Update username in usernames lookup table
+        await db.ref('usernames/' + currentUser.uid).set(newDisplayName);
+
+        // Update UI
         document.getElementById('displayUsername').textContent = newDisplayName;
+        
+        // Update navbar if elements exist
+        if (navbarElements && navbarElements.settingsUsername) {
+          navbarElements.settingsUsername.textContent = newDisplayName;
+        }
+        if (navbarElements && navbarElements.userAvatar) {
+          navbarElements.userAvatar.textContent = newDisplayName.charAt(0).toUpperCase();
+        }
+        
         showNotification('Profile updated successfully!', false);
-      }).catch(error => {
+      } catch (error) {
+        console.error('Error updating profile:', error);
         showNotification('Error updating profile: ' + error.message, true);
-      });
+      }
     }
   });
 
@@ -1055,6 +1197,10 @@
       db.ref('users/' + currentUser.uid + '/currency').set(currency)
         .then(() => {
           showNotification('Currency preference saved!', false);
+          // Reload page after 1 second to show new currency
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
         })
         .catch(error => {
           showNotification('Error saving currency: ' + error.message, true);
@@ -1130,7 +1276,8 @@
       if (confirmed) {
         auth.signOut().then(() => {
           showNotification('Signed out successfully!', false);
-          window.location.href = '../index.html';
+          // Reload page to clear all user data
+          window.location.reload();
         });
       }
     });

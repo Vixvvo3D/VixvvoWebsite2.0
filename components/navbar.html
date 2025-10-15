@@ -5,9 +5,8 @@
   <div class="nav-links">
     <a href="index.html" data-href="index.html">Home</a>
     <a href="pages/calculator.html" data-href="pages/calculator.html">Calculator</a>
-    <a href="index.html#features" data-href="index.html#features">Features</a>
+    <a href="pages/more-tools.html" data-href="pages/more-tools.html">Tools</a>
     <a href="index.html#memberships" data-href="index.html#memberships">Pricing</a>
-    <a href="index.html#about" data-href="index.html#about">About</a>
   </div>
   <div class="nav-buttons">
     <button id="btnLoginNav" class="btn btn-ghost" style="display:none;">Login</button>
@@ -28,8 +27,15 @@
             </div>
           </div>
           <button id="btnLoginSettings" class="btn btn-primary" style="width: 100%;">Login</button>
-          <button id="btnLogoutSettings" class="btn btn-ghost" style="width: 100%; display:none;">Logout</button>
-          <a href="pages/settings.html" data-href="pages/settings.html" class="btn btn-ghost" style="width: 100%; display:none; text-align: center; margin-top: 8px;" id="btnSettingsPage">Settings</a>
+        </div>
+
+        <!-- Quick Links Section -->
+        <div class="settings-section">
+          <span class="settings-label">Quick Links</span>
+          <div class="quick-links">
+            <a href="pages/calculator.html" data-href="pages/calculator.html" class="quick-link">Calculator</a>
+            <a href="pages/orders.html" data-href="pages/orders.html" class="quick-link">Orders</a>
+          </div>
         </div>
 
         <!-- Currency Section -->
@@ -70,6 +76,12 @@
             </select>
             <button id="btnSaveCurrency" class="btn btn-primary btn-save-currency">Save</button>
           </div>
+        </div>
+
+        <!-- Settings & Logout Section (Bottom) -->
+        <div class="settings-section">
+          <button id="btnLogoutSettings" class="btn btn-ghost" style="width: 100%; display:none;">Logout</button>
+          <a href="pages/settings.html" data-href="pages/settings.html" class="btn btn-ghost" style="width: 100%; display:none; text-align: center; margin-top: 8px;" id="btnSettingsPage">Settings</a>
         </div>
 
       </div>

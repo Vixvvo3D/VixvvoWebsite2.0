@@ -91,6 +91,10 @@ function updateAuthUI(user, isAdmin) {
 async function login(email, password) {
   try {
     await auth.signInWithEmailAndPassword(email, password);
+    
+    // Reload the page to fetch all user data and initialize properly
+    window.location.reload();
+    
     return { success: true };
   } catch (error) {
     let message = 'Login failed. Please try again.';
@@ -201,6 +205,10 @@ async function signup(email, password) {
 async function logout() {
   try {
     await auth.signOut();
+    
+    // Reload the page to clear all user data and reset state
+    window.location.reload();
+    
     return { success: true };
   } catch (error) {
     return { success: false, error: 'Logout failed.' };
