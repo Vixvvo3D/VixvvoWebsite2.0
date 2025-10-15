@@ -10,6 +10,7 @@ Use this checklist when creating a new page to ensure ALL functionality works.
 - [ ] Update page `<title>` tag
 - [ ] Update page header text
 - [ ] Add your custom styles
+- [ ] **⚠️ CRITICAL:** Scope ALL button styles (`.your-container .btn`, NOT `.btn`)
 - [ ] Add your content HTML
 - [ ] Add your custom JavaScript
 
@@ -254,6 +255,7 @@ Use this checklist when creating a new page to ensure ALL functionality works.
 | Currency doesn't save | Check user is logged in |
 | Notifications don't show | Verify overlay and notification div exist |
 | Buttons don't work | Check event listeners in navbarLoaded |
+| **Navbar buttons wrong size** | **CSS conflict! Scope your `.btn` styles to a container** |
 
 ---
 

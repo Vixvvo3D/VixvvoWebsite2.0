@@ -342,6 +342,57 @@ To add full functionality to an existing page:
 4. **Use console.log() for debugging**
 5. **Keep the template updated** when you add new features
 
+## ⚠️ CRITICAL: CSS Button Scoping
+
+**IMPORTANT:** When adding custom button styles to your page, **NEVER** override the generic `.btn` class!
+
+### ❌ WRONG (Will Break Navbar Buttons):
+```css
+/* DON'T DO THIS - overrides ALL buttons including navbar */
+.btn {
+  padding: 10px 16px;
+  font-size: 14px;
+}
+
+.btn-download {
+  background: blue;
+}
+```
+
+### ✅ CORRECT (Scoped to Your Content Only):
+```css
+/* DO THIS - scopes buttons to specific container */
+.model-actions .btn {
+  padding: 10px 16px;
+  font-size: 14px;
+}
+
+.model-actions .btn-download {
+  background: blue;
+}
+
+/* OR scope to your page container */
+.page-content .btn {
+  padding: 10px 16px;
+}
+```
+
+### Why This Matters:
+The navbar dropdown (login, logout, currency save buttons) uses shared styles from `shared-styles.css`. If you override `.btn`, `.btn-primary`, or `.btn-ghost` in your page, it will:
+- ❌ Break navbar button sizing
+- ❌ Break dropdown button spacing  
+- ❌ Make currency save button look different
+- ❌ Inconsistent design across pages
+
+### Solution:
+**Always scope your button styles to a specific container:**
+- `.your-container .btn` 
+- `.page-content .btn`
+- `.card-actions .btn`
+- `#specificSection .btn`
+
+This ensures navbar buttons use the shared styles while your page buttons have custom styles.
+
 ## 🆘 Common Issues
 
 ### Issue: Navbar doesn't appear
@@ -358,6 +409,17 @@ To add full functionality to an existing page:
 
 ### Issue: Login button doesn't work
 **Solution:** Check `auth.js` has correct Firebase config
+
+### Issue: Navbar buttons look different size/style from other pages
+**Solution:** You have a CSS conflict! Check if your page has generic `.btn` styles. You MUST scope them:
+```css
+/* Change this */
+.btn { padding: 10px; }
+
+/* To this */
+.your-container .btn { padding: 10px; }
+```
+See the "CRITICAL: CSS Button Scoping" section above for details.
 
 ## 📞 Support
 
