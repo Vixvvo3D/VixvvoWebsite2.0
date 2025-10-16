@@ -1,36 +1,52 @@
-const functions = require("firebase-functions");
+const {onCall, HttpsError, onRequest} = require("firebase-functions/v2/https");
+const {defineString} = require("firebase-functions/params");
 const admin = require("firebase-admin");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 
 admin.initializeApp();
 
-// Get email config from Firebase Functions configuration
-const emailConfig = functions.config().email || {};
-const emailUser = emailConfig.user;
-const emailPass = emailConfig.pass;
+// Get email config from environment variables (v2 style)
+const emailUser = defineString("EMAIL_USER");
+const emailPass = defineString("EMAIL_PASS");
 
-// Validate email configuration
-if (!emailUser || !emailPass) {
-  console.error(
-      "Email configuration missing! " +
-      "Please set email.user and email.pass using:",
-  );
-  console.error(
-      "firebase functions:config:set " +
-      "email.user=\"your@email.com\" " +
-      "email.pass=\"yourapppassword\"",
-  );
-}
+// Patreon OAuth credentials
+const patreonClientId = defineString("PATREON_CLIENT_ID");
+const patreonClientSecret = defineString("PATREON_CLIENT_SECRET");
+const patreonRedirectUri = defineString("PATREON_REDIRECT_URI");
+const patreonWebhookSecret = defineString("PATREON_WEBHOOK_SECRET");
 
 // Configure email transporter (using Gmail)
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: emailUser,
-    pass: emailPass,
-  },
-});
+// Note: Email credentials will be set as environment variables
+let transporter;
+
+/**
+ * Get or create the email transporter
+ * @return {object} Nodemailer transporter
+ */
+function getTransporter() {
+  if (!transporter) {
+    const user = emailUser.value();
+    const pass = emailPass.value();
+
+    if (!user || !pass) {
+      console.error(
+          "Email configuration missing! " +
+          "Please set EMAIL_USER and EMAIL_PASS environment variables",
+      );
+      throw new Error("Email configuration missing");
+    }
+
+    transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: user,
+        pass: pass,
+      },
+    });
+  }
+  return transporter;
+}
 
 /**
  * Generate 6-digit verification code
@@ -41,11 +57,11 @@ function generateCode() {
 }
 
 // Send verification code email
-exports.sendVerificationCode = functions.https.onCall(async (request) => {
+exports.sendVerificationCode = onCall(async (request) => {
   const {email} = request.data;
 
   if (!email) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
         "invalid-argument",
         "Email is required",
     );
@@ -54,18 +70,9 @@ exports.sendVerificationCode = functions.https.onCall(async (request) => {
   // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
         "invalid-argument",
         "Invalid email format",
-    );
-  }
-
-  // Check email configuration
-  if (!emailUser || !emailPass) {
-    console.error("Email configuration missing!");
-    throw new functions.https.HttpsError(
-        "failed-precondition",
-        "Email service is not configured. Please contact support.",
     );
   }
 
@@ -73,7 +80,7 @@ exports.sendVerificationCode = functions.https.onCall(async (request) => {
   try {
     const userRecord = await admin.auth().getUserByEmail(email);
     if (userRecord) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
           "already-exists",
           "This email is already registered. Please login instead.",
       );
@@ -108,7 +115,7 @@ exports.sendVerificationCode = functions.https.onCall(async (request) => {
 
     // Send email
     const mailOptions = {
-      from: `Vixvvo <${emailUser}>`,
+      from: `Vixvvo <${emailUser.value()}>`,
       to: email,
       subject: "Your Vixvvo Verification Code",
       html: `
@@ -132,7 +139,7 @@ exports.sendVerificationCode = functions.https.onCall(async (request) => {
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    const info = await getTransporter().sendMail(mailOptions);
     console.log(`Verification email sent to ${email}:`, info.messageId);
 
     return {success: true, message: "Verification code sent"};
@@ -141,13 +148,13 @@ exports.sendVerificationCode = functions.https.onCall(async (request) => {
 
     // Provide more specific error messages
     if (error.code === "EAUTH") {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
           "unauthenticated",
           "Email authentication failed. Please contact support.",
       );
     }
 
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
         "internal",
         "Failed to send verification code: " + error.message,
     );
@@ -155,11 +162,11 @@ exports.sendVerificationCode = functions.https.onCall(async (request) => {
 });
 
 // Verify the code
-exports.verifyCode = functions.https.onCall(async (request) => {
+exports.verifyCode = onCall(async (request) => {
   const {email, code} = request.data;
 
   if (!email || !code) {
-    throw new functions.https.HttpsError(
+    throw new HttpsError(
         "invalid-argument",
         "Email and code are required",
     );
@@ -174,7 +181,7 @@ exports.verifyCode = functions.https.onCall(async (request) => {
     const verificationData = snapshot.val();
 
     if (!verificationData) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
           "not-found",
           "No verification code found for this email",
       );
@@ -182,7 +189,7 @@ exports.verifyCode = functions.https.onCall(async (request) => {
 
     // Check if code is expired
     if (Date.now() > verificationData.expiresAt) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
           "deadline-exceeded",
           "Verification code has expired",
       );
@@ -190,7 +197,7 @@ exports.verifyCode = functions.https.onCall(async (request) => {
 
     // Check if code matches
     if (verificationData.code !== code) {
-      throw new functions.https.HttpsError(
+      throw new HttpsError(
           "invalid-argument",
           "Invalid verification code",
       );
@@ -217,25 +224,24 @@ exports.verifyCode = functions.https.onCall(async (request) => {
  * Handle Patreon OAuth callback
  * Exchange authorization code for access token
  */
-exports.patreonOAuthCallback = functions.https.onCall(
+exports.patreonOAuthCallback = onCall(
     async (request) => {
       const {code, userId} = request.data;
 
       if (!code || !userId) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
             "invalid-argument",
             "Code and userId are required",
         );
       }
 
-      // Get Patreon OAuth credentials from Firebase config
-      const patreonConfig = functions.config().patreon || {};
-      const clientId = patreonConfig.client_id;
-      const clientSecret = patreonConfig.client_secret;
-      const redirectUri = patreonConfig.redirect_uri;
+      // Get Patreon OAuth credentials from environment variables
+      const clientId = patreonClientId.value();
+      const clientSecret = patreonClientSecret.value();
+      const redirectUri = patreonRedirectUri.value();
 
       if (!clientId || !clientSecret || !redirectUri) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
             "failed-precondition",
             "Patreon configuration missing",
         );
@@ -301,7 +307,7 @@ exports.patreonOAuthCallback = functions.https.onCall(
           // Allow if it's the same user re-linking
           if (existingUserIds.length > 0 &&
             !existingUserIds.includes(userId)) {
-            throw new functions.https.HttpsError(
+            throw new HttpsError(
                 "already-exists",
                 "This Patreon account is already linked to another user. " +
                 "Please disconnect it from the other account first.",
@@ -391,7 +397,7 @@ exports.patreonOAuthCallback = functions.https.onCall(
           });
 
           if (!lockResult.committed) {
-            throw new functions.https.HttpsError(
+            throw new HttpsError(
                 "already-exists",
                 "This Patreon account is currently being linked or is " +
                 "already linked to another user. " +
@@ -435,7 +441,7 @@ exports.patreonOAuthCallback = functions.https.onCall(
         };
       } catch (error) {
         console.error("Error in Patreon OAuth:", error);
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
             "internal",
             "Failed to link Patreon account: " + error.message,
         );
@@ -447,10 +453,9 @@ exports.patreonOAuthCallback = functions.https.onCall(
  * Handle Patreon webhooks
  * Updates user membership when Patreon status changes
  */
-exports.patreonWebhook = functions.https.onRequest(async (req, res) => {
+exports.patreonWebhook = onRequest(async (req, res) => {
   // Verify webhook signature
-  const patreonConfig = functions.config().patreon || {};
-  const webhookSecret = patreonConfig.webhook_secret;
+  const webhookSecret = patreonWebhookSecret.value();
 
   if (webhookSecret) {
     const signature = req.headers["x-patreon-signature"];
@@ -622,12 +627,12 @@ async function handleMembershipCancellation(payload) {
  * Sync user membership with Patreon
  * Can be called manually or scheduled
  */
-exports.syncPatreonMembership = functions.https.onCall(
+exports.syncPatreonMembership = onCall(
     async (request) => {
       const {userId} = request.data;
 
       if (!userId) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
             "invalid-argument",
             "User ID required",
         );
@@ -642,7 +647,7 @@ exports.syncPatreonMembership = functions.https.onCall(
         const connection = connectionSnapshot.val();
 
         if (!connection || !connection.accessToken) {
-          throw new functions.https.HttpsError(
+          throw new HttpsError(
               "not-found",
               "No Patreon connection found",
           );
@@ -703,7 +708,7 @@ exports.syncPatreonMembership = functions.https.onCall(
         };
       } catch (error) {
         console.error("Error syncing membership:", error);
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
             "internal",
             "Failed to sync membership: " + error.message,
         );
@@ -715,11 +720,11 @@ exports.syncPatreonMembership = functions.https.onCall(
  * Unlink Patreon account
  * Removes the connection and releases the lock
  */
-exports.unlinkPatreonAccount = functions.https.onCall(
+exports.unlinkPatreonAccount = onCall(
     async (request) => {
       // Check authentication
       if (!request.auth) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
             "unauthenticated",
             "Must be logged in to unlink Patreon account",
         );
@@ -736,7 +741,7 @@ exports.unlinkPatreonAccount = functions.https.onCall(
         const connection = connectionSnapshot.val();
 
         if (!connection || !connection.patronId) {
-          throw new functions.https.HttpsError(
+          throw new HttpsError(
               "not-found",
               "No Patreon account is linked",
           );
@@ -775,7 +780,7 @@ exports.unlinkPatreonAccount = functions.https.onCall(
         };
       } catch (error) {
         console.error("Error unlinking Patreon account:", error);
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
             "internal",
             "Failed to unlink Patreon account: " + error.message,
         );
