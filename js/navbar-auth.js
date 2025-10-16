@@ -41,15 +41,24 @@
       // Get username from userData or user object
       const username = userData?.username || user.displayName || user.email?.split('@')[0] || 'User';
       
-      // Get membership tier from userData (from Patreon connection)
-      const tier = userData?.membership?.tier || 'free';
-      const tierInfo = typeof TIER_INFO !== 'undefined' ? TIER_INFO[tier] : null;
-      const tierDisplay = tierInfo ? tierInfo.name : tier.charAt(0).toUpperCase() + tier.slice(1);
+      // Check if user is admin first
+      const role = userData?.role || 'member';
+      const isAdmin = role === 'admin' || role === 'administrator';
       
-      // Update username and tier
+      // If admin, show Administrator, otherwise show membership tier
+      let displayText = 'Free';
+      if (isAdmin) {
+        displayText = 'Administrator';
+      } else {
+        const tier = userData?.membership?.tier || 'free';
+        const tierInfo = typeof TIER_INFO !== 'undefined' ? TIER_INFO[tier] : null;
+        displayText = tierInfo ? tierInfo.name : tier.charAt(0).toUpperCase() + tier.slice(1);
+      }
+      
+      // Update username and tier/role
       if (settingsUsername) settingsUsername.textContent = username;
       if (settingsRole) {
-        settingsRole.textContent = tierDisplay;
+        settingsRole.textContent = displayText;
       }
       
       // Update avatar
