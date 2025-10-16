@@ -41,8 +41,8 @@ function generateCode() {
 }
 
 // Send verification code email
-exports.sendVerificationCode = functions.https.onCall(async (data, context) => {
-  const {email} = data;
+exports.sendVerificationCode = functions.https.onCall(async (request) => {
+  const {email} = request.data;
 
   if (!email) {
     throw new functions.https.HttpsError(
@@ -155,8 +155,8 @@ exports.sendVerificationCode = functions.https.onCall(async (data, context) => {
 });
 
 // Verify the code
-exports.verifyCode = functions.https.onCall(async (data, context) => {
-  const {email, code} = data;
+exports.verifyCode = functions.https.onCall(async (request) => {
+  const {email, code} = request.data;
 
   if (!email || !code) {
     throw new functions.https.HttpsError(
@@ -218,8 +218,8 @@ exports.verifyCode = functions.https.onCall(async (data, context) => {
  * Exchange authorization code for access token
  */
 exports.patreonOAuthCallback = functions.https.onCall(
-    async (data, context) => {
-      const {code, userId} = data;
+    async (request) => {
+      const {code, userId} = request.data;
 
       if (!code || !userId) {
         throw new functions.https.HttpsError(
@@ -623,8 +623,8 @@ async function handleMembershipCancellation(payload) {
  * Can be called manually or scheduled
  */
 exports.syncPatreonMembership = functions.https.onCall(
-    async (data, context) => {
-      const {userId} = data;
+    async (request) => {
+      const {userId} = request.data;
 
       if (!userId) {
         throw new functions.https.HttpsError(
@@ -716,16 +716,16 @@ exports.syncPatreonMembership = functions.https.onCall(
  * Removes the connection and releases the lock
  */
 exports.unlinkPatreonAccount = functions.https.onCall(
-    async (data, context) => {
+    async (request) => {
       // Check authentication
-      if (!context.auth) {
+      if (!request.auth) {
         throw new functions.https.HttpsError(
             "unauthenticated",
             "Must be logged in to unlink Patreon account",
         );
       }
 
-      const userId = context.auth.uid;
+      const userId = request.auth.uid;
 
       try {
         // Get current Patreon connection
