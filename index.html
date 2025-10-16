@@ -1077,6 +1077,8 @@
         
         console.log('Verification code sent successfully:', result);
         
+        showNotification('Verification code sent to your email!', 'success', 'Check Your Email');
+        
         // Show verification modal
         signupModal.style.display = 'none';
         document.getElementById('verificationModal').style.display = 'grid';
@@ -1197,6 +1199,7 @@
         return;
       }
       
+      showNotification('Email verified successfully!', 'success', 'Verified!');
       console.log('Code verified successfully, creating account...');
       
       // Double-check email availability before account creation (prevents race condition)
@@ -1346,8 +1349,9 @@
       .then(() => {
         modal.style.display = 'none';
         errDiv.textContent = '';
+        showNotification('Login successful! Welcome back.', 'success', 'Welcome!');
         // Reload page to fetch all user data
-        window.location.reload();
+        setTimeout(() => window.location.reload(), 1000);
       })
       .catch((error) => {
         if (error.code === 'auth/user-not-found') {

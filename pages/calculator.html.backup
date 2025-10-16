@@ -2175,7 +2175,7 @@
         settingsDropdown.classList.remove('active');
         btnSettings.classList.remove('active');
         auth.signOut().then(() => {
-          showNotification('You have been logged out successfully.', 'success', 'Goodbye!');
+          showNotification('You have been logged out successfully.', '', 'Goodbye!');
           // Reload page to clear all user data
           window.location.reload();
         });
@@ -2295,7 +2295,7 @@
   btnSavePreset.addEventListener('click', () => {
     const user = auth.currentUser;
     if (!user) {
-      showNotification('Please login to save presets', 'warning', 'Login Required');
+      showNotification('Please login to save presets', '', 'Login Required');
       return;
     }
     
@@ -2419,7 +2419,7 @@
   btnManagePresets.addEventListener('click', () => {
     const user = auth.currentUser;
     if (!user) {
-      showNotification('Please login to manage presets', 'warning', 'Login Required');
+      showNotification('Please login to manage presets', '', 'Login Required');
       return;
     }
     renderPresetsList();
@@ -3313,7 +3313,7 @@
       if (confirmed) {
         auth.sendPasswordResetEmail(email)
           .then(() => {
-            showNotification('Password reset email sent! Check your inbox and spam folder.', 'success', 'Email Sent');
+            showNotification('Password reset email sent! Check your inbox and spam folder.', '', 'Email Sent');
             document.getElementById('loginErr').textContent = '';
           })
           .catch((error) => {
@@ -3802,7 +3802,7 @@
           editingPrinterId = null;
           hideModal(printerModal);
           document.getElementById('printerErr').textContent = '';
-          showNotification(`"${brand} ${name}" has been updated!`, 'success', 'Updated');
+          showNotification(`"${brand} ${name}" has been updated!`, '', 'Updated');
         })
         .catch((error) => {
           document.getElementById('printerErr').textContent = 'Error updating printer: ' + error.message;
@@ -3813,7 +3813,7 @@
         .then(() => {
           hideModal(printerModal);
           document.getElementById('printerErr').textContent = '';
-          showNotification(`"${brand} ${name}" has been added!`, 'success', 'Printer Added');
+          showNotification(`"${brand} ${name}" has been added!`, '', 'Printer Added');
         })
         .catch((error) => {
           document.getElementById('printerErr').textContent = 'Error saving printer: ' + error.message;
@@ -3955,11 +3955,11 @@
         printersRef.child(id).remove()
           .then(() => {
             console.log('Printer deleted successfully');
-            showNotification(`"${printer.brand} ${printer.name}" has been deleted.`, 'success', 'Deleted');
+            showNotification(`"${printer.brand} ${printer.name}" has been deleted.`, '', 'Deleted');
           })
           .catch(error => {
             console.error('Error deleting printer:', error);
-            showNotification('Error deleting printer: ' + error.message, 'error', 'Error');
+            showNotification('Error deleting printer: ' + error.message, '', 'Error');
           });
       }
     });
@@ -4745,7 +4745,7 @@
           editingFilamentId = null;
           hideModal(filamentModal);
           document.getElementById('filamentErr').textContent = '';
-          showNotification(`"${type} - ${brand}" has been updated!`, 'success', 'Updated');
+          showNotification(`"${type} - ${brand}" has been updated!`, '', 'Updated');
         })
         .catch((error) => {
           document.getElementById('filamentErr').textContent = 'Error updating filament: ' + error.message;
@@ -4756,7 +4756,7 @@
         .then(() => {
           hideModal(filamentModal);
           document.getElementById('filamentErr').textContent = '';
-          showNotification(`"${type} - ${brand}" has been added!`, 'success', 'Filament Added');
+          showNotification(`"${type} - ${brand}" has been added!`, '', 'Filament Added');
         })
         .catch((error) => {
           document.getElementById('filamentErr').textContent = 'Error saving filament: ' + error.message;
@@ -4896,10 +4896,10 @@
       if (confirmed) {
         filamentsRef.child(id).remove()
           .then(() => {
-            showNotification(`"${filament.type} - ${filament.brand}" has been deleted.`, 'success', 'Deleted');
+            showNotification(`"${filament.type} - ${filament.brand}" has been deleted.`, '', 'Deleted');
           })
           .catch(error => {
-            showNotification('Error deleting filament: ' + error.message, 'error', 'Error');
+            showNotification('Error deleting filament: ' + error.message, '', 'Error');
           });
       }
     });
@@ -5005,11 +5005,11 @@
         
         Promise.all(deletePromises)
           .then(() => {
-            showNotification(`Successfully deleted ${deletedCount} printer${deletedCount > 1 ? 's' : ''}!`, 'success', 'Success');
+            showNotification(`Successfully deleted ${deletedCount} printer${deletedCount > 1 ? 's' : ''}!`, '', 'Success');
             exitPrinterMassDeleteMode();
           })
           .catch(error => {
-            showNotification('Error deleting printers: ' + error.message, 'error', 'Error');
+            showNotification('Error deleting printers: ' + error.message, '', 'Error');
           });
       }
     });
@@ -5115,11 +5115,11 @@
         
         Promise.all(deletePromises)
           .then(() => {
-            showNotification(`Successfully deleted ${deletedCount} filament${deletedCount > 1 ? 's' : ''}!`, 'success', 'Success');
+            showNotification(`Successfully deleted ${deletedCount} filament${deletedCount > 1 ? 's' : ''}!`, '', 'Success');
             exitFilamentMassDeleteMode();
           })
           .catch(error => {
-            showNotification('Error deleting filaments: ' + error.message, 'error', 'Error');
+            showNotification('Error deleting filaments: ' + error.message, '', 'Error');
           });
       }
     });
@@ -5216,11 +5216,11 @@
         
         Promise.all(deletePromises)
           .then(() => {
-            showNotification(`Successfully deleted ${deletedCount} printer${deletedCount > 1 ? 's' : ''}!`, 'success', 'Success');
+            showNotification(`Successfully deleted ${deletedCount} printer${deletedCount > 1 ? 's' : ''}!`, '', 'Success');
             exitUserPrinterMassDeleteMode();
           })
           .catch(error => {
-            showNotification('Error deleting printers: ' + error.message, 'error', 'Error');
+            showNotification('Error deleting printers: ' + error.message, '', 'Error');
           });
       }
     });
@@ -5317,11 +5317,11 @@
         
         Promise.all(deletePromises)
           .then(() => {
-            showNotification(`Successfully deleted ${deletedCount} filament${deletedCount > 1 ? 's' : ''}!`, 'success', 'Success');
+            showNotification(`Successfully deleted ${deletedCount} filament${deletedCount > 1 ? 's' : ''}!`, '', 'Success');
             exitUserFilamentMassDeleteMode();
           })
           .catch(error => {
-            showNotification('Error deleting filaments: ' + error.message, 'error', 'Error');
+            showNotification('Error deleting filaments: ' + error.message, '', 'Error');
           });
       }
     });
@@ -5569,7 +5569,7 @@
   /* User Printer Handlers */
   document.getElementById('btnAddUserPrinter').onclick = () => {
     if (!auth.currentUser) {
-      showNotification('Please login to add your own printers', 'warning', 'Login Required');
+      showNotification('Please login to add your own printers', '', 'Login Required');
       return;
     }
     editingUserPrinterId = null;
