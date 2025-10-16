@@ -89,6 +89,66 @@
     line-height: 1.7;
   }
 
+  /* Billing Toggle */
+  .billing-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  .billing-toggle-buttons {
+    display: inline-flex;
+    background: var(--card-bg);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 50px;
+    padding: 6px;
+    gap: 6px;
+  }
+
+  .billing-toggle-btn {
+    padding: 12px 32px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .billing-toggle-btn:hover {
+    color: var(--text);
+  }
+
+  .billing-toggle-btn.active {
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    color: white;
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+  }
+
+  .save-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  /* Price amount animation */
+  .price .amount {
+    transition: all 0.3s ease;
+    display: inline-block;
+  }
+
   /* Pricing Grid */
   .pricing-grid {
     display: grid;
@@ -150,21 +210,21 @@
   }
 
   .pricing-card.current-tier {
-    border: 2px solid #10b981;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.03));
-    box-shadow: 0 10px 30px rgba(16, 185, 129, .2);
+    border: 2px solid #f59e0b;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(217, 119, 6, 0.03));
+    box-shadow: 0 10px 30px rgba(245, 158, 11, .2);
   }
 
   .pricing-card.current-tier::before {
     opacity: 1;
-    background: linear-gradient(90deg, #10b981, #059669, #10b981);
+    background: linear-gradient(90deg, #f59e0b, #d97706, #f59e0b);
   }
 
   .pricing-card.current-tier .plan-badge {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: linear-gradient(135deg, #f59e0b, #d97706);
     color: white;
     border: none;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, .3);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, .3);
   }
 
   .pricing-card.current-tier .plan-badge::after {
@@ -486,61 +546,152 @@
     }
   }
 
-  /* Notification & Confirm Dialog Styles */
+  /* Notification Styles */
   .notification {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.7);
-    background: linear-gradient(135deg, #241d35, #1d1530);
-    border: 2px solid var(--purple);
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.8);
-    z-index: 400;
+    top: 24px;
+    right: 24px;
+    transform: translateX(400px);
+    background: #1e172e;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(168, 85, 247, 0.1);
+    z-index: 9999;
+    min-width: 320px;
+    max-width: 420px;
     opacity: 0;
     pointer-events: none;
-    transition: all 0.3s ease;
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
-    display: block;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    display: flex;
+    align-items: center;
+    gap: 16px;
   }
 
   .notification.show {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-    pointer-events: auto;
+    transform: translateX(0);
+    pointer-events: all;
   }
 
   .notification-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-    display: block;
+    font-size: 28px;
+    min-width: 28px;
+    text-align: center;
+    filter: drop-shadow(0 0 8px currentColor);
+  }
+
+  .notification-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
 
   .notification-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #f3f4f6;
+    line-height: 1.3;
   }
 
   .notification-message {
-    font-size: 15px;
-    color: var(--text-muted);
-    margin-bottom: 24px;
-    line-height: 1.5;
+    font-size: 14px;
+    color: #9ca3af;
+    line-height: 1.4;
   }
 
-  .notification-buttons {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
+  .notification-close {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    line-height: 1;
+    opacity: 0.6;
   }
 
-  .notification-buttons .btn {
-    padding: 12px 32px;
+  .notification-close:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #f3f4f6;
+    opacity: 1;
+  }
+
+  /* Success variant */
+  .notification.success {
+    border-color: rgba(16, 185, 129, 0.4);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(30, 23, 46, 0.95) 50%);
+  }
+
+  .notification.success .notification-icon {
+    color: #10b981;
+  }
+
+  /* Error variant */
+  .notification.error {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(30, 23, 46, 0.95) 50%);
+  }
+
+  .notification.error .notification-icon {
+    color: #ef4444;
+  }
+
+  /* Warning variant */
+  .notification.warning {
+    border-color: rgba(245, 158, 11, 0.4);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(30, 23, 46, 0.95) 50%);
+  }
+
+  .notification.warning .notification-icon {
+    color: #f59e0b;
+  }
+
+  /* Progress bar animation */
+  .notification::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #a855f7, #c084fc);
+    border-radius: 0 0 12px 12px;
+    animation: notificationProgress 3s linear forwards;
+  }
+
+  .notification.success::after {
+    background: linear-gradient(90deg, #10b981, #34d399);
+  }
+
+  .notification.error::after {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+  }
+
+  .notification.warning::after {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  }
+
+  @keyframes notificationProgress {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0%;
+    }
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    .notification {
+      top: 12px;
+      right: 12px;
+      left: 12px;
+      min-width: auto;
+      max-width: none;
+    }
   }
 </style>
 </head>
@@ -587,13 +738,22 @@
       <p class="page-subtitle">Unlock premium features and support our development with flexible pricing that scales with your needs</p>
     </div>
     
+    <!-- Billing Toggle -->
+    <div class="billing-toggle">
+      <div class="billing-toggle-buttons">
+        <button class="billing-toggle-btn" data-period="monthly">Monthly</button>
+        <button class="billing-toggle-btn active" data-period="annual">Annual</button>
+      </div>
+      <span class="save-badge">Save 25% with Annual</span>
+    </div>
+    
     <!-- Pricing Grid -->
     <div class="pricing-grid">
       <div class="pricing-card" data-tier="free">
         <div class="plan-badge">Free</div>
         <h3>Free</h3>
         <div class="price">
-          <span class="amount">$0</span>
+          <span class="amount" data-monthly="0" data-annual="0">$0</span>
           <span class="period">/forever</span>
         </div>
         <ul class="features-list">
@@ -611,7 +771,7 @@
         <div class="plan-badge">Tier 1</div>
         <h3>Starter</h3>
         <div class="price">
-          <span class="amount">$3</span>
+          <span class="amount" data-monthly="3" data-annual="2.25">$3</span>
           <span class="period">/month</span>
         </div>
         <ul class="features-list">
@@ -622,14 +782,16 @@
           <li data-icon="✓">Remove ads</li>
           <li data-icon="✓">Starter badge</li>
         </ul>
-        <button class="btn btn-outline" onclick="window.open('https://www.patreon.com/Vixvvo3D', '_blank')">Subscribe on Patreon</button>
+        <button class="btn btn-outline" 
+          data-monthly-url="https://www.patreon.com/checkout/Vixvvo3D?rid=27090437&_rsc=1kxfk" 
+          data-annual-url="https://www.patreon.com/checkout/Vixvvo3D?rid=27090437&cadence=12&is_free_trial=false">Subscribe on Patreon</button>
       </div>
       
       <div class="pricing-card featured" data-tier="scaling">
         <div class="plan-badge popular">Most Popular</div>
         <h3>Scaling</h3>
         <div class="price">
-          <span class="amount">$10</span>
+          <span class="amount" data-monthly="10" data-annual="7.50">$10</span>
           <span class="period">/month</span>
         </div>
         <ul class="features-list">
@@ -640,14 +802,16 @@
           <li data-icon="✓">Priority feature requests</li>
           <li data-icon="✓">Scaling badge</li>
         </ul>
-        <button class="btn btn-primary" onclick="window.open('https://www.patreon.com/checkout/Vixvvo3D?rid=22702418', '_blank')">Subscribe on Patreon</button>
+        <button class="btn btn-primary" 
+          data-monthly-url="https://www.patreon.com/checkout/Vixvvo3D?rid=22702418" 
+          data-annual-url="https://www.patreon.com/checkout/Vixvvo3D?rid=22702418&cadence=12&is_free_trial=false">Subscribe on Patreon</button>
       </div>
       
       <div class="pricing-card" data-tier="business">
         <div class="plan-badge">Premium</div>
         <h3>Business</h3>
         <div class="price">
-          <span class="amount">$25</span>
+          <span class="amount" data-monthly="25" data-annual="18.75">$25</span>
           <span class="period">/month</span>
         </div>
         <ul class="features-list">
@@ -658,7 +822,9 @@
           <li data-icon="✓">Dedicated support</li>
           <li data-icon="✓">Business badge</li>
         </ul>
-        <button class="btn btn-outline" onclick="window.open('https://www.patreon.com/Vixvvo3D', '_blank')">Subscribe on Patreon</button>
+        <button class="btn btn-outline" 
+          data-monthly-url="https://www.patreon.com/checkout/Vixvvo3D?rid=27090435&cadence=1&is_free_trial=false" 
+          data-annual-url="https://www.patreon.com/checkout/Vixvvo3D?rid=27090435&cadence=12&is_free_trial=false">Subscribe on Patreon</button>
       </div>
     </div>
 
@@ -708,42 +874,133 @@
 
   <!-- Notification Dialog -->
   <div id="customNotification" class="notification">
-    <div class="notification-icon"></div>
-    <div class="notification-title">Success!</div>
-    <div class="notification-message"></div>
-    <div class="notification-buttons">
-      <button class="btn btn-primary" onclick="hideNotification()">Got it!</button>
+    <div class="notification-icon">✓</div>
+    <div class="notification-content">
+      <div class="notification-title">Success!</div>
+      <div class="notification-message"></div>
     </div>
+    <button class="notification-close" onclick="hideNotification()">×</button>
   </div>
 
   <!-- JavaScript -->
   <script>
     // Notification System
-    function showNotification(message, icon = '', title = 'Success!') {
+    function showNotification(message, type = 'success', title = '') {
       const notification = document.getElementById('customNotification');
-      const overlay = document.getElementById('overlay');
       
+      // Remove previous type classes
+      notification.classList.remove('success', 'error', 'warning');
+      
+      // Set icon and title based on type
+      let icon = '✓';
+      let notificationTitle = title || 'Success!';
+      
+      if (type === 'error') {
+        icon = '✕';
+        notificationTitle = title || 'Error';
+      } else if (type === 'warning') {
+        icon = '⚠';
+        notificationTitle = title || 'Warning';
+      }
+      
+      // Update content
       notification.querySelector('.notification-icon').textContent = icon;
-      notification.querySelector('.notification-title').textContent = title;
+      notification.querySelector('.notification-title').textContent = notificationTitle;
       notification.querySelector('.notification-message').textContent = message;
       
-      overlay.style.display = 'block';
+      // Add type class and show
+      notification.classList.add(type);
       notification.classList.add('show');
+      
+      // Auto-hide after 3 seconds
+      setTimeout(() => {
+        hideNotification();
+      }, 3000);
     }
 
     function hideNotification() {
       const notification = document.getElementById('customNotification');
-      const overlay = document.getElementById('overlay');
-      
       notification.classList.remove('show');
-      setTimeout(() => {
-        overlay.style.display = 'none';
-      }, 300);
     }
 
-    // Currency Handling
-    window.currentCurrency = 'USD';
-    window.lastSavedCurrency = 'USD';
+    // Billing Period Handling
+    let currentBillingPeriod = 'annual';
+
+    // Update all pricing amounts based on billing period
+    function updatePricingDisplay() {
+      document.querySelectorAll('.price .amount').forEach(element => {
+        const monthlyPrice = parseFloat(element.getAttribute('data-monthly'));
+        const annualPrice = parseFloat(element.getAttribute('data-annual'));
+        
+        // Add animation class
+        element.style.transform = 'scale(0.9)';
+        element.style.opacity = '0.5';
+        
+        setTimeout(() => {
+          if (currentBillingPeriod === 'annual') {
+            if (annualPrice === 0) {
+              element.textContent = '$0';
+            } else {
+              element.textContent = '$' + annualPrice.toFixed(2).replace('.00', '');
+            }
+          } else {
+            if (monthlyPrice === 0) {
+              element.textContent = '$0';
+            } else {
+              element.textContent = '$' + monthlyPrice.toFixed(0);
+            }
+          }
+          
+          // Reset animation
+          element.style.transform = 'scale(1)';
+          element.style.opacity = '1';
+        }, 150);
+      });
+      
+      // Update button URLs
+      document.querySelectorAll('.pricing-card .btn[data-monthly-url]').forEach(button => {
+        const monthlyUrl = button.getAttribute('data-monthly-url');
+        const annualUrl = button.getAttribute('data-annual-url');
+        const card = button.closest('.pricing-card');
+        
+        // Remove old onclick handler
+        button.onclick = null;
+        
+        // Don't add click handler if it's the current tier
+        if (card && card.classList.contains('current-tier')) {
+          button.onclick = function(e) { e.preventDefault(); return false; };
+          return;
+        }
+        
+        // Set new onclick handler based on billing period
+        if (currentBillingPeriod === 'annual' && annualUrl) {
+          button.onclick = function() { window.open(annualUrl, '_blank'); };
+        } else if (monthlyUrl) {
+          button.onclick = function() { window.open(monthlyUrl, '_blank'); };
+        }
+      });
+    }
+
+    // Initialize billing toggle
+    document.addEventListener('DOMContentLoaded', function() {
+      const toggleButtons = document.querySelectorAll('.billing-toggle-btn');
+      
+      // Set initial pricing to annual
+      updatePricingDisplay();
+      
+      toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // Remove active class from all buttons
+          toggleButtons.forEach(btn => btn.classList.remove('active'));
+          // Add active class to clicked button
+          this.classList.add('active');
+          
+          // Update billing period
+          currentBillingPeriod = this.getAttribute('data-period');
+          updatePricingDisplay();
+        });
+      });
+    });
 
     function updateSaveButton() {
       const user = firebase.auth().currentUser;
@@ -775,7 +1032,7 @@
       const btnSaveCurrency = document.getElementById('btnSaveCurrency');
       
       if (!user) {
-        showNotification('Please login to save your currency preference', '', 'Login Required');
+        showNotification('Please login to save your currency preference', 'warning', 'Login Required');
         return;
       }
       
@@ -787,16 +1044,17 @@
         .then(() => {
           window.lastSavedCurrency = window.currentCurrency;
           btnSaveCurrency.textContent = 'Saved';
-          showNotification('Currency preference saved!', '✓', 'Success');
+          showNotification('Currency preference saved! Reloading page...', 'success');
           
+          // Reload page after 1.5 seconds
           setTimeout(() => {
-            updateSaveButton();
-          }, 2000);
+            window.location.reload();
+          }, 1500);
         })
         .catch(error => {
           console.error('Error saving currency:', error);
           btnSaveCurrency.textContent = 'Error';
-          showNotification('Failed to save currency. Please try again.', '', 'Error');
+          showNotification('Failed to save currency. Please try again.', 'error', 'Error');
           
           setTimeout(() => {
             updateSaveButton();
@@ -910,6 +1168,8 @@
                     btn.textContent = 'Current Plan';
                     btn.style.cursor = 'default';
                     btn.style.opacity = '0.7';
+                    btn.onclick = function(e) { e.preventDefault(); return false; };
+                    btn.style.pointerEvents = 'auto';
                   }
                 } else if (btn && cardTierLevel > userTierLevel) {
                   btn.classList.add('upgrade');
@@ -942,8 +1202,14 @@
             const btn = card.querySelector('.btn');
             if (btn) {
               btn.classList.remove('upgrade', 'downgrade');
+              btn.style.pointerEvents = 'auto';
+              btn.style.opacity = '1';
+              btn.style.cursor = 'pointer';
             }
           });
+          
+          // Re-initialize button URLs
+          updatePricingDisplay();
         }
         updateSaveButton();
       });
