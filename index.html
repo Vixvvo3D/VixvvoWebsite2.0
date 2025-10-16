@@ -263,8 +263,8 @@
 
   .pricing-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 32px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
     margin-top: 48px;
   }
 
@@ -395,6 +395,13 @@
       padding: 60px 24px;
     }
 
+    .pricing-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+  }
+  
+  @media (max-width: 600px) {
     .pricing-grid {
       grid-template-columns: 1fr;
       gap: 24px;
@@ -744,68 +751,6 @@
         <div class="feature-icon">📱</div>
         <h3>Responsive Design</h3>
         <p>Works perfectly on desktop, tablet, and mobile. Calculate costs on the go.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Memberships Section -->
-  <section class="memberships" id="memberships">
-    <h2 class="section-title reveal">Choose Your Plan</h2>
-    <p class="section-subtitle reveal">Unlock premium features and support our development</p>
-    
-    <div class="pricing-grid">
-      <div class="pricing-card">
-        <div class="plan-badge">Free</div>
-        <h3>Basic</h3>
-        <div class="price">
-          <span class="amount">$0</span>
-          <span class="period">/forever</span>
-        </div>
-        <ul class="features-list">
-          <li>✅ Full calculator access</li>
-          <li>✅ Save calculations</li>
-          <li>✅ Basic printer management</li>
-          <li>✅ Public view of printers</li>
-          <li>❌ Email verification only</li>
-          <li>❌ Limited support</li>
-        </ul>
-        <button class="btn btn-outline" onclick="scrollToHero()">Get Started</button>
-      </div>
-      
-      <div class="pricing-card featured">
-        <div class="plan-badge popular">Most Popular</div>
-        <h3>Member</h3>
-        <div class="price">
-          <span class="amount">$9.99</span>
-          <span class="period">/month</span>
-        </div>
-        <ul class="features-list">
-          <li>✅ Everything in Basic</li>
-          <li>✅ Priority support</li>
-          <li>✅ Advanced analytics</li>
-          <li>✅ Export to PDF</li>
-          <li>✅ Custom branding</li>
-          <li>✅ Early access to features</li>
-        </ul>
-        <button class="btn btn-primary" onclick="alert('Payment integration coming soon!')">Coming Soon</button>
-      </div>
-      
-      <div class="pricing-card">
-        <div class="plan-badge">Premium</div>
-        <h3>Pro</h3>
-        <div class="price">
-          <span class="amount">$19.99</span>
-          <span class="period">/month</span>
-        </div>
-        <ul class="features-list">
-          <li>✅ Everything in Member</li>
-          <li>✅ API access</li>
-          <li>✅ White-label solution</li>
-          <li>✅ Custom integrations</li>
-          <li>✅ Dedicated support</li>
-          <li>✅ Unlimited projects</li>
-        </ul>
-        <button class="btn btn-outline" onclick="alert('Payment integration coming soon!')">Coming Soon</button>
       </div>
     </div>
   </section>

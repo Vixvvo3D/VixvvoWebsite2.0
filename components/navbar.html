@@ -5,11 +5,10 @@
   <div class="nav-links">
     <a href="index.html" data-href="index.html">Home</a>
     <a href="pages/calculator.html" data-href="pages/calculator.html">Calculator</a>
-    <a href="pages/more-tools.html" data-href="pages/more-tools.html">Tools</a>
-    <a href="index.html#memberships" data-href="index.html#memberships">Pricing</a>
+    <a href="index.html#about" data-href="index.html#about">About</a>
+    <a href="pages/pricing.html" data-href="pages/pricing.html">Pricing</a>
   </div>
   <div class="nav-buttons">
-    <button id="btnLoginNav" class="btn btn-ghost" style="display:none;">Login</button>
     <div class="settings-container">
       <button id="btnSettings" class="btn-settings" title="Menu">☰</button>
       <div id="settingsDropdown" class="settings-dropdown">
@@ -36,6 +35,7 @@
             <a href="pages/calculator.html" data-href="pages/calculator.html" class="quick-link">Calculator</a>
             <a href="pages/orders.html" data-href="pages/orders.html" class="quick-link">Orders</a>
             <a href="pages/upload-model.html" data-href="pages/upload-model.html" class="quick-link">Upload Model</a>
+            <a href="pages/patreon-link.html" data-href="pages/patreon-link.html" class="quick-link" id="membershipLink" style="display:none;">Membership</a>
           </div>
         </div>
 
@@ -81,11 +81,13 @@
 
         <!-- Settings & Logout Section (Bottom) -->
         <div class="settings-section">
+          <button id="btnConnectPatreon" class="btn btn-primary" style="width: 100%; display:none; margin-bottom: 8px;">Connect to Patreon</button>
+          <a href="pages/settings.html" data-href="pages/settings.html" class="btn btn-ghost" style="width: 100%; display:none; text-align: center; margin-bottom: 8px;" id="btnSettingsPage">Settings</a>
           <button id="btnLogoutSettings" class="btn btn-ghost" style="width: 100%; display:none;">Logout</button>
-          <a href="pages/settings.html" data-href="pages/settings.html" class="btn btn-ghost" style="width: 100%; display:none; text-align: center; margin-top: 8px;" id="btnSettingsPage">Settings</a>
         </div>
 
       </div>
     </div>
+    <button id="btnLoginNav" class="btn btn-ghost" style="display:none;">Login</button>
   </div>
 </nav>

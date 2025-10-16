@@ -72,7 +72,7 @@
 
   /* Upload Section */
   .upload-section {
-    background: linear-gradient(135deg, #1d1530, #241d35);
+    background: #1a1a1a;
     border: 2px solid var(--purple);
     border-radius: 16px;
     padding: 32px;
@@ -184,7 +184,7 @@
 
   /* Models List */
   .models-section {
-    background: linear-gradient(135deg, #1d1530, #241d35);
+    background: #1a1a1a;
     border: 2px solid var(--purple);
     border-radius: 16px;
     padding: 32px;
@@ -308,7 +308,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0.7);
-    background: linear-gradient(135deg, #241d35, #1d1530);
+    background: #1a1a1a;
     border: 2px solid var(--purple);
     border-radius: 16px;
     padding: 32px;
@@ -364,7 +364,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0.7);
-    background: linear-gradient(135deg, #241d35, #1d1530);
+    background: #1a1a1a;
     border: 2px solid var(--purple);
     border-radius: 16px;
     padding: 32px;
@@ -539,7 +539,7 @@
      CONFIRM DIALOG
      ======================================== -->
 <div class="confirm-dialog" id="confirmDialog">
-  <div class="notification-icon" id="confirmIcon">⚠️</div>
+  <div class="notification-icon" id="confirmIcon">!</div>
   <div class="notification-title" id="confirmTitle">Confirm Action</div>
   <div class="notification-message" id="confirmMessage">Are you sure?</div>
   <div class="notification-buttons">
@@ -565,9 +565,9 @@
 
     const icons = {
       success: '✅',
-      error: '❌',
-      warning: '⚠️',
-      info: 'ℹ️'
+      error: 'X',
+      warning: '!',
+      info: 'i'
     };
 
     const titles = {
@@ -832,7 +832,7 @@
       if (models.length === 0) {
         modelsGrid.innerHTML = `
           <div class="empty-state">
-            <div class="empty-state-icon">📦</div>
+            <div class="empty-state-icon">-</div>
             <div>No models uploaded yet</div>
           </div>
         `;
@@ -851,10 +851,10 @@
           <div class="model-info"><strong>Uploaded:</strong> ${formatDate(model.uploadedAt)}</div>
           <div class="model-actions">
             <button class="btn btn-download" onclick="downloadModel('${model.id}', '${escapeHtml(model.downloadURL)}', '${escapeHtml(model.fileName)}')">
-              📥 Download
+              Download
             </button>
             <button class="btn btn-delete" onclick="deleteModel('${model.id}', '${escapeHtml(model.storagePath)}')">
-              🗑️ Delete
+              Delete
             </button>
           </div>
         </div>
@@ -863,7 +863,7 @@
       console.error('Error loading models:', error);
       modelsGrid.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-icon">❌</div>
+          <div class="empty-state-icon">X</div>
           <div>Error loading models</div>
         </div>
       `;
@@ -983,7 +983,7 @@
     const btnSaveCurrency = document.getElementById('btnSaveCurrency');
     
     if (!user) {
-      console.log('⚠️ Not logged in, currency not saved');
+      console.log('WARNING: Not logged in, currency not saved');
       showNotification('Please login to save your currency preference', 'warning', 'Login Required');
       return;
     }
@@ -1180,7 +1180,7 @@
           if (modelsGrid) {
             modelsGrid.innerHTML = `
               <div class="empty-state">
-                <div class="empty-state-icon">🔒</div>
+                <div class="empty-state-icon">-</div>
                 <div>Please login to view your models</div>
               </div>
             `;

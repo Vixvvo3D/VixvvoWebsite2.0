@@ -12,6 +12,7 @@
     const btnLoginNav = document.getElementById('btnLoginNav');
     const btnLoginSettings = document.getElementById('btnLoginSettings');
     const btnLogoutSettings = document.getElementById('btnLogoutSettings');
+    const btnConnectPatreon = document.getElementById('btnConnectPatreon');
     const userInfoDisplay = document.getElementById('userInfoDisplay');
     const settingsUsername = document.getElementById('settingsUsername');
     const settingsRole = document.getElementById('settingsRole');
@@ -26,27 +27,39 @@
       if (btnLoginNav) btnLoginNav.style.display = 'none';
       if (btnLoginSettings) btnLoginSettings.style.display = 'none';
       
-      // Show logout button and settings link
+      // Show logout button, settings link, and Patreon button
       if (btnLogoutSettings) btnLogoutSettings.style.display = 'block';
       if (btnSettingsPage) btnSettingsPage.style.display = 'block';
+      if (btnConnectPatreon) btnConnectPatreon.style.display = 'block';
+      
+      // Check Patreon connection status and update button
+      checkPatreonConnection(user.uid, btnConnectPatreon);
       
       // Show and update user info
       if (userInfoDisplay) userInfoDisplay.style.display = 'block';
       
-      // Get username and role from userData or user object
+      // Get username from userData or user object
       const username = userData?.username || user.displayName || user.email?.split('@')[0] || 'User';
-      const role = userData?.role || 'Member';
       
-      // Update username and role
+      // Get membership tier from userData (from Patreon connection)
+      const tier = userData?.membership?.tier || 'free';
+      const tierInfo = typeof TIER_INFO !== 'undefined' ? TIER_INFO[tier] : null;
+      const tierDisplay = tierInfo ? tierInfo.name : tier.charAt(0).toUpperCase() + tier.slice(1);
+      
+      // Update username and tier
       if (settingsUsername) settingsUsername.textContent = username;
       if (settingsRole) {
-        settingsRole.textContent = role.charAt(0).toUpperCase() + role.slice(1);
+        settingsRole.textContent = tierDisplay;
       }
       
       // Update avatar
       if (userAvatar) {
         userAvatar.textContent = username.charAt(0).toUpperCase();
       }
+      
+      // Show membership link
+      const membershipLink = document.getElementById('membershipLink');
+      if (membershipLink) membershipLink.style.display = 'block';
       
     } else {
       // User is logged out
@@ -56,9 +69,10 @@
       if (btnLoginNav) btnLoginNav.style.display = 'inline-block';
       if (btnLoginSettings) btnLoginSettings.style.display = 'block';
       
-      // Hide logout button, settings link, and user info
+      // Hide logout button, settings link, Patreon button, and user info
       if (btnLogoutSettings) btnLogoutSettings.style.display = 'none';
       if (btnSettingsPage) btnSettingsPage.style.display = 'none';
+      if (btnConnectPatreon) btnConnectPatreon.style.display = 'none';
       if (userInfoDisplay) userInfoDisplay.style.display = 'none';
     }
   }
@@ -100,6 +114,54 @@
   }
 
   /**
+   * Check Patreon connection status and update button
+   */
+  async function checkPatreonConnection(userId, button) {
+    if (!button || !userId) return;
+    
+    try {
+      const snapshot = await firebase.database()
+        .ref(`users/${userId}/membership/patreon/patronId`)
+        .once('value');
+      
+      const patronId = snapshot.val();
+      
+      if (patronId) {
+        // Connected
+        button.textContent = 'Patreon Connected';
+        button.classList.add('patreon-connected');
+      } else {
+        // Not connected
+        button.textContent = 'Connect to Patreon';
+        button.classList.remove('patreon-connected');
+      }
+    } catch (error) {
+      console.error('Error checking Patreon connection:', error);
+      button.textContent = 'Connect to Patreon';
+    }
+  }
+
+  /**
+   * Setup Connect Patreon button handler
+   */
+  function setupPatreonButton() {
+    const btnConnectPatreon = document.getElementById('btnConnectPatreon');
+    if (btnConnectPatreon) {
+      btnConnectPatreon.addEventListener('click', function() {
+        console.log('🎨 Connect Patreon button clicked');
+        
+        // Get base path for navigation
+        const currentPath = window.location.pathname;
+        const isInPagesFolder = currentPath.includes('/pages/');
+        const targetPath = isInPagesFolder ? 'patreon-link.html' : 'pages/patreon-link.html';
+        
+        window.location.href = targetPath;
+      });
+      console.log('✅ Connect Patreon button handler attached');
+    }
+  }
+
+  /**
    * Wait for both navbar and Firebase to be ready
    */
   function initialize() {
@@ -107,12 +169,15 @@
     if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
       // Firebase is ready, initialize auth listener
       initializeAuthListener();
+      // Setup button handlers
+      setupPatreonButton();
     } else {
       // Wait for Firebase to initialize
       const checkFirebase = setInterval(() => {
         if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
           clearInterval(checkFirebase);
           initializeAuthListener();
+          setupPatreonButton();
         }
       }, 100);
       

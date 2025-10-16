@@ -1,17 +1,17 @@
-# 🎯 CSS Scoping Quick Reference
+# CSS Scoping Quick Reference
 
 ## The Golden Rule
 
 ```
-❌ NEVER:     .btn { }
-✅ ALWAYS:    .your-container .btn { }
+NEVER:     .btn { }
+ALWAYS:    .your-container .btn { }
 ```
 
 ---
 
 ## Visual Guide
 
-### ❌ Wrong Way:
+### Wrong Way:
 ```css
 <style>
   .btn {
@@ -24,11 +24,11 @@
 </style>
 ```
 
-**Result:** Breaks navbar buttons! 💔
+**Result:** Breaks navbar buttons! 
 
 ---
 
-### ✅ Right Way:
+### Right Way:
 ```css
 <style>
   .card-actions .btn {
@@ -41,7 +41,7 @@
 </style>
 ```
 
-**Result:** Works perfectly! ✨
+**Result:** Works perfectly! 
 
 ---
 
@@ -72,7 +72,7 @@ Pick any that makes sense for your layout.
 
 ## Remember:
 
-**Generic `.btn` = BAD** 🚫  
+**Generic `.btn` = BAD**  
 **Scoped `.container .btn` = GOOD** ✅
 
 ---

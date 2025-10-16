@@ -1,28 +1,28 @@
 # CSS Button Scoping Fix
 
-## 🚨 Problem: Navbar Dropdown Buttons Look Different
+## Problem: Navbar Dropdown Buttons Look Different
 
 If your navbar dropdown buttons (Login, Logout, Currency Save) look **different in size, spacing, or style** compared to other pages, you have a CSS specificity conflict.
 
 ### Symptoms:
-- ❌ Currency "Save" button is smaller/larger than on other pages
-- ❌ Logout button has wrong padding
-- ❌ Dropdown buttons don't match the design
-- ❌ Buttons look inconsistent across pages
+- Currency "Save" button is smaller/larger than on other pages
+- Logout button has wrong padding
+- Dropdown buttons don't match the design
+- Buttons look inconsistent across pages
 
 ### Root Cause:
 Your page has generic `.btn`, `.btn-primary`, or `.btn-ghost` CSS rules that override the shared styles from `shared-styles.css`.
 
 ---
 
-## ✅ Solution: Scope Your Button Styles
+## Solution: Scope Your Button Styles
 
 ### Step 1: Identify the Problem
 
 Search your page's `<style>` section for these patterns:
 
 ```css
-/* ❌ WRONG - These override navbar buttons */
+/* WRONG - These override navbar buttons */
 .btn { ... }
 .btn-primary { ... }
 .btn-ghost { ... }
@@ -34,7 +34,7 @@ Search your page's `<style>` section for these patterns:
 Wrap your button styles in a specific container selector:
 
 ```css
-/* ✅ CORRECT - Scoped to your content only */
+/* CORRECT - Scoped to your content only */
 .model-actions .btn { ... }
 .model-actions .btn-primary { ... }
 .model-actions .btn-ghost { ... }
@@ -44,7 +44,7 @@ Wrap your button styles in a specific container selector:
 Or use your page's main container:
 
 ```css
-/* ✅ CORRECT - Scoped to page content */
+/* CORRECT - Scoped to page content */
 .page-content .btn { ... }
 .card-actions .btn { ... }
 #specificSection .btn { ... }
@@ -52,9 +52,9 @@ Or use your page's main container:
 
 ---
 
-## 📋 Complete Example
+## Complete Example
 
-### ❌ BEFORE (Wrong):
+### BEFORE (Wrong):
 
 ```html
 <style>
@@ -90,7 +90,7 @@ Or use your page's main container:
 
 ---
 
-### ✅ AFTER (Correct):
+### AFTER (Correct):
 
 ```html
 <style>
@@ -123,7 +123,7 @@ Or use your page's main container:
 
 ---
 
-## 🔍 How to Find and Fix
+## How to Find and Fix
 
 ### 1. Search Your Page
 
@@ -172,7 +172,7 @@ After making changes:
 
 ---
 
-## 🎯 Which Buttons to Scope
+## Which Buttons to Scope
 
 ### Always Scope These:
 ```css
@@ -193,7 +193,7 @@ These are already scoped to dialog containers, so they're safe.
 
 ---
 
-## 📦 Example: Upload Model Page Fix
+## Example: Upload Model Page Fix
 
 ### Before:
 ```css
@@ -239,7 +239,7 @@ These are already scoped to dialog containers, so they're safe.
 
 ---
 
-## ⚡ Quick Fix Script
+## Quick Fix Script
 
 Run this search-and-replace on your page:
 
@@ -252,7 +252,7 @@ Then manually verify each change makes sense.
 
 ---
 
-## 🧪 Testing Your Fix
+## Testing Your Fix
 
 ### Visual Test:
 1. Open your page
@@ -276,7 +276,7 @@ Then manually verify each change makes sense.
 
 ---
 
-## 🚀 Deploy Your Fix
+## Deploy Your Fix
 
 After fixing:
 
@@ -292,7 +292,7 @@ git push
 
 ---
 
-## 📚 Related Documentation
+## Related Documentation
 
 - `docs/guides/COMPLETE_NEW_PAGE_GUIDE.md` - See "CRITICAL: CSS Button Scoping" section
 - `docs/guides/NEW_PAGE_CHECKLIST.md` - Item: "Scope ALL button styles"
@@ -300,7 +300,7 @@ git push
 
 ---
 
-## 🎓 Why This Happens
+## Why This Happens
 
 CSS Specificity:
 1. `shared-styles.css` loads first with `.settings-dropdown .btn { ... }`
@@ -313,19 +313,19 @@ Solution: **Increase specificity** by adding a container selector.
 
 ---
 
-## ✅ Prevention
+## Prevention
 
 When creating new pages:
 
-1. ✅ Always use container-scoped button styles
-2. ✅ Never write generic `.btn` rules
-3. ✅ Test dropdown buttons after adding styles
-4. ✅ Compare with other pages visually
-5. ✅ Use DevTools to inspect button styles
+1. Always use container-scoped button styles
+2. Never write generic `.btn` rules
+3. Test dropdown buttons after adding styles
+4. Compare with other pages visually
+5. Use DevTools to inspect button styles
 
 ---
 
-## 🆘 Still Not Working?
+## Still Not Working?
 
 ### Check These:
 

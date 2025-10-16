@@ -3795,6 +3795,7 @@
           editingPrinterId = null;
           hideModal(printerModal);
           document.getElementById('printerErr').textContent = '';
+          showNotification(`"${brand} ${name}" has been updated!`, '', 'Updated');
         })
         .catch((error) => {
           document.getElementById('printerErr').textContent = 'Error updating printer: ' + error.message;
@@ -3805,6 +3806,7 @@
         .then(() => {
           hideModal(printerModal);
           document.getElementById('printerErr').textContent = '';
+          showNotification(`"${brand} ${name}" has been added!`, '', 'Printer Added');
         })
         .catch((error) => {
           document.getElementById('printerErr').textContent = 'Error saving printer: ' + error.message;
@@ -4736,6 +4738,7 @@
           editingFilamentId = null;
           hideModal(filamentModal);
           document.getElementById('filamentErr').textContent = '';
+          showNotification(`"${type} - ${brand}" has been updated!`, '', 'Updated');
         })
         .catch((error) => {
           document.getElementById('filamentErr').textContent = 'Error updating filament: ' + error.message;
@@ -4746,6 +4749,7 @@
         .then(() => {
           hideModal(filamentModal);
           document.getElementById('filamentErr').textContent = '';
+          showNotification(`"${type} - ${brand}" has been added!`, '', 'Filament Added');
         })
         .catch((error) => {
           document.getElementById('filamentErr').textContent = 'Error saving filament: ' + error.message;

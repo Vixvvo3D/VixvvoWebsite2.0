@@ -1,6 +1,7 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 
 admin.initializeApp();
 
@@ -207,3 +208,577 @@ exports.verifyCode = functions.https.onCall(async (data, context) => {
     throw error;
   }
 });
+
+// ============================================
+// PATREON INTEGRATION
+// ============================================
+
+/**
+ * Handle Patreon OAuth callback
+ * Exchange authorization code for access token
+ */
+exports.patreonOAuthCallback = functions.https.onCall(
+    async (data, context) => {
+      const {code, userId} = data;
+
+      if (!code || !userId) {
+        throw new functions.https.HttpsError(
+            "invalid-argument",
+            "Code and userId are required",
+        );
+      }
+
+      // Get Patreon OAuth credentials from Firebase config
+      const patreonConfig = functions.config().patreon || {};
+      const clientId = patreonConfig.client_id;
+      const clientSecret = patreonConfig.client_secret;
+      const redirectUri = patreonConfig.redirect_uri;
+
+      if (!clientId || !clientSecret || !redirectUri) {
+        throw new functions.https.HttpsError(
+            "failed-precondition",
+            "Patreon configuration missing",
+        );
+      }
+
+      try {
+        // Exchange code for access token
+        const fetch = require("node-fetch");
+        const tokenResponse = await fetch(
+            "https://www.patreon.com/api/oauth2/token",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: new URLSearchParams({
+                code: code,
+                grant_type: "authorization_code",
+                client_id: clientId,
+                client_secret: clientSecret,
+                redirect_uri: redirectUri,
+              }),
+            },
+        );
+
+        const tokenData = await tokenResponse.json();
+
+        if (!tokenData.access_token) {
+          throw new Error("Failed to get access token from Patreon");
+        }
+
+        // Get user's Patreon identity and membership
+        const identityResponse = await fetch(
+            "https://www.patreon.com/api/oauth2/v2/identity?" +
+          "include=memberships,memberships.currently_entitled_tiers&" +
+          "fields[member]=patron_status,currently_entitled_amount_cents," +
+          "will_pay_amount_cents,lifetime_support_cents&" +
+          "fields[tier]=amount_cents,title",
+            {
+              headers: {
+                "Authorization": `Bearer ${tokenData.access_token}`,
+              },
+            },
+        );
+
+        const identityData = await identityResponse.json();
+        const patreonUserId = identityData.data.id;
+
+        // Debug logging
+        console.log("Patreon Identity Data:",
+            JSON.stringify(identityData, null, 2));
+
+        // Check if this Patreon account is already linked to another user
+        const usersSnapshot = await admin.database()
+            .ref("users")
+            .orderByChild("membership/patreon/patronId")
+            .equalTo(patreonUserId)
+            .once("value");
+
+        const existingUsers = usersSnapshot.val();
+        if (existingUsers) {
+          const existingUserIds = Object.keys(existingUsers);
+          // Allow if it's the same user re-linking
+          if (existingUserIds.length > 0 &&
+            !existingUserIds.includes(userId)) {
+            throw new functions.https.HttpsError(
+                "already-exists",
+                "This Patreon account is already linked to another user. " +
+                "Please disconnect it from the other account first.",
+            );
+          }
+        }
+
+        // Determine membership tier based on entitled tiers or amount
+        let tier = "free";
+        const membership = identityData.included ?
+          identityData.included.find((item) => item.type === "member") :
+          null;
+
+        console.log("Membership found:", membership);
+        console.log("All included data:", identityData.included);
+
+        if (membership &&
+          membership.attributes.patron_status === "active_patron") {
+          // First, try to get tier from entitled tiers (works for gifts/comps)
+          const entitledTiers = identityData.included ?
+            identityData.included.filter((item) => item.type === "tier") :
+            [];
+
+          console.log("Entitled tiers:", entitledTiers);
+
+          if (entitledTiers.length > 0) {
+            // Get the highest tier amount
+            const highestTier = entitledTiers.reduce((max, tier) => {
+              const amount = tier.attributes.amount_cents || 0;
+              return amount > (max.attributes.amount_cents || 0) ? tier : max;
+            });
+
+            const tierAmount = highestTier.attributes.amount_cents / 100;
+            console.log("Tier amount from entitled tier:", tierAmount);
+
+            // Map tier amount to website tier
+            if (tierAmount >= 25) {
+              tier = "business";
+            } else if (tierAmount >= 10) {
+              tier = "scaling";
+            } else if (tierAmount >= 3) {
+              tier = "starter";
+            }
+          } else {
+            // Fallback to currently_entitled_amount_cents
+            const centsAmount =
+              membership.attributes.currently_entitled_amount_cents;
+            const dollarAmount = centsAmount / 100;
+
+            console.log("Patron Status:", membership.attributes.patron_status);
+            console.log("Amount in cents:", centsAmount);
+            console.log("Amount in dollars:", dollarAmount);
+
+            // Map amount to tier
+            if (dollarAmount >= 25) {
+              tier = "business";
+            } else if (dollarAmount >= 10) {
+              tier = "scaling";
+            } else if (dollarAmount >= 3) {
+              tier = "starter";
+            }
+          }
+        } else {
+          console.log("No active membership found or not an active patron");
+        }
+
+        console.log("Final tier assigned:", tier);
+
+        // Store Patreon connection and update membership
+        // Use a global lock to prevent race conditions
+        const lockRef = admin.database()
+            .ref(`patreonLocks/${patreonUserId}`);
+
+        try {
+          // Try to acquire lock atomically
+          const lockResult = await lockRef.transaction((current) => {
+            if (current === null) {
+              // Lock is available, acquire it with current user
+              return userId;
+            } else if (current === userId) {
+              // Same user re-linking, allow it
+              return userId;
+            } else {
+              // Lock held by another user, abort
+              return undefined; // This will abort the transaction
+            }
+          });
+
+          if (!lockResult.committed) {
+            throw new functions.https.HttpsError(
+                "already-exists",
+                "This Patreon account is currently being linked or is " +
+                "already linked to another user. " +
+                "Please try again in a moment or contact support.",
+            );
+          }
+
+          // Lock acquired, proceed with linking
+          await admin.database().ref(`users/${userId}/patreonConnection`).set({
+            patronId: patreonUserId,
+            accessToken: tokenData.access_token,
+            refreshToken: tokenData.refresh_token,
+            linkedAt: admin.database.ServerValue.TIMESTAMP,
+            status: "connected",
+          });
+
+          await admin.database().ref(`users/${userId}/membership`).set({
+            tier: tier,
+            updatedAt: admin.database.ServerValue.TIMESTAMP,
+            patreon: {
+              patronId: patreonUserId,
+              status: (membership && membership.attributes) ?
+                membership.attributes.patron_status : "inactive",
+              lastSyncedAt: admin.database.ServerValue.TIMESTAMP,
+            },
+          });
+
+          // Keep the lock to maintain the link
+          console.log(`Patreon account ${patreonUserId} linked to user ` +
+            `${userId}`);
+        } catch (error) {
+          // Release lock on error
+          await lockRef.remove();
+          throw error;
+        }
+
+        return {
+          success: true,
+          tier: tier,
+          message: "Patreon account linked successfully",
+        };
+      } catch (error) {
+        console.error("Error in Patreon OAuth:", error);
+        throw new functions.https.HttpsError(
+            "internal",
+            "Failed to link Patreon account: " + error.message,
+        );
+      }
+    },
+);
+
+/**
+ * Handle Patreon webhooks
+ * Updates user membership when Patreon status changes
+ */
+exports.patreonWebhook = functions.https.onRequest(async (req, res) => {
+  // Verify webhook signature
+  const patreonConfig = functions.config().patreon || {};
+  const webhookSecret = patreonConfig.webhook_secret;
+
+  if (webhookSecret) {
+    const signature = req.headers["x-patreon-signature"];
+    const body = JSON.stringify(req.body);
+
+    const hmac = crypto.createHmac("md5", webhookSecret);
+    const digest = hmac.update(body).digest("hex");
+
+    if (signature !== digest) {
+      console.error("Invalid webhook signature");
+      res.status(401).send("Unauthorized");
+      return;
+    }
+  }
+
+  try {
+    const event = req.headers["x-patreon-event"];
+    const payload = req.body;
+
+    console.log(`Received Patreon webhook: ${event}`);
+
+    // Handle different webhook events
+    switch (event) {
+      case "members:pledge:create":
+      case "members:pledge:update":
+        await handleMembershipUpdate(payload);
+        break;
+
+      case "members:pledge:delete":
+        await handleMembershipCancellation(payload);
+        break;
+
+      default:
+        console.log(`Unhandled webhook event: ${event}`);
+    }
+
+    res.status(200).send("Webhook processed");
+  } catch (error) {
+    console.error("Error processing webhook:", error);
+    res.status(500).send("Error processing webhook");
+  }
+});
+
+/**
+ * Handle membership update from Patreon
+ * @param {object} payload - Webhook payload
+ */
+async function handleMembershipUpdate(payload) {
+  // Extract Patreon user ID
+  const userData = (payload.data && payload.data.relationships &&
+    payload.data.relationships.user) ?
+    payload.data.relationships.user.data : null;
+  const patreonUserId = userData ? userData.id : null;
+
+  // Extract tier ID
+  const tiersData = (payload.data && payload.data.relationships &&
+    payload.data.relationships.currently_entitled_tiers) ?
+    payload.data.relationships.currently_entitled_tiers.data : null;
+  const tierId = (tiersData && tiersData[0]) ? tiersData[0].id : null;
+
+  const patronStatus = (payload.data && payload.data.attributes) ?
+    payload.data.attributes.patron_status : null;
+  const amountCents = (payload.data && payload.data.attributes) ?
+      (payload.data.attributes.currently_entitled_amount_cents || 0) : 0;
+
+  if (!patreonUserId) {
+    console.error("No Patreon user ID in webhook payload");
+    return;
+  }
+
+  // Find user by Patreon ID
+  const usersSnapshot = await admin.database()
+      .ref("users")
+      .orderByChild("patreonConnection/patronId")
+      .equalTo(patreonUserId)
+      .once("value");
+
+  const users = usersSnapshot.val();
+
+  if (!users) {
+    console.log(`No user found with Patreon ID: ${patreonUserId}`);
+    return;
+  }
+
+  // Update each user (should only be one)
+  for (const userId in users) {
+    if (Object.prototype.hasOwnProperty.call(users, userId)) {
+      // Determine tier based on amount
+      let tier = "free";
+      const dollarAmount = amountCents / 100;
+
+      if (patronStatus === "active_patron") {
+        if (dollarAmount >= 25) {
+          tier = "business";
+        } else if (dollarAmount >= 10) {
+          tier = "scaling";
+        } else if (dollarAmount >= 3) {
+          tier = "starter";
+        }
+      }
+
+      // Update membership
+      await admin.database().ref(`users/${userId}/membership`).update({
+        tier: tier,
+        updatedAt: admin.database.ServerValue.TIMESTAMP,
+        patreon: {
+          patronId: patreonUserId,
+          tierId: tierId,
+          status: patronStatus,
+          amountCents: amountCents,
+          lastSyncedAt: admin.database.ServerValue.TIMESTAMP,
+        },
+      });
+
+      console.log(`Updated membership for user ${userId} to ${tier}`);
+    }
+  }
+}
+
+/**
+ * Handle membership cancellation from Patreon
+ * @param {object} payload - Webhook payload
+ */
+async function handleMembershipCancellation(payload) {
+  // Extract Patreon user ID
+  const userData = (payload.data && payload.data.relationships &&
+    payload.data.relationships.user) ?
+    payload.data.relationships.user.data : null;
+  const patreonUserId = userData ? userData.id : null;
+
+  if (!patreonUserId) {
+    console.error("No Patreon user ID in webhook payload");
+    return;
+  }
+
+  // Find user by Patreon ID
+  const usersSnapshot = await admin.database()
+      .ref("users")
+      .orderByChild("patreonConnection/patronId")
+      .equalTo(patreonUserId)
+      .once("value");
+
+  const users = usersSnapshot.val();
+
+  if (!users) {
+    console.log(`No user found with Patreon ID: ${patreonUserId}`);
+    return;
+  }
+
+  // Update each user to free tier
+  for (const userId in users) {
+    if (Object.prototype.hasOwnProperty.call(users, userId)) {
+      await admin.database().ref(`users/${userId}/membership`).update({
+        tier: "free",
+        updatedAt: admin.database.ServerValue.TIMESTAMP,
+        patreon: {
+          patronId: patreonUserId,
+          status: "former_patron",
+          lastSyncedAt: admin.database.ServerValue.TIMESTAMP,
+        },
+      });
+
+      console.log(`Reset membership for user ${userId} to free`);
+    }
+  }
+}
+
+/**
+ * Sync user membership with Patreon
+ * Can be called manually or scheduled
+ */
+exports.syncPatreonMembership = functions.https.onCall(
+    async (data, context) => {
+      const {userId} = data;
+
+      if (!userId) {
+        throw new functions.https.HttpsError(
+            "invalid-argument",
+            "User ID required",
+        );
+      }
+
+      try {
+        // Get user's Patreon connection
+        const connectionSnapshot = await admin.database()
+            .ref(`users/${userId}/patreonConnection`)
+            .once("value");
+
+        const connection = connectionSnapshot.val();
+
+        if (!connection || !connection.accessToken) {
+          throw new functions.https.HttpsError(
+              "not-found",
+              "No Patreon connection found",
+          );
+        }
+
+        // Fetch current membership from Patreon
+        const fetch = require("node-fetch");
+        const identityResponse = await fetch(
+            "https://www.patreon.com/api/oauth2/v2/identity?" +
+          "include=memberships&fields[member]=patron_status," +
+          "currently_entitled_amount_cents",
+            {
+              headers: {
+                "Authorization": `Bearer ${connection.accessToken}`,
+              },
+            },
+        );
+
+        const identityData = await identityResponse.json();
+
+        // Determine membership tier
+        let tier = "free";
+        const membership = identityData.included ?
+            identityData.included.find((item) => item.type === "member") :
+            null;
+
+        if (membership &&
+          membership.attributes.patron_status === "active_patron") {
+          const centsAmount =
+          membership.attributes.currently_entitled_amount_cents;
+          const dollarAmount = centsAmount / 100;
+
+          if (dollarAmount >= 25) {
+            tier = "business";
+          } else if (dollarAmount >= 10) {
+            tier = "scaling";
+          } else if (dollarAmount >= 3) {
+            tier = "starter";
+          }
+        }
+
+        // Update membership in database
+        await admin.database().ref(`users/${userId}/membership`).set({
+          tier: tier,
+          updatedAt: admin.database.ServerValue.TIMESTAMP,
+          patreon: {
+            patronId: connection.patronId,
+            status: (membership && membership.attributes) ?
+              membership.attributes.patron_status : "inactive",
+            lastSyncedAt: admin.database.ServerValue.TIMESTAMP,
+          },
+        });
+
+        return {
+          success: true,
+          tier: tier,
+          message: "Membership synced successfully",
+        };
+      } catch (error) {
+        console.error("Error syncing membership:", error);
+        throw new functions.https.HttpsError(
+            "internal",
+            "Failed to sync membership: " + error.message,
+        );
+      }
+    },
+);
+
+/**
+ * Unlink Patreon account
+ * Removes the connection and releases the lock
+ */
+exports.unlinkPatreonAccount = functions.https.onCall(
+    async (data, context) => {
+      // Check authentication
+      if (!context.auth) {
+        throw new functions.https.HttpsError(
+            "unauthenticated",
+            "Must be logged in to unlink Patreon account",
+        );
+      }
+
+      const userId = context.auth.uid;
+
+      try {
+        // Get current Patreon connection
+        const connectionSnapshot = await admin.database()
+            .ref(`users/${userId}/patreonConnection`)
+            .once("value");
+
+        const connection = connectionSnapshot.val();
+
+        if (!connection || !connection.patronId) {
+          throw new functions.https.HttpsError(
+              "not-found",
+              "No Patreon account is linked",
+          );
+        }
+
+        const patronId = connection.patronId;
+
+        // Remove the lock
+        await admin.database()
+            .ref(`patreonLocks/${patronId}`)
+            .remove();
+
+        // Remove Patreon connection
+        await admin.database()
+            .ref(`users/${userId}/patreonConnection`)
+            .remove();
+
+        // Reset membership to free tier
+        await admin.database()
+            .ref(`users/${userId}/membership`)
+            .set({
+              tier: "free",
+              updatedAt: admin.database.ServerValue.TIMESTAMP,
+              patreon: {
+                patronId: null,
+                status: "disconnected",
+                lastSyncedAt: admin.database.ServerValue.TIMESTAMP,
+              },
+            });
+
+        console.log(`Patreon account ${patronId} unlinked from user ${userId}`);
+
+        return {
+          success: true,
+          message: "Patreon account unlinked successfully",
+        };
+      } catch (error) {
+        console.error("Error unlinking Patreon account:", error);
+        throw new functions.https.HttpsError(
+            "internal",
+            "Failed to unlink Patreon account: " + error.message,
+        );
+      }
+    },
+);
