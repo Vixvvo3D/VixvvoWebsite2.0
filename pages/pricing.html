@@ -149,6 +149,48 @@
     box-shadow: 0 20px 40px rgba(168, 85, 247, .25);
   }
 
+  .pricing-card.current-tier {
+    border: 2px solid #10b981;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.03));
+    box-shadow: 0 10px 30px rgba(16, 185, 129, .2);
+  }
+
+  .pricing-card.current-tier::before {
+    opacity: 1;
+    background: linear-gradient(90deg, #10b981, #059669, #10b981);
+  }
+
+  .pricing-card.current-tier .plan-badge {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, .3);
+  }
+
+  .pricing-card.current-tier .plan-badge::after {
+    content: ' • Current Plan';
+    font-size: 10px;
+    margin-left: 4px;
+  }
+
+  .pricing-card.current-tier .btn::after {
+    content: ' (Current Plan)';
+    font-size: 11px;
+    opacity: 0.8;
+  }
+
+  .pricing-card:not(.current-tier) .btn.upgrade::after {
+    content: ' ↑';
+    font-size: 14px;
+    margin-left: 4px;
+  }
+
+  .pricing-card:not(.current-tier) .btn.downgrade::after {
+    content: ' ↓';
+    font-size: 14px;
+    margin-left: 4px;
+  }
+
   .plan-badge {
     display: inline-block;
     padding: 8px 16px;
@@ -565,7 +607,7 @@
     
     <!-- Pricing Grid -->
     <div class="pricing-grid">
-      <div class="pricing-card">
+      <div class="pricing-card" data-tier="free">
         <div class="plan-badge">Free</div>
         <h3>Free</h3>
         <div class="price">
@@ -583,7 +625,7 @@
         <button class="btn btn-outline" onclick="window.location.href='../index.html'">Get Started</button>
       </div>
       
-      <div class="pricing-card">
+      <div class="pricing-card" data-tier="starter">
         <div class="plan-badge">Tier 1</div>
         <h3>Starter</h3>
         <div class="price">
@@ -601,7 +643,7 @@
         <button class="btn btn-outline" onclick="window.open('https://www.patreon.com/Vixvvo3D', '_blank')">Subscribe on Patreon</button>
       </div>
       
-      <div class="pricing-card featured">
+      <div class="pricing-card featured" data-tier="scaling">
         <div class="plan-badge popular">Most Popular</div>
         <h3>Scaling</h3>
         <div class="price">
@@ -619,7 +661,7 @@
         <button class="btn btn-primary" onclick="window.open('https://www.patreon.com/checkout/Vixvvo3D?rid=22702418', '_blank')">Subscribe on Patreon</button>
       </div>
       
-      <div class="pricing-card">
+      <div class="pricing-card" data-tier="business">
         <div class="plan-badge">Premium</div>
         <h3>Business</h3>
         <div class="price">
@@ -844,15 +886,72 @@
         btnSaveCurrency.addEventListener('click', saveCurrencyPreference);
       }
 
-      firebase.auth().onAuthStateChanged((user) => {
+      firebase.auth().onAuthStateChanged(async (user) => {
         if (user) {
           loadSavedCurrency(user);
+          
+          // Highlight current tier
+          try {
+            // Check if user is admin first
+            const roleSnapshot = await firebase.database().ref(`users/${user.uid}/role`).once('value');
+            const role = roleSnapshot.val();
+            const isAdmin = role === 'admin' || role === 'administrator';
+            
+            // Only highlight tier if not admin
+            if (!isAdmin) {
+              const tierSnapshot = await firebase.database().ref(`users/${user.uid}/membership/tier`).once('value');
+              const userTier = tierSnapshot.val() || 'free';
+              
+              // Define tier hierarchy for comparison
+              const tierLevels = { free: 0, starter: 1, scaling: 2, business: 3 };
+              const userTierLevel = tierLevels[userTier] || 0;
+              
+              // Remove current-tier class from all cards
+              document.querySelectorAll('.pricing-card').forEach(card => {
+                card.classList.remove('current-tier');
+                const btn = card.querySelector('.btn');
+                if (btn) {
+                  btn.classList.remove('upgrade', 'downgrade');
+                }
+              });
+              
+              // Add current-tier class to user's tier card and mark others as upgrade/downgrade
+              document.querySelectorAll('.pricing-card').forEach(card => {
+                const cardTier = card.getAttribute('data-tier');
+                const cardTierLevel = tierLevels[cardTier] || 0;
+                const btn = card.querySelector('.btn');
+                
+                if (cardTier === userTier) {
+                  card.classList.add('current-tier');
+                } else if (btn && cardTierLevel > userTierLevel) {
+                  btn.classList.add('upgrade');
+                } else if (btn && cardTierLevel < userTierLevel) {
+                  btn.classList.add('downgrade');
+                }
+              });
+              
+              console.log('Highlighted tier:', userTier);
+            } else {
+              console.log('User is admin - no tier highlighting');
+            }
+          } catch (error) {
+            console.error('Error highlighting tier:', error);
+          }
         } else {
           window.currentCurrency = 'USD';
           window.lastSavedCurrency = 'USD';
           if (currencySelect) {
             currencySelect.value = 'USD';
           }
+          
+          // Remove highlighting when logged out
+          document.querySelectorAll('.pricing-card').forEach(card => {
+            card.classList.remove('current-tier');
+            const btn = card.querySelector('.btn');
+            if (btn) {
+              btn.classList.remove('upgrade', 'downgrade');
+            }
+          });
         }
         updateSaveButton();
       });
