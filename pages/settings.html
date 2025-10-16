@@ -74,7 +74,7 @@
   }
 
   .settings-card {
-    background: #1a1a1a;
+    background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 32px;
@@ -142,12 +142,13 @@
   .settings-item textarea {
     width: 100%;
     padding: 12px 16px;
-    background: rgba(15, 11, 22, 0.6);
+    background: var(--darker-bg);
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text);
     font-size: 14px;
     font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
   }
 
   .settings-item input:focus,
@@ -231,23 +232,59 @@
   }
 
   .status-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .status-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
   }
 
   .status-badge.admin {
     background: linear-gradient(135deg, #a855f7, #c084fc);
     color: white;
+    border: 1px solid rgba(168, 85, 247, 0.3);
   }
 
-  .status-badge.member {
-    background: rgba(168, 85, 247, 0.2);
-    color: var(--purple-light);
+  .status-badge.free {
+    background: linear-gradient(135deg, rgba(107, 114, 128, 0.2), rgba(107, 114, 128, 0.1));
+    color: #9CA3AF;
+    border: 1px solid rgba(107, 114, 128, 0.3);
+  }
+
+  .status-badge.starter {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+    color: #60A5FA;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  .status-badge.scaling {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(139, 92, 246, 0.15));
+    color: #C084FC;
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+  }
+
+  .status-badge.business {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(245, 158, 11, 0.15));
+    color: #FCD34D;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    box-shadow: 0 4px 20px rgba(245, 158, 11, 0.2);
+  }
+
+  .tier-badge-icon {
+    font-size: 16px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
   }
 
   .success-message {
@@ -315,7 +352,7 @@
     padding: 32px;
     max-width: 480px;
     width: 90%;
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 12px 48px rgba(168, 85, 247, 0.2);
   }
 
   .confirm-modal-content h3 {
@@ -894,24 +931,31 @@
       
       // Get membership tier
       let tierDisplay = 'Free';
-      let tierClass = 'member';
+      let tierClass = 'free';
+      let tierIcon = '🆓';
       try {
         const tierSnapshot = await db.ref(`users/${user.uid}/membership/tier`).once('value');
         const tier = tierSnapshot.val() || 'free';
         const tierInfo = typeof TIER_INFO !== 'undefined' ? TIER_INFO[tier] : null;
-        tierDisplay = tierInfo ? tierInfo.name : tier.charAt(0).toUpperCase() + tier.slice(1);
-        tierClass = tier.toLowerCase();
+        if (tierInfo) {
+          tierDisplay = tierInfo.name;
+          tierIcon = tierInfo.badge;
+          tierClass = tier.toLowerCase();
+        } else {
+          tierDisplay = tier.charAt(0).toUpperCase() + tier.slice(1);
+          tierClass = tier.toLowerCase();
+        }
       } catch (error) {
         console.error('Error fetching membership tier:', error);
       }
       
-      // Set role badge
+      // Set role badge with icon
       const roleBadge = document.getElementById('userRoleBadge');
       if (isAdmin) {
-        roleBadge.textContent = 'Administrator';
+        roleBadge.innerHTML = '<span class="tier-badge-icon">👑</span> Administrator';
         roleBadge.className = 'status-badge admin';
       } else {
-        roleBadge.textContent = tierDisplay;
+        roleBadge.innerHTML = `<span class="tier-badge-icon">${tierIcon}</span> ${tierDisplay}`;
         roleBadge.className = `status-badge ${tierClass}`;
       }
 
