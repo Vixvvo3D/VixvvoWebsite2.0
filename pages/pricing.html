@@ -173,24 +173,6 @@
     margin-left: 4px;
   }
 
-  .pricing-card.current-tier .btn::after {
-    content: ' (Current Plan)';
-    font-size: 11px;
-    opacity: 0.8;
-  }
-
-  .pricing-card:not(.current-tier) .btn.upgrade::after {
-    content: ' ↑';
-    font-size: 14px;
-    margin-left: 4px;
-  }
-
-  .pricing-card:not(.current-tier) .btn.downgrade::after {
-    content: ' ↓';
-    font-size: 14px;
-    margin-left: 4px;
-  }
-
   .plan-badge {
     display: inline-block;
     padding: 8px 16px;
@@ -915,7 +897,7 @@
                 }
               });
               
-              // Add current-tier class to user's tier card and mark others as upgrade/downgrade
+              // Add current-tier class to user's tier card and update button text
               document.querySelectorAll('.pricing-card').forEach(card => {
                 const cardTier = card.getAttribute('data-tier');
                 const cardTierLevel = tierLevels[cardTier] || 0;
@@ -923,10 +905,20 @@
                 
                 if (cardTier === userTier) {
                   card.classList.add('current-tier');
+                  if (btn) {
+                    btn.setAttribute('data-original-text', btn.textContent);
+                    btn.textContent = 'Current Plan';
+                    btn.style.cursor = 'default';
+                    btn.style.opacity = '0.7';
+                  }
                 } else if (btn && cardTierLevel > userTierLevel) {
                   btn.classList.add('upgrade');
+                  btn.setAttribute('data-original-text', btn.textContent);
+                  btn.textContent = 'Upgrade';
                 } else if (btn && cardTierLevel < userTierLevel) {
                   btn.classList.add('downgrade');
+                  btn.setAttribute('data-original-text', btn.textContent);
+                  btn.textContent = 'Downgrade';
                 }
               });
               
