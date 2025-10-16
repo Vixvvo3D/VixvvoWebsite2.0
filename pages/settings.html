@@ -892,14 +892,27 @@
       document.getElementById('userAvatarLarge').textContent = username.charAt(0).toUpperCase();
       document.getElementById('displayNameInput').value = username;
       
+      // Get membership tier
+      let tierDisplay = 'Free';
+      let tierClass = 'member';
+      try {
+        const tierSnapshot = await db.ref(`users/${user.uid}/membership/tier`).once('value');
+        const tier = tierSnapshot.val() || 'free';
+        const tierInfo = typeof TIER_INFO !== 'undefined' ? TIER_INFO[tier] : null;
+        tierDisplay = tierInfo ? tierInfo.name : tier.charAt(0).toUpperCase() + tier.slice(1);
+        tierClass = tier.toLowerCase();
+      } catch (error) {
+        console.error('Error fetching membership tier:', error);
+      }
+      
       // Set role badge
       const roleBadge = document.getElementById('userRoleBadge');
       if (isAdmin) {
         roleBadge.textContent = 'Administrator';
         roleBadge.className = 'status-badge admin';
       } else {
-        roleBadge.textContent = 'Member';
-        roleBadge.className = 'status-badge member';
+        roleBadge.textContent = tierDisplay;
+        roleBadge.className = `status-badge ${tierClass}`;
       }
 
       // Load currency preference
@@ -923,7 +936,7 @@
         if (userInfoDisplay) userInfoDisplay.style.display = 'block';
         if (settingsUsername) settingsUsername.textContent = username;
         if (userAvatar) userAvatar.textContent = username.charAt(0).toUpperCase();
-        if (settingsRole) settingsRole.textContent = isAdmin ? 'Administrator' : 'Member';
+        if (settingsRole) settingsRole.textContent = isAdmin ? 'Administrator' : tierDisplay;
       }
     } else {
       // Redirect to home if not logged in

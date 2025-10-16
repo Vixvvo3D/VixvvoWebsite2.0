@@ -1570,22 +1570,29 @@
         const email = user.email || 'User';
         const username = user.displayName || email.split('@')[0];
         
-        // Fetch role from Firebase Database
-        db.ref('users/' + user.uid + '/role').once('value')
-          .then(snapshot => {
-            const roleFromDb = snapshot.val() || 'member';
+        // Fetch role and membership tier from Firebase Database
+        Promise.all([
+          db.ref('users/' + user.uid + '/role').once('value'),
+          db.ref('users/' + user.uid + '/membership/tier').once('value')
+        ])
+          .then(([roleSnapshot, tierSnapshot]) => {
+            const roleFromDb = roleSnapshot.val() || 'member';
+            const tier = tierSnapshot.val() || 'free';
             console.log('User role from Firebase:', roleFromDb);
+            console.log('User tier from Firebase:', tier);
             
             // Display role with proper capitalization
             if (roleFromDb.toLowerCase() === 'admin' || roleFromDb.toLowerCase() === 'administrator') {
               settingsRole.textContent = 'Administrator';
             } else {
-              settingsRole.textContent = 'Member';
+              // Display membership tier
+              const tierInfo = typeof TIER_INFO !== 'undefined' ? TIER_INFO[tier] : null;
+              settingsRole.textContent = tierInfo ? tierInfo.name : tier.charAt(0).toUpperCase() + tier.slice(1);
             }
           })
           .catch(error => {
-            console.error('Error fetching role:', error);
-            settingsRole.textContent = 'Member';
+            console.error('Error fetching role/tier:', error);
+            settingsRole.textContent = 'Free';
           });
         
         // Listen for real-time currency changes from Firebase
