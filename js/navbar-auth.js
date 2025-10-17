@@ -47,18 +47,23 @@
       
       // If admin, show Administrator, otherwise show membership tier
       let displayText = 'Free';
+      let tierClass = 'free';
       if (isAdmin) {
         displayText = 'Administrator';
+        tierClass = 'admin';
       } else {
         const tier = userData?.membership?.tier || 'free';
         const tierInfo = typeof TIER_INFO !== 'undefined' ? TIER_INFO[tier] : null;
         displayText = tierInfo ? tierInfo.name : tier.charAt(0).toUpperCase() + tier.slice(1);
+        tierClass = tier;
       }
       
       // Update username and tier/role
       if (settingsUsername) settingsUsername.textContent = username;
       if (settingsRole) {
         settingsRole.textContent = displayText;
+        // Apply CSS class for styling
+        settingsRole.className = `settings-role ${tierClass}`;
       }
       
       // Update avatar

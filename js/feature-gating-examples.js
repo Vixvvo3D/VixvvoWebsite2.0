@@ -250,7 +250,7 @@ async function displayMembershipInNavbar() {
         font-weight: 600;
         color: ${tierInfo.color};
       ">
-        ${tierInfo.badge} ${tierInfo.name}
+        ${tierInfo.name}
       </span>
     `;
     
@@ -304,7 +304,7 @@ async function loadMembershipSettings() {
               Current Plan
             </div>
             <div style="font-size: 28px; font-weight: 700; color: ${tierInfo.color};">
-              ${tierInfo.badge} ${tierInfo.name}
+              ${tierInfo.name}
             </div>
             ${tier !== 'bronze' ? `
               <div style="font-size: 16px; color: var(--text-muted); margin-top: 4px;">

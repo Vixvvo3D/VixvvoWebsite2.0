@@ -21,25 +21,25 @@ const TIER_INFO = {
   free: {
     name: 'Free',
     color: '#6B7280',
-    badge: '🆓',
+    badge: '',
     price: 0
   },
   starter: {
     name: 'Starter',
     color: '#3B82F6',
-    badge: '🚀',
+    badge: '',
     price: 3
   },
   scaling: {
     name: 'Scaling',
     color: '#8B5CF6',
-    badge: '📈',
+    badge: '',
     price: 10
   },
   business: {
     name: 'Business',
     color: '#F59E0B',
-    badge: '�',
+    badge: '',
     price: 25
   }
 };
@@ -213,7 +213,7 @@ function displayMembershipBadge(tier, container) {
     font-weight: 600;
     color: ${tierInfo.color};
   `;
-  badge.innerHTML = `${tierInfo.badge} ${tierInfo.name}`;
+  badge.textContent = tierInfo.name;
   
   container.innerHTML = '';
   container.appendChild(badge);

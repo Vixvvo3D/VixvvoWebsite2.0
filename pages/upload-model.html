@@ -5,30 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Upload Model - Vixvvo Tools</title>
 
-<!-- ========================================
-     FIREBASE SDKs - REQUIRED
-     These must be loaded first
-     ======================================== -->
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-functions-compat.js"></script>
 
-<!-- ========================================
-     FONTS
-     ======================================== -->
+<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-<!-- ========================================
-     SHARED STYLES - REQUIRED
-     ======================================== -->
+<!-- Shared Styles -->
 <link rel="stylesheet" href="../css/shared-styles.css">
 
-<!-- ========================================
-     NAVBAR SYSTEM - REQUIRED FOR FULL FUNCTIONALITY
-     ======================================== -->
+<!-- Navbar System -->
 <script src="../js/navbar-helper.js"></script>
 <script src="../js/navbar-loader.js"></script>
 <script src="../js/settings-dropdown.js"></script>
@@ -37,77 +28,485 @@
 <script src="../js/currency.js"></script>
 
 <style>
-  /* ========================================
-     PAGE-SPECIFIC STYLES
-     ======================================== */
-  
   .page-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 60px;
+    padding: 40px 60px;
   }
-  
-  .page-header {
-    text-align: center;
-    margin-bottom: 48px;
+
+  .orders-header {
+    margin-bottom: 32px;
   }
-  
-  .page-title {
-    font-size: 48px;
-    font-weight: 800;
+
+  .orders-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .orders-subtitle {
+    color: var(--text-muted);
+    font-size: 16px;
+  }
+
+  /* Action Bar */
+  .action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 250px;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(36, 29, 53, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .search-box input:focus {
+    outline: none;
+    border-color: var(--purple);
+    background: rgba(36, 29, 53, 0.8);
+  }
+
+  .btn {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4);
+  }
+
+  /* Models List */
+  .models-grid {
+    background: #241d35;
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .model-card {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    padding: 20px 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .model-card:last-child {
+    border-bottom: none;
+  }
+
+  .model-card:hover {
+    background: rgba(168, 85, 247, 0.05);
+    border-color: var(--border);
+    transform: none;
+    box-shadow: none;
+  }  .model-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
     margin-bottom: 16px;
   }
-  
-  .page-title .highlight {
-    background: linear-gradient(135deg, #a855f7, #c084fc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  .page-subtitle {
-    color: var(--text-muted);
-    font-size: 18px;
+
+  .model-card-icon {
+    font-size: 32px;
   }
 
-  /* Upload Section */
-  .upload-section {
-    background: #1a1a1a;
-    border: 2px solid var(--purple);
+  .model-card-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .model-card-action {
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: rgba(168, 85, 247, 0.1);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .model-card-action:hover {
+    background: rgba(168, 85, 247, 0.2);
+    border-color: var(--purple);
+  }
+
+  .model-card-action.delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+    color: #ef4444;
+  }
+
+  .model-card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .model-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 12px;
+  }
+
+  .model-card-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .model-card-meta-label {
+    font-weight: 600;
+    color: var(--purple-light);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 40px;
+    background: #241d35;
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 12px;
+  }
+
+  .empty-state-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .empty-state-text {
+    color: var(--text-muted);
+    font-size: 16px;
+    margin-bottom: 0;
+  }
+
+  /* Model Image Thumbnail */
+  .model-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2px solid var(--border);
+    margin-right: 16px;
+    flex-shrink: 0;
+  }
+
+  .model-image-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    margin-right: 16px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(36, 29, 53, 0.6);
+    color: var(--text-muted);
+  }
+
+  .model-card-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .model-card-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Image Upload */
+  .image-upload-container {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .image-preview {
+    width: 200px;
+    height: 200px;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.2);
+    position: relative;
+  }
+
+  .image-preview-placeholder {
+    text-align: center;
+    color: var(--text-muted);
+  }
+
+  .image-preview-placeholder svg {
+    margin-bottom: 8px;
+    opacity: 0.5;
+  }
+
+  .image-preview-placeholder p {
+    margin: 0;
+    font-size: 14px;
+  }
+
+  .image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .image-upload-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .btn-secondary {
+    padding: 10px 20px;
+    background: rgba(36, 29, 53, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--purple);
+    background: rgba(36, 29, 53, 0.8);
+  }
+
+  /* Image Crop Modal */
+  .crop-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  }
+
+  .crop-modal.show {
+    display: flex;
+  }
+
+  .crop-container {
+    max-width: 90vw;
+    max-height: 90vh;
+    background: var(--dark-bg);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .crop-area {
+    position: relative;
+    max-width: 600px;
+    max-height: 600px;
+  }
+
+  .crop-area canvas {
+    max-width: 100%;
+    max-height: 100%;
+    cursor: crosshair;
+  }
+
+  .crop-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+
+  /* Form Sections */
+  .form-section {
+    background: rgba(36, 29, 53, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
     border-radius: 16px;
     padding: 32px;
-    margin-bottom: 32px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  }
-
-  .upload-area {
-    border: 2px dashed var(--purple);
-    border-radius: 12px;
-    padding: 48px;
-    text-align: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
     margin-bottom: 24px;
+    transition: all 0.3s ease;
   }
 
-  .upload-area:hover {
-    border-color: var(--purple-light);
-    background: rgba(168, 85, 247, 0.05);
+  .form-section:hover {
+    border-color: rgba(168, 85, 247, 0.3);
   }
 
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-icon {
+    font-size: 24px;
+  }
+
+  /* Form Grid */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .form-grid.single {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid.three {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-group.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .form-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .form-label .required {
+    color: #ef4444;
+    margin-left: 4px;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+  }
+
+  .form-input:focus,
+  .form-select:focus,
+  .form-textarea:focus {
+    outline: none;
+    border-color: var(--purple);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+  }
+
+  .form-input:disabled,
+  .form-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .form-select {
+    cursor: pointer;
+  }
+
+  .form-textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  /* Time Input Group */
+  .time-input-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .time-input-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .time-input-wrapper label {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* File Upload Area */
+  .upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(168, 85, 247, 0.02);
+  }
+
+  .upload-area:hover,
   .upload-area.drag-over {
-    border-color: var(--purple-light);
-    background: rgba(168, 85, 247, 0.1);
-    transform: scale(1.02);
+    border-color: var(--purple);
+    background: rgba(168, 85, 247, 0.08);
+    transform: scale(1.01);
   }
 
   .upload-icon {
-    font-size: 64px;
+    font-size: 48px;
     margin-bottom: 16px;
+    opacity: 0.8;
   }
 
   .upload-text {
-    font-size: 18px;
+    font-size: 16px;
+    font-weight: 600;
     color: var(--text);
     margin-bottom: 8px;
   }
@@ -121,311 +520,476 @@
     display: none;
   }
 
-  .model-name-input {
-    width: 100%;
+  /* File List */
+  .file-list {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     padding: 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px solid var(--purple);
-    border-radius: 12px;
-    color: var(--text);
-    font-size: 16px;
-    font-family: 'Inter', sans-serif;
-    margin-bottom: 16px;
+    background: rgba(168, 85, 247, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 10px;
     transition: all 0.3s ease;
   }
 
-  .model-name-input:focus {
-    outline: none;
-    border-color: var(--purple-light);
-    background: rgba(255, 255, 255, 0.08);
+  .file-item:hover {
+    border-color: var(--purple);
+    background: rgba(168, 85, 247, 0.1);
   }
 
-  .upload-btn {
-    width: 100%;
-    padding: 16px;
-    background: linear-gradient(135deg, var(--purple), var(--purple-light));
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
+  .file-icon {
+    font-size: 24px;
+  }
+
+  .file-info {
+    flex: 1;
+  }
+
+  .file-name {
+    font-size: 14px;
     font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: 'Inter', sans-serif;
+    color: var(--text);
+    margin-bottom: 4px;
   }
 
-  .upload-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4);
+  .file-size {
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
-  .upload-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .progress-bar {
+  .file-progress {
     width: 100%;
-    height: 8px;
+    height: 4px;
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
+    border-radius: 2px;
     overflow: hidden;
-    margin-top: 16px;
-    display: none;
+    margin-top: 8px;
   }
 
-  .progress-fill {
+  .file-progress-bar {
     height: 100%;
     background: linear-gradient(90deg, var(--purple), var(--purple-light));
     width: 0%;
     transition: width 0.3s ease;
   }
 
-  /* Models List */
-  .models-section {
-    background: #1a1a1a;
-    border: 2px solid var(--purple);
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  }
-
-  .section-title {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 24px;
-    color: var(--text);
-  }
-
-  .models-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 24px;
-  }
-
-  .model-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px solid rgba(168, 85, 247, 0.3);
-    border-radius: 12px;
-    padding: 24px;
+  .file-remove {
+    padding: 8px 12px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
     transition: all 0.3s ease;
   }
 
-  .model-card:hover {
-    border-color: var(--purple);
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.3);
+  .file-remove:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
   }
 
-  .model-name {
-    font-size: 18px;
-    font-weight: 600;
+  /* Supply Item */
+  .supply-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .supply-item {
+    padding: 20px;
+    background: rgba(168, 85, 247, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    position: relative;
+  }
+
+  .supply-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .supply-title {
+    font-size: 16px;
+    font-weight: 700;
     color: var(--text);
-    margin-bottom: 12px;
-    word-break: break-word;
   }
 
-  .model-info {
+  .supply-remove {
+    padding: 6px 12px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .supply-remove:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+  }
+
+  .supply-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 12px 24px;
+    border-radius: 10px;
     font-size: 14px;
-    color: var(--text-muted);
-    margin-bottom: 8px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
   }
 
-  .model-actions {
+  .btn-primary {
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    color: white;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    background: rgba(168, 85, 247, 0.1);
+    color: var(--purple-light);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    background: rgba(168, 85, 247, 0.2);
+    border-color: var(--purple);
+    transform: translateY(-2px);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .btn-ghost:hover {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: var(--purple);
+  }
+
+  .btn-group {
     display: flex;
     gap: 12px;
-    margin-top: 16px;
+    flex-wrap: wrap;
   }
 
-  /* Model action buttons - scoped to avoid overriding navbar buttons */
-  .model-actions .btn {
-    flex: 1;
-    padding: 10px 16px;
+  /* Submit Button */
+  .submit-section {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .btn-submit {
+    padding: 16px 48px;
+    font-size: 16px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
     font-family: 'Inter', sans-serif;
   }
 
-  .model-actions .btn-download {
-    background: linear-gradient(135deg, var(--purple), var(--purple-light));
-    color: white;
+  .btn-submit:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(168, 85, 247, 0.5);
   }
 
-  .model-actions .btn-download:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
-  }
-
-  .model-actions .btn-delete {
-    background: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
-    border: 1px solid #ef4444;
-  }
-
-  .model-actions .btn-delete:hover {
-    background: rgba(239, 68, 68, 0.3);
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 48px;
-    color: var(--text-muted);
-  }
-
-  .empty-state-icon {
-    font-size: 64px;
-    margin-bottom: 16px;
+  .btn-submit:disabled {
     opacity: 0.5;
+    cursor: not-allowed;
   }
 
-  /* Loading Spinner */
-  .spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: white;
-    animation: spin 0.8s linear infinite;
+  /* Info Box */
+  .info-box {
+    padding: 16px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 10px;
+    margin-top: 16px;
   }
 
-  @keyframes spin {
-    to { transform: rotate(360deg); }
+  .info-box.success {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.3);
   }
 
-  /* ========================================
-     NOTIFICATION & CONFIRM DIALOG STYLES
-     REQUIRED FOR DIALOGS TO WORK
-     ======================================== */
-  
-  .notification {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.7);
-    background: #1a1a1a;
-    border: 2px solid var(--purple);
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.8);
-    z-index: 400;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s ease;
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
-    display: block;
+  .info-box.warning {
+    background: rgba(251, 191, 36, 0.1);
+    border-color: rgba(251, 191, 36, 0.3);
   }
 
-  .notification.show {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-    pointer-events: auto;
-  }
-
-  .notification-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-    display: block;
-  }
-
-  .notification-title {
-    font-size: 22px;
+  .info-title {
+    font-size: 14px;
     font-weight: 700;
     color: var(--text);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
-  .notification-message {
-    font-size: 15px;
+  .info-text {
+    font-size: 13px;
     color: var(--text-muted);
-    margin-bottom: 24px;
-    line-height: 1.5;
+    line-height: 1.6;
   }
 
-  .notification-buttons {
-    display: flex;
+  /* Filament Display */
+  .filament-display {
+    padding: 16px;
+    background: rgba(168, 85, 247, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-top: 12px;
+  }
+
+  .filament-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
-    justify-content: center;
   }
 
-  .notification-buttons .btn {
-    padding: 12px 32px;
+  .filament-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
 
-  .confirm-dialog {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.7);
-    background: #1a1a1a;
-    border: 2px solid var(--purple);
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.8);
-    z-index: 400;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s ease;
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
+  .filament-field-label {
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
-  .confirm-dialog.show {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-    pointer-events: auto;
+  .filament-field-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
   }
 
-  .overlay {
+  /* Modal Overlay */
+  .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.7);
-    z-index: 300;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
     backdrop-filter: blur(8px);
+    z-index: 9998;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
-  .overlay.show {
+  .modal-overlay.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     opacity: 1;
-    pointer-events: auto;
   }
 
+  /* Modal */
+  .modal {
+    background: #1e172e;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 20px;
+    padding: 32px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.9);
+  }
+
+  /* Form Modal - Larger */
+  .form-modal {
+    max-width: 1000px;
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-close:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: rotate(90deg);
+  }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #1e172e;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    min-width: 300px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    display: none;
+    animation: slideIn 0.3s ease;
+  }
+
+  .toast.show {
+    display: block;
+  }
+
+  .toast.success {
+    border-color: rgba(34, 197, 94, 0.5);
+  }
+
+  .toast.error {
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+
+  .toast-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .toast-icon {
+    font-size: 24px;
+  }
+
+  .toast-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .toast-message {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-left: 36px;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(400px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  /* Responsive */
   @media (max-width: 768px) {
     .page-container {
       padding: 30px 20px;
     }
 
-    .page-title {
-      font-size: 36px;
-    }
-
-    .models-grid {
+    .form-grid,
+    .form-grid.three {
       grid-template-columns: 1fr;
     }
 
-    .upload-area {
-      padding: 32px 16px;
+    .supply-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .time-input-group {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .btn-group {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .image-upload-container {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .model-card-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .model-image {
+      margin-right: 0;
+      margin-bottom: 16px;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1;
     }
   }
 </style>
 </head>
 <body>
-<!-- ========================================
-     LOADING OVERLAY
-     ======================================== -->
+<!-- Loading Overlay -->
 <div id="loadingOverlay" style="
   position: fixed;
   top: 0;
@@ -448,7 +1012,7 @@
     border-radius: 50%;
     animation: spin 1s linear infinite;
   "></div>
-  <p style="margin-top: 20px; color: var(--text-muted); font-size: 14px;">Loading upload manager...</p>
+  <p style="margin-top: 20px; color: var(--text-muted); font-size: 14px;">Loading...</p>
   <style>
     @keyframes spin {
       0% { transform: rotate(0deg); }
@@ -457,743 +1021,372 @@
   </style>
 </div>
 
-<!-- ========================================
-     NAVBAR CONTAINER
-     This gets automatically populated
-     ======================================== -->
+<!-- Navbar Container -->
 <div id="navbar-container"></div>
 
-<!-- ========================================
-     MAIN CONTENT
-     ======================================== -->
+<!-- Main Content -->
 <div class="page-container">
-  <div class="page-header">
-    <h1 class="page-title">Upload <span class="highlight">Model</span></h1>
-    <p class="page-subtitle">Upload and manage your 3D models</p>
+  <div class="orders-header">
+    <h1 class="orders-title">Your Models</h1>
+    <p class="orders-subtitle">Manage your 3D model inventory</p>
   </div>
 
-  <!-- Upload Section -->
-  <div class="upload-section">
-    <div class="upload-area" id="uploadArea">
-      <div class="upload-icon">📦</div>
-      <div class="upload-text">Click to upload or drag and drop</div>
-      <div class="upload-subtext">Supports: .obj, .fbx, .gltf, .glb, .blend, .stl, .dae and more</div>
-      <input type="file" id="fileInput" accept=".obj,.fbx,.gltf,.glb,.blend,.stl,.dae,.3ds,.max,.ma,.mb">
+  <!-- Action Bar -->
+  <div class="action-bar">
+    <div class="search-box">
+      <input type="text" id="searchModels" placeholder="Search models...">
     </div>
-
-    <div id="selectedFileInfo" style="display: none; margin-bottom: 16px; padding: 16px; background: rgba(168, 85, 247, 0.1); border-radius: 8px;">
-      <div style="color: var(--text); font-size: 14px; margin-bottom: 8px;">
-        <strong>Selected File:</strong> <span id="fileName"></span>
-      </div>
-      <div style="color: var(--text-muted); font-size: 14px;">
-        <strong>Size:</strong> <span id="fileSize"></span>
-      </div>
-    </div>
-
-    <input 
-      type="text" 
-      class="model-name-input" 
-      id="modelName" 
-      placeholder="Enter model name (optional)"
-    >
-
-    <button class="upload-btn" id="uploadBtn" disabled>
-      Upload Model
+    <button type="button" class="btn" id="btnShowAddModel">
+      Add Model
     </button>
-
-    <div class="progress-bar" id="progressBar">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
   </div>
 
   <!-- Models List -->
-  <div class="models-section">
-    <h2 class="section-title">Your Models</h2>
-    <div class="models-grid" id="modelsGrid">
-      <div class="empty-state">
-        <div class="empty-state-icon">📦</div>
-        <div>No models uploaded yet</div>
+  <div id="modelsList">
+    <!-- Models will be loaded here -->
+  </div>
+</div>
+
+<!-- Add Model Form Modal -->
+<div class="modal-overlay" id="addModelModal">
+  <div class="modal form-modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Add New Model</h2>
+      <button type="button" class="modal-close" onclick="closeAddModelModal()">×</button>
+    </div>
+
+    <form id="modelForm">
+    <!-- A) Add Model Section -->
+    <div class="form-section">
+      <div class="section-title">
+        Model Information
       </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">SKU</label>
+          <input type="text" class="form-input" id="sku" placeholder="1000 | 0 for infinite">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Designer</label>
+          <input type="text" class="form-input" id="designer" placeholder="Vixvvo3D">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <input type="text" class="form-input" id="category" list="categoryOptions" placeholder="Enter or select category">
+          <datalist id="categoryOptions">
+            <!-- Populated dynamically -->
+          </datalist>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Marketplace</label>
+          <input type="text" class="form-input" id="marketplace" placeholder="Marketplace">
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label">Model Name <span class="required">*</span></label>
+          <input type="text" class="form-input" id="modelName" placeholder="Enter model name" required>
+        </div>
+
+        <div class="form-group full-width">
+          <label class="form-label">Print Time</label>
+          <div class="time-input-group">
+            <div class="time-input-wrapper">
+              <label>Hours</label>
+              <input type="number" class="form-input" id="printHours" min="0" value="0" placeholder="0">
+            </div>
+            <div class="time-input-wrapper">
+              <label>Minutes</label>
+              <input type="number" class="form-input" id="printMinutes" min="0" max="59" value="0" placeholder="0">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Model Image Section -->
+    <div class="form-section">
+      <div class="section-title">
+        Model Image
+      </div>
+
+      <div class="image-upload-container">
+        <div class="image-preview" id="imagePreview">
+          <div class="image-preview-placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <p>Upload Image</p>
+          </div>
+          <img id="imagePreviewImg" style="display: none;" alt="Model preview">
+        </div>
+        <div class="image-upload-actions">
+          <input type="file" id="imageInput" accept="image/*" style="display: none;">
+          <button type="button" class="btn-secondary" onclick="document.getElementById('imageInput').click()">Choose Image</button>
+          <button type="button" class="btn-secondary" id="btnRemoveImage" style="display: none;">Remove</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Model Files Section -->
+    <div class="form-section">
+      <div class="section-title">
+        Model Files
+      </div>
+
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">⬆</div>
+        <div class="upload-text">Click to upload or drag and drop</div>
+        <div class="upload-subtext">Supports: .stl, .3mf, .obj, .step, .zip (Max 100MB per file)</div>
+        <input type="file" id="fileInput" multiple accept=".stl,.3mf,.obj,.step,.zip">
+      </div>
+
+      <div class="file-list" id="fileList"></div>
+    </div>
+
+    <!-- B) Filament Cost Section -->
+    <div class="form-section">
+      <div class="section-title">
+        Filament Cost
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Choose Your Filament</label>
+        <select class="form-select" id="filamentSelect">
+          <option value="">Select filament...</option>
+          <optgroup label="Global Filaments" id="globalFilamentsGroup">
+            <!-- Populated dynamically -->
+          </optgroup>
+          <optgroup label="Your Filaments" id="userFilamentsGroup">
+            <!-- Populated dynamically -->
+          </optgroup>
+        </select>
+      </div>
+
+      <div id="filamentDisplay" class="filament-display" style="display: none;">
+        <div class="filament-info">
+          <div class="filament-field">
+            <div class="filament-field-label">Brand</div>
+            <div class="filament-field-value" id="filamentBrand">-</div>
+          </div>
+          <div class="filament-field">
+            <div class="filament-field-label">Type</div>
+            <div class="filament-field-value" id="filamentType">-</div>
+          </div>
+          <div class="filament-field">
+            <div class="filament-field-label">Spool Weight</div>
+            <div class="filament-field-value" id="filamentWeight">-</div>
+          </div>
+          <div class="filament-field">
+            <div class="filament-field-label">Cost per Spool</div>
+            <div class="filament-field-value" id="filamentCost">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box warning" style="margin-top: 16px;">
+        <div class="info-title">Auto-Calculator (Coming Soon)</div>
+        <div class="info-text">Filament cost calculation based on estimated weight/length will be available soon.</div>
+      </div>
+    </div>
+
+    <!-- C) Supplies Section -->
+    <div class="form-section">
+      <div class="section-title">
+        Supplies
+      </div>
+
+      <div class="supply-list" id="supplyList"></div>
+
+      <div class="btn-group">
+        <button type="button" class="btn btn-secondary" id="btnAddSupply">
+          Add Existing Supply
+        </button>
+        <button type="button" class="btn btn-secondary" id="btnCreateSupply">
+          Create New Supply
+        </button>
+      </div>
+    </div>
+
+    <!-- D) Sales Platform Section -->
+    <div class="form-section">
+      <div class="section-title">
+        Sales Platform
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Sales Platform Sold On?</label>
+        <select class="form-select" id="salesPlatform">
+          <option value="">Select platform...</option>
+          <option value="Etsy">Etsy</option>
+          <option value="eBay">eBay</option>
+          <option value="Shopify">Shopify</option>
+          <option value="TikTok Shop">TikTok Shop</option>
+          <option value="Facebook Marketplace">Facebook Marketplace</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- E) Printer Section -->
+    <div class="form-section">
+      <div class="section-title">
+        Printer
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Model Printed On</label>
+        <select class="form-select" id="printerSelect">
+          <option value="">Select printer...</option>
+          <optgroup label="Global Printers" id="globalPrintersGroup">
+            <!-- Populated dynamically -->
+          </optgroup>
+          <optgroup label="Your Printers" id="userPrintersGroup">
+            <!-- Populated dynamically -->
+          </optgroup>
+        </select>
+      </div>
+
+      <button type="button" class="btn btn-ghost" id="btnAddPrinter" style="margin-top: 12px;">
+        Add Printer
+      </button>
+    </div>
+
+    <!-- F) Submit Section -->
+    <div class="submit-section">
+      <button type="submit" class="btn-submit" id="btnCreateModel" disabled>
+        CREATE MODEL
+      </button>
+    </div>
+  </form>
+  </div>
+</div>
+
+<!-- Add Supply Modal -->
+<div class="modal-overlay" id="addSupplyModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Add Existing Supply</h2>
+      <button type="button" class="modal-close" onclick="closeAddSupplyModal()">×</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Select Supply</label>
+      <select class="form-select" id="existingSupplySelect">
+        <option value="">Choose a supply...</option>
+        <!-- Populated dynamically -->
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Quantity Needed for This Model</label>
+      <input type="number" class="form-input" id="existingSupplyQuantity" min="1" value="1">
+    </div>
+
+    <div style="margin-top: 24px; display: flex; gap: 12px;">
+      <button type="button" class="btn btn-ghost" onclick="closeAddSupplyModal()" style="flex: 1;">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btnConfirmAddSupply" style="flex: 1;">Add Supply</button>
     </div>
   </div>
 </div>
 
-<!-- ========================================
-     OVERLAY FOR DIALOGS
-     ======================================== -->
-<div class="overlay" id="overlay"></div>
+<!-- Create Supply Modal -->
+<div class="modal-overlay" id="createSupplyModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Create New Supply</h2>
+      <button type="button" class="modal-close" onclick="closeCreateSupplyModal()">×</button>
+    </div>
 
-<!-- ========================================
-     NOTIFICATION DIALOG
-     ======================================== -->
-<div class="notification" id="notification">
-  <div class="notification-icon" id="notificationIcon">✅</div>
-  <div class="notification-title" id="notificationTitle">Success</div>
-  <div class="notification-message" id="notificationMessage">Action completed!</div>
-  <div class="notification-buttons">
-    <button class="btn btn-download" onclick="closeNotification()">OK</button>
+    <form id="createSupplyForm">
+      <div class="form-group">
+        <label class="form-label">Category <span class="required">*</span></label>
+        <input type="text" class="form-input" id="newSupplyCategory" placeholder="e.g., Hardware, Paint, Tools" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Supply Name <span class="required">*</span></label>
+        <input type="text" class="form-input" id="newSupplyName" placeholder="e.g., M3 Screws, Acrylic Paint" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Cost Per Item <span class="required">*</span></label>
+        <input type="number" class="form-input" id="newSupplyCost" step="0.01" min="0" placeholder="19.99" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Supplies in Stock</label>
+        <input type="number" class="form-input" id="newSupplyStock" min="0" value="0">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Quantity Needed for This Model <span class="required">*</span></label>
+        <input type="number" class="form-input" id="newSupplyNeeded" min="1" value="1" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Purchase Link</label>
+        <input type="url" class="form-input" id="newSupplyLink" placeholder="https://example.com/product">
+      </div>
+
+      <div style="margin-top: 24px; display: flex; gap: 12px;">
+        <button type="button" class="btn btn-ghost" onclick="closeCreateSupplyModal()" style="flex: 1;">Cancel</button>
+        <button type="submit" class="btn btn-primary" style="flex: 1;">Create & Add</button>
+      </div>
+    </form>
   </div>
 </div>
 
-<!-- ========================================
-     CONFIRM DIALOG
-     ======================================== -->
-<div class="confirm-dialog" id="confirmDialog">
-  <div class="notification-icon" id="confirmIcon">!</div>
-  <div class="notification-title" id="confirmTitle">Confirm Action</div>
-  <div class="notification-message" id="confirmMessage">Are you sure?</div>
-  <div class="notification-buttons">
-    <button class="btn btn-delete" onclick="closeConfirm()">Cancel</button>
-    <button class="btn btn-download" id="confirmBtn">Confirm</button>
+<!-- Add Printer Modal -->
+<div class="modal-overlay" id="addPrinterModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Add Printer</h2>
+      <button type="button" class="modal-close" onclick="closeAddPrinterModal()">×</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Printer Name <span class="required">*</span></label>
+      <input type="text" class="form-input" id="newPrinterName" placeholder="e.g., Prusa i3 MK3S, Ender 3 Pro">
+    </div>
+
+    <div style="margin-top: 24px; display: flex; gap: 12px;">
+      <button type="button" class="btn btn-ghost" onclick="closeAddPrinterModal()" style="flex: 1;">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btnConfirmAddPrinter" style="flex: 1;">Add Printer</button>
+    </div>
   </div>
 </div>
 
-<!-- ========================================
-     PAGE SCRIPTS
-     Firebase is already initialized by navbar-loader.js
-     ======================================== -->
-<script>
-  // ========================================
-  // NOTIFICATION SYSTEM
-  // ========================================
-  function showNotification(message, type = 'success', title = '') {
-    const notification = document.getElementById('notification');
-    const overlay = document.getElementById('overlay');
-    const icon = document.getElementById('notificationIcon');
-    const titleEl = document.getElementById('notificationTitle');
-    const messageEl = document.getElementById('notificationMessage');
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+  <div class="toast-header">
+    <div class="toast-icon" id="toastIcon">✓</div>
+    <div class="toast-title" id="toastTitle">Success</div>
+  </div>
+  <div class="toast-message" id="toastMessage">Operation completed successfully</div>
+</div>
+
+<!-- Image Crop Modal -->
+<div class="crop-modal" id="cropModal">
+  <div class="crop-container">
+    <h3 style="margin: 0; color: var(--text);">Crop Image to Square</h3>
+    <div class="crop-area">
+      <canvas id="cropCanvas"></canvas>
+    </div>
+    <div class="crop-actions">
+      <button type="button" class="btn-secondary" onclick="closeCropModal()">Cancel</button>
+      <button type="button" class="btn" onclick="applyCrop()">Apply Crop</button>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Model Script -->
+<script src="../js/upload-model.js"></script>
 
-    const icons = {
-      success: '✅',
-      error: 'X',
-      warning: '!',
-      info: 'i'
-    };
-
-    const titles = {
-      success: title || 'Success',
-      error: title || 'Error',
-      warning: title || 'Warning',
-      info: title || 'Info'
-    };
-
-    icon.textContent = icons[type] || icons.info;
-    titleEl.textContent = titles[type];
-    messageEl.textContent = message;
-
-    overlay.classList.add('show');
-    notification.classList.add('show');
-  }
-
-  function closeNotification() {
-    document.getElementById('notification').classList.remove('show');
-    document.getElementById('overlay').classList.remove('show');
-  }
-
-  function showConfirm(message, title, onConfirm, cancelText = 'Cancel') {
-    return new Promise((resolve) => {
-      const confirmDialog = document.getElementById('confirmDialog');
-      const overlay = document.getElementById('overlay');
-      const titleEl = document.getElementById('confirmTitle');
-      const messageEl = document.getElementById('confirmMessage');
-      const confirmBtn = document.getElementById('confirmBtn');
-      const cancelBtn = document.getElementById('cancelBtn');
-
-      titleEl.textContent = title;
-      messageEl.textContent = message;
-
-      overlay.classList.add('show');
-      confirmDialog.classList.add('show');
-
-      // Confirm button handler
-      const handleConfirm = () => {
-        closeConfirm();
-        if (typeof onConfirm === 'function') {
-          onConfirm();
-        }
-        resolve(true);
-        cleanup();
-      };
-
-      // Cancel button handler
-      const handleCancel = () => {
-        closeConfirm();
-        resolve(false);
-        cleanup();
-      };
-
-      // Cleanup function to remove event listeners
-      function cleanup() {
-        confirmBtn.removeEventListener('click', handleConfirm);
-        if (cancelBtn) cancelBtn.removeEventListener('click', handleCancel);
-      }
-
-      confirmBtn.addEventListener('click', handleConfirm);
-      if (cancelBtn) {
-        cancelBtn.addEventListener('click', handleCancel);
-      }
-    });
-  }
-
-  function closeConfirm() {
-    document.getElementById('confirmDialog').classList.remove('show');
-    document.getElementById('overlay').classList.remove('show');
-  }
-
-  // Close dialogs when clicking overlay
-  document.getElementById('overlay').addEventListener('click', () => {
-    closeNotification();
-    closeConfirm();
-  });
-
-  // ========================================
-  // GLOBAL VARIABLES
-  // ========================================
-  let selectedFile = null;
-  // Note: currentUser is declared globally in auth.js
-
-  // ========================================
-  // FIREBASE AUTH STATE
-  // ========================================
-  // Auth state is handled in the loading overlay section below
-
-  // ========================================
-  // FILE UPLOAD HANDLING
-  // ========================================
-  const uploadArea = document.getElementById('uploadArea');
-  const fileInput = document.getElementById('fileInput');
-  const uploadBtn = document.getElementById('uploadBtn');
-  const modelNameInput = document.getElementById('modelName');
-  const selectedFileInfo = document.getElementById('selectedFileInfo');
-  const fileNameEl = document.getElementById('fileName');
-  const fileSizeEl = document.getElementById('fileSize');
-
-  // Click to upload
-  uploadArea.addEventListener('click', () => {
-    fileInput.click();
-  });
-
-  // File selected
-  fileInput.addEventListener('change', (e) => {
-    handleFileSelect(e.target.files[0]);
-  });
-
-  // Drag and drop
-  uploadArea.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadArea.classList.add('drag-over');
-  });
-
-  uploadArea.addEventListener('dragleave', () => {
-    uploadArea.classList.remove('drag-over');
-  });
-
-  uploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadArea.classList.remove('drag-over');
-    handleFileSelect(e.dataTransfer.files[0]);
-  });
-
-  function handleFileSelect(file) {
-    if (!file) return;
-
-    selectedFile = file;
-    uploadBtn.disabled = false;
-
-    // Display file info
-    fileNameEl.textContent = file.name;
-    fileSizeEl.textContent = formatFileSize(file.size);
-    selectedFileInfo.style.display = 'block';
-
-    // Auto-fill model name if empty
-    if (!modelNameInput.value) {
-      modelNameInput.value = file.name.replace(/\.[^/.]+$/, ''); // Remove extension
-    }
-  }
-
-  function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-  }
-
-  // Upload button
-  uploadBtn.addEventListener('click', uploadModel);
-
-  async function uploadModel() {
-    if (!currentUser) {
-      showNotification('Please login to upload models', 'warning', 'Login Required');
-      return;
-    }
-
-    if (!selectedFile) {
-      showNotification('Please select a file to upload', 'warning');
-      return;
-    }
-
-    const modelName = modelNameInput.value.trim() || selectedFile.name.replace(/\.[^/.]+$/, '');
-    
-    // Disable button and show progress
-    uploadBtn.disabled = true;
-    uploadBtn.innerHTML = '<span class="spinner"></span> Uploading...';
-    const progressBar = document.getElementById('progressBar');
-    const progressFill = document.getElementById('progressFill');
-    progressBar.style.display = 'block';
-
-    try {
-      // Create storage reference
-      const storageRef = firebase.storage().ref();
-      const fileRef = storageRef.child(`models/${currentUser.uid}/${Date.now()}_${selectedFile.name}`);
-
-      // Upload file with progress tracking
-      const uploadTask = fileRef.put(selectedFile);
-
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          // Progress
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          progressFill.style.width = progress + '%';
-        },
-        (error) => {
-          // Error
-          console.error('Upload error:', error);
-          showNotification('Failed to upload file: ' + error.message, 'error', 'Upload Failed');
-          resetUploadForm();
-        },
-        async () => {
-          // Success
-          try {
-            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-            
-            // Save metadata to database
-            const modelData = {
-              name: modelName,
-              fileName: selectedFile.name,
-              fileSize: selectedFile.size,
-              fileType: selectedFile.type || 'application/octet-stream',
-              downloadURL: downloadURL,
-              storagePath: uploadTask.snapshot.ref.fullPath,
-              uploadedAt: firebase.database.ServerValue.TIMESTAMP,
-              userId: currentUser.uid
-            };
-
-            await firebase.database().ref(`models/${currentUser.uid}`).push(modelData);
-
-            showNotification('Model uploaded successfully!', 'success', 'Upload Complete');
-            resetUploadForm();
-            loadUserModels();
-          } catch (error) {
-            console.error('Error saving metadata:', error);
-            showNotification('File uploaded but failed to save metadata', 'error');
-            resetUploadForm();
-          }
-        }
-      );
-    } catch (error) {
-      console.error('Upload error:', error);
-      showNotification('Failed to upload file: ' + error.message, 'error', 'Upload Failed');
-      resetUploadForm();
-    }
-  }
-
-  function resetUploadForm() {
-    selectedFile = null;
-    fileInput.value = '';
-    modelNameInput.value = '';
-    selectedFileInfo.style.display = 'none';
-    uploadBtn.disabled = true;
-    uploadBtn.textContent = 'Upload Model';
-    document.getElementById('progressBar').style.display = 'none';
-    document.getElementById('progressFill').style.width = '0%';
-  }
-
-  // ========================================
-  // LOAD MODELS
-  // ========================================
-  async function loadUserModels() {
-    if (!currentUser) return;
-
-    const modelsGrid = document.getElementById('modelsGrid');
-    modelsGrid.innerHTML = '<div class="empty-state"><div class="spinner"></div><div>Loading models...</div></div>';
-
-    try {
-      const snapshot = await firebase.database().ref(`models/${currentUser.uid}`).once('value');
-      const models = [];
-
-      snapshot.forEach((childSnapshot) => {
-        models.push({
-          id: childSnapshot.key,
-          ...childSnapshot.val()
-        });
-      });
-
-      if (models.length === 0) {
-        modelsGrid.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">-</div>
-            <div>No models uploaded yet</div>
-          </div>
-        `;
-        return;
-      }
-
-      // Sort by upload date (newest first)
-      models.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
-
-      // Display models
-      modelsGrid.innerHTML = models.map(model => `
-        <div class="model-card">
-          <div class="model-name">${escapeHtml(model.name)}</div>
-          <div class="model-info"><strong>File:</strong> ${escapeHtml(model.fileName)}</div>
-          <div class="model-info"><strong>Size:</strong> ${formatFileSize(model.fileSize)}</div>
-          <div class="model-info"><strong>Uploaded:</strong> ${formatDate(model.uploadedAt)}</div>
-          <div class="model-actions">
-            <button class="btn btn-download" onclick="downloadModel('${model.id}', '${escapeHtml(model.downloadURL)}', '${escapeHtml(model.fileName)}')">
-              Download
-            </button>
-            <button class="btn btn-delete" onclick="deleteModel('${model.id}', '${escapeHtml(model.storagePath)}')">
-              Delete
-            </button>
-          </div>
-        </div>
-      `).join('');
-    } catch (error) {
-      console.error('Error loading models:', error);
-      modelsGrid.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-state-icon">X</div>
-          <div>Error loading models</div>
-        </div>
-      `;
-    }
-  }
-
-  // ========================================
-  // DOWNLOAD MODEL
-  // ========================================
-  function downloadModel(modelId, downloadURL, fileName) {
-    try {
-      const link = document.createElement('a');
-      link.href = downloadURL;
-      link.download = fileName;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showNotification('Model download started!', 'success');
-    } catch (error) {
-      console.error('Download error:', error);
-      showNotification('Failed to download model', 'error');
-    }
-  }
-
-  // ========================================
-  // DELETE MODEL
-  // ========================================
-  async function deleteModel(modelId, storagePath) {
-    const confirmed = await showConfirm(
-      'Are you sure you want to delete this model? This action cannot be undone.',
-      'Delete Model'
-    );
-    
-    if (confirmed) {
-      try {
-        // Delete from storage
-        const storageRef = firebase.storage().ref(storagePath);
-        await storageRef.delete();
-
-        // Delete from database
-        await firebase.database().ref(`models/${currentUser.uid}/${modelId}`).remove();
-
-        showNotification('Model deleted successfully!', 'success');
-        loadUserModels();
-      } catch (error) {
-        console.error('Delete error:', error);
-        showNotification('Failed to delete model: ' + error.message, 'error');
-      }
-    }
-  }
-
-  // ========================================
-  // UTILITY FUNCTIONS
-  // ========================================
-  function escapeHtml(text) {
-    const map = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#039;'
-    };
-    return String(text).replace(/[&<>"']/g, m => map[m]);
-  }
-
-  function formatDate(timestamp) {
-    if (!timestamp) return 'Unknown';
-    const date = new Date(timestamp);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  // ========================================
-  // CURRENCY HANDLING
-  // ========================================
-  window.currentCurrency = 'USD';
-  window.lastSavedCurrency = 'USD';
-
-  // Function to update the save button state
-  function updateSaveButton() {
-    const user = firebase.auth().currentUser;
-    const currencySelect = document.getElementById('currencySelect');
-    const btnSaveCurrency = document.getElementById('btnSaveCurrency');
-    
-    if (!currencySelect || !btnSaveCurrency) return;
-    
-    if (user) {
-      // Show button only if logged in
-      btnSaveCurrency.style.display = 'block';
-      
-      // Check if current currency is different from saved
-      if (currencySelect.value !== window.lastSavedCurrency) {
-        btnSaveCurrency.textContent = 'Save';
-        btnSaveCurrency.disabled = false;
-        btnSaveCurrency.style.opacity = '1';
-      } else {
-        btnSaveCurrency.textContent = 'Saved';
-        btnSaveCurrency.disabled = true;
-        btnSaveCurrency.style.opacity = '0.5';
-      }
-    } else {
-      // Hide button if not logged in
-      btnSaveCurrency.style.display = 'none';
-    }
-  }
-
-  // Save currency preference to Firebase
-  function saveCurrencyPreference() {
-    const user = firebase.auth().currentUser;
-    const currencySelect = document.getElementById('currencySelect');
-    const btnSaveCurrency = document.getElementById('btnSaveCurrency');
-    
-    if (!user) {
-      console.log('WARNING: Not logged in, currency not saved');
-      showNotification('Please login to save your currency preference', 'warning', 'Login Required');
-      return;
-    }
-    
-    window.currentCurrency = currencySelect.value;
-    console.log('Saving currency preference:', window.currentCurrency);
-    
-    btnSaveCurrency.disabled = true;
-    btnSaveCurrency.textContent = 'Saving...';
-    
-    // Save to Firebase
-    firebase.database().ref('users/' + user.uid + '/currency').set(window.currentCurrency)
-      .then(() => {
-        console.log('Currency saved to Firebase:', window.currentCurrency);
-        window.lastSavedCurrency = window.currentCurrency;
-        btnSaveCurrency.textContent = 'Saved';
-        showNotification('Currency preference saved!', 'success');
-        
-        // Update button state after short delay
-        setTimeout(() => {
-          updateSaveButton();
-        }, 2000);
-      })
-      .catch(error => {
-        console.error('Error saving currency:', error);
-        btnSaveCurrency.textContent = 'Error';
-        showNotification('Failed to save currency. Please try again.', 'error');
-        
-        setTimeout(() => {
-          updateSaveButton();
-        }, 3000);
-      });
-  }
-
-  // Load saved currency from Firebase
-  function loadSavedCurrency(user) {
-    if (!user) return Promise.resolve();
-    
-    return firebase.database().ref('users/' + user.uid + '/currency').once('value')
-      .then(snapshot => {
-        const savedCurrency = snapshot.val();
-        if (savedCurrency) {
-          console.log('Loaded saved currency:', savedCurrency);
-          window.currentCurrency = savedCurrency;
-          window.lastSavedCurrency = savedCurrency;
-          
-          const currencySelect = document.getElementById('currencySelect');
-          if (currencySelect) {
-            currencySelect.value = savedCurrency;
-          }
-          updateSaveButton();
-        }
-      })
-      .catch(error => {
-        console.error('Error loading currency:', error);
-      });
-  }
-
-  // ========================================
-  // NAVBAR BUTTON HANDLERS
-  // ========================================
-  document.addEventListener('navbarLoaded', function() {
-    const btnLoginNav = document.getElementById('btnLoginNav');
-    const btnLoginSettings = document.getElementById('btnLoginSettings');
-    const btnLogoutSettings = document.getElementById('btnLogoutSettings');
-    const btnSettingsPage = document.getElementById('btnSettingsPage');
-    const settingsDropdown = document.getElementById('settingsDropdown');
-    const btnSettings = document.getElementById('btnSettings');
-    const currencySelect = document.getElementById('currencySelect');
-    const btnSaveCurrency = document.getElementById('btnSaveCurrency');
-
-    // Login button in nav (visible when logged out)
-    if (btnLoginNav) {
-      btnLoginNav.addEventListener('click', () => {
-        window.location.href = '../index.html?login=true';
-      });
-    }
-
-    // Login button in settings dropdown
-    if (btnLoginSettings) {
-      btnLoginSettings.addEventListener('click', () => {
-        window.location.href = '../index.html?login=true';
-      });
-    }
-
-    // Logout button in settings dropdown
-    if (btnLogoutSettings) {
-      btnLogoutSettings.addEventListener('click', () => {
-        showConfirm('Are you sure you want to log out?', '', 'Logout', 'Logout').then((confirmed) => {
-          if (confirmed) {
-            if (settingsDropdown) settingsDropdown.classList.remove('active');
-            if (btnSettings) btnSettings.classList.remove('active');
-            
-            firebase.auth().signOut().then(() => {
-              console.log('User logged out');
-              showNotification('You have been logged out successfully.', 'success', 'Goodbye!');
-              // Reload page to clear all user data
-              setTimeout(() => {
-                window.location.reload();
-              }, 1500);
-            }).catch((error) => {
-              console.error('Logout error:', error);
-              showNotification('Logout failed. Please try again.', 'error');
-            });
-          }
-        });
-      });
-    }
-
-    // Settings page button
-    if (btnSettingsPage) {
-      btnSettingsPage.addEventListener('click', () => {
-        window.location.href = 'settings.html';
-      });
-    }
-
-    // Currency select handler
-    if (currencySelect) {
-      currencySelect.addEventListener('change', function() {
-        window.currentCurrency = this.value;
-        console.log('Currency changed to:', window.currentCurrency);
-        updateSaveButton();
-      });
-    }
-
-    // Currency save button handler
-    if (btnSaveCurrency) {
-      btnSaveCurrency.addEventListener('click', saveCurrencyPreference);
-    }
-
-    // Load saved currency when user is logged in
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        loadSavedCurrency(user);
-      } else {
-        // Reset to USD when logged out
-        window.currentCurrency = 'USD';
-        window.lastSavedCurrency = 'USD';
-        if (currencySelect) {
-          currencySelect.value = 'USD';
-        }
-        updateSaveButton();
-      }
-    });
-  });
-
-  // ========================================
-  // LOADING OVERLAY
-  // ========================================
-  function hideLoadingOverlay() {
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    if (loadingOverlay) {
-      loadingOverlay.style.opacity = '0';
-      setTimeout(() => {
-        loadingOverlay.style.display = 'none';
-      }, 300);
-    }
-  }
-
-  // Track initialization
-  let authInitialized = false;
-  let firebaseConnected = false;
-
-  function checkInitComplete() {
-    if (authInitialized && firebaseConnected) {
-      hideLoadingOverlay();
-    }
-  }
-
-  // Initialize Firebase tracking
-  document.addEventListener('DOMContentLoaded', () => {
-    if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-      // Check Firebase connection
-      firebase.database().ref('.info/connected').on('value', snapshot => {
-        if (snapshot.val() === true) {
-          console.log('✅ Connected to Firebase');
-          firebaseConnected = true;
-          checkInitComplete();
-        }
-      });
-
-      // Auth state handler
-      firebase.auth().onAuthStateChanged((user) => {
-        console.log('Upload Model: Auth state changed:', user ? 'Logged in' : 'Logged out');
-        currentUser = user;
-        authInitialized = true;
-        checkInitComplete();
-        
-        // Load models or show login prompt
-        if (user) {
-          loadUserModels();
-        } else {
-          const modelsGrid = document.getElementById('modelsGrid');
-          if (modelsGrid) {
-            modelsGrid.innerHTML = `
-              <div class="empty-state">
-                <div class="empty-state-icon">-</div>
-                <div>Please login to view your models</div>
-              </div>
-            `;
-          }
-        }
-      });
-    }
-  });
-
-  // Fallback: Hide loading overlay after max 5 seconds
-  setTimeout(() => {
-    hideLoadingOverlay();
-  }, 5000);
-</script>
 </body>
 </html>

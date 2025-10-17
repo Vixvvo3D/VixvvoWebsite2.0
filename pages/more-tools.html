@@ -609,7 +609,7 @@
           console.log('✅ Currency saved to Firebase:', window.currentCurrency);
           window.lastSavedCurrency = window.currentCurrency;
           btnSaveCurrency.textContent = 'Saved';
-          showNotification('Currency preference saved!', '✓', 'Success');
+          showNotification('Currency preference saved! Reloading page...', '✓', 'Success');
           
           // Reload page after 1 second to show new currency
           setTimeout(() => {

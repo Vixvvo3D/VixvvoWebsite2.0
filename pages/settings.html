@@ -949,13 +949,13 @@
         console.error('Error fetching membership tier:', error);
       }
       
-      // Set role badge with icon
+      // Set role badge without icon
       const roleBadge = document.getElementById('userRoleBadge');
       if (isAdmin) {
-        roleBadge.innerHTML = '<span class="tier-badge-icon">👑</span> Administrator';
+        roleBadge.textContent = 'Administrator';
         roleBadge.className = 'status-badge admin';
       } else {
-        roleBadge.innerHTML = `<span class="tier-badge-icon">${tierIcon}</span> ${tierDisplay}`;
+        roleBadge.textContent = tierDisplay;
         roleBadge.className = `status-badge ${tierClass}`;
       }
 
@@ -1238,7 +1238,7 @@
     if (currentUser) {
       db.ref('users/' + currentUser.uid + '/currency').set(currency)
         .then(() => {
-          showNotification('Currency preference saved!', false);
+          showNotification('Currency preference saved! Reloading page...', false);
           // Reload page after 1 second to show new currency
           setTimeout(() => {
             location.reload();

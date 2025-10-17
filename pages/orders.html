@@ -151,8 +151,8 @@
 
   /* Orders Table */
   .orders-table-container {
-    background: #1a1a1a;
-    border: 1px solid var(--border);
+    background: #241d35;
+    border: 1px solid rgba(168, 85, 247, 0.2);
     border-radius: 12px;
     overflow-x: auto; /* Allow horizontal scroll if needed */
     overflow-y: visible; /* Allow dropdown to show outside */
@@ -4458,7 +4458,7 @@
           console.log('Currency saved to Firebase:', window.currentCurrency);
           window.lastSavedCurrency = window.currentCurrency;
           btnSaveCurrency.textContent = 'Saved';
-          showNotification('Currency preference saved!', 'success');
+          showNotification('Currency preference saved! Reloading page...', 'success');
           
           // Reload page after 1 second to show new currency
           setTimeout(() => {
