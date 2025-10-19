@@ -88,6 +88,8 @@ nav {
   padding: 8px 60px;
   position: relative;
   z-index: 100;
+  max-width: 1800px;
+  margin: 0 auto;
 }
 
 .logo-section {
