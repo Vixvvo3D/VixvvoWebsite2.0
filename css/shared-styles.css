@@ -59,7 +59,6 @@
 html {
   scroll-behavior: smooth;
   background: repeating-linear-gradient(135deg, #1a1625 0px, #0f0b16 400px, #1d1530 800px, #0f0b16 1200px, #1a1625 1600px);
-  background-size: 1600px 1600px;
   background-attachment: fixed;
   overscroll-behavior-y: none;
 }
@@ -71,7 +70,6 @@ body {
     radial-gradient(ellipse at 80% 70%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
     radial-gradient(ellipse at 50% 50%, rgba(192, 132, 252, 0.1) 0%, transparent 50%),
     repeating-linear-gradient(135deg, #1a1625 0px, #0f0b16 400px, #1d1530 800px, #0f0b16 1200px, #1a1625 1600px);
-  background-size: 1600px 1600px;
   background-attachment: fixed;
   color: var(--text);
   overflow-x: hidden;
