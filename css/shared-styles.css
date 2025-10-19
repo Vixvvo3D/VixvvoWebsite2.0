@@ -85,10 +85,10 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 60px;
+  padding: 2px 60px;
   position: relative;
   z-index: 100;
-  max-width: 1800px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -103,7 +103,7 @@ nav {
   height: 150px;
   width: auto;
   object-fit: contain;
-  margin-top: 8px;
+  margin-top: 0px;
   margin-left: 0px;
 }
 
