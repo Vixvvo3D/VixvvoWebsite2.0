@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing - Vixvvo Tools</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: 
+      radial-gradient(ellipse at 20% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
+      radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
+      radial-gradient(ellipse at 80% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
+      #000000;
+    color: #ffffff;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: all 0.3s ease;
+  }
+
+  body.light-mode {
+    background: 
+      radial-gradient(ellipse at 20% 0%, rgba(0, 0, 0, 0.03) 0%, transparent 40%),
+      radial-gradient(ellipse at 50% 0%, rgba(0, 0, 0, 0.03) 0%, transparent 40%),
+      radial-gradient(ellipse at 80% 0%, rgba(0, 0, 0, 0.03) 0%, transparent 40%),
+      #ffffff;
+    color: #000000;
+  }
+
+  /* Navigation */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 60px;
+    position: relative;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .logo img {
+    height: 140px;
+    width: auto;
+    transition: all 0.3s ease;
+  }
+
+  /* Cap logo size on small screens */
+  @media (max-width: 600px) {
+    .logo img {
+      height: 64px;
+    }
+    nav {
+      padding: 14px 20px;
+    }
+  }
+
+  .logo .logo-dark {
+    display: block;
+  }
+
+  .logo .logo-light {
+    display: none;
+  }
+
+  body.light-mode .logo .logo-dark {
+    display: none;
+  }
+
+  body.light-mode .logo .logo-light {
+    display: block;
+  }
+
+    .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000000;
+    font-weight: 800;
+    transition: all 0.3s ease;
+  }
+
+  body.light-mode .logo-icon {
+    background: #000000;
+    color: #ffffff;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .nav-links a {
+    color: #999999;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+  }
+
+  .nav-links a:hover,
+  .nav-links a.active {
+    color: #ffffff;
+  }
+
+  body.light-mode .nav-links a {
+    color: #666666;
+  }
+
+  body.light-mode .nav-links a:hover,
+  body.light-mode .nav-links a.active {
+    color: #000000;
+  }
+
+  /* Theme Toggle */
+  .theme-toggle {
+    width: 50px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 20px;
+  }
+
+  .theme-toggle::before {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    background: #ffffff;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    transition: all 0.3s ease;
+  }
+
+  body.light-mode .theme-toggle {
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  body.light-mode .theme-toggle::before {
+    background: #000000;
+    transform: translateX(22px);
+  }
+
+  .btn-get-started {
+    padding: 10px 24px;
+    background: #ffffff;
+    color: #000000;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-get-started:hover {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+  }
+
+  body.light-mode .btn-get-started {
+    background: #000000;
+    color: #ffffff;
+  }
+
+  body.light-mode .btn-get-started:hover {
+    background: #1a1a1a;
+  }  /* Hero Section */
+  .hero {
+    text-align: center;
+    padding: 80px 40px 60px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+    .tag {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    font-size: 13px;
+    color: #cccccc;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+  }
+
+  body.light-mode .tag {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #666666;
+  }
+
+  h1 {
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  .subtitle {
+    font-size: 18px;
+    color: #999999;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto 40px;
+    transition: all 0.3s ease;
+  }
+
+  body.light-mode .subtitle {
+    color: #666666;
+  }
+
+  /* Toggle */
+  .billing-toggle {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 60px;
+  }
+
+  .toggle-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #999999;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .toggle-btn.active {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+  }
+
+  body.light-mode .toggle-btn {
+    border-color: rgba(0, 0, 0, 0.15);
+    color: #666666;
+  }
+
+  body.light-mode .toggle-btn.active {
+    background: #000000;
+    color: #ffffff;
+    border-color: #000000;
+  }  /* Pricing Cards */
+  .pricing-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .pricing-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 40px 32px;
+    transition: all 0.3s ease;
+  }
+
+  .pricing-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-4px);
+  }
+
+  body.light-mode .pricing-card {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+
+  body.light-mode .pricing-card:hover {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.15);
+  }  .card-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+  }
+
+  .card-icon-inner {
+    width: 24px;
+    height: 24px;
+    background: #ffffff;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+  }
+
+  body.light-mode .card-icon {
+    background: rgba(0, 0, 0, 0.08);
+  }
+
+  body.light-mode .card-icon-inner {
+    background: #000000;
+  }
+
+  .card-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .card-description {
+    font-size: 14px;
+    color: #999999;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+  }
+
+  body.light-mode .card-description {
+    color: #666666;
+  }
+
+  .price {
+    font-size: 48px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .price-period {
+    font-size: 16px;
+    color: #999999;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  body.light-mode .price-period {
+    color: #666666;
+  }
+
+  .btn-card {
+    width: 100%;
+    padding: 14px 24px;
+    background: #ffffff;
+    color: #000000;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 32px 0;
+    transition: all 0.3s ease;
+  }
+
+  .btn-card:hover {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+  }
+
+  .btn-card.outline {
+    background: transparent;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-card.outline:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  body.light-mode .btn-card {
+    background: #000000;
+    color: #ffffff;
+  }
+
+  body.light-mode .btn-card:hover {
+    background: #1a1a1a;
+  }
+
+  body.light-mode .btn-card.outline {
+    background: transparent;
+    color: #000000;
+    border-color: rgba(0, 0, 0, 0.15);
+  }
+
+  body.light-mode .btn-card.outline:hover {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.25);
+  }  .features-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #ffffff;
+    transition: all 0.3s ease;
+  }
+
+  body.light-mode .features-title {
+    color: #000000;
+  }
+
+  .features-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #cccccc;
+    transition: all 0.3s ease;
+  }
+
+  body.light-mode .feature-item {
+    color: #444444;
+  }
+
+  .feature-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+  }
+
+  .feature-icon::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #ffffff;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+  }
+
+  body.light-mode .feature-icon {
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+
+  body.light-mode .feature-icon::before {
+    background: #000000;
+  }  /* Responsive */
+  @media (max-width: 968px) {
+    .pricing-container {
+      grid-template-columns: 1fr;
+      max-width: 500px;
+    }
+
+    h1 {
+      font-size: 40px;
+    }
+
+    nav {
+      padding: 20px 30px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+  <div class="logo">
+    <img src="../images/Vixvvo2.0White.png" alt="Vixvvo" class="logo-dark">
+    <img src="../images/Vixvvo2.0Black.png" alt="Vixvvo" class="logo-light">
+  </div>
+  <div class="nav-links">
+    <a href="#">Products</a>
+    <a href="#">Use Cases</a>
+    <a href="#" class="active">Pricing</a>
+    <a href="#">About Us</a>
+    <div class="theme-toggle" id="themeToggle"></div>
+  </div>
+  <button class="btn-get-started">Get Started</button>
+</nav>
+
+<!-- Hero Section -->
+<div class="hero">
+  <div class="tag">Bring your business to the next scale</div>
+  <h1>Discover Products<br>With the Best Pricing</h1>
+  <p class="subtitle">Select from best plan, ensuring a perfect match. Need more or less? Customize your subscription for a seamless fit!</p>
+  
+  <div class="billing-toggle">
+    <button class="toggle-btn active">Monthly</button>
+    <button class="toggle-btn">Anually</button>
+  </div>
+</div>
+
+<!-- Pricing Cards -->
+<div class="pricing-container">
+  <!-- Basic Plan -->
+  <div class="pricing-card">
+    <div class="card-icon">
+      <div class="card-icon-inner"></div>
+    </div>
+    <div class="card-title">Basic</div>
+    <div class="card-description">Best for personal use.</div>
+    <div class="price">Free</div>
+    <button class="btn-card outline">Get Started</button>
+    <div class="features-title">What you will get</div>
+    <ul class="features-list">
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Employee directory
+      </li>
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Task management
+      </li>
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Calendar integration
+      </li>
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        File storage
+      </li>
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Communication tools
+      </li>
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Reporting and analytics
+      </li>
+    </ul>
+  </div>
+
+  <!-- Enterprise Plan -->
+  <div class="pricing-card">
+    <div class="card-icon">
+      <div class="card-icon-inner"></div>
+    </div>
+    <div class="card-title">Enterprise</div>
+    <div class="card-description">For large teams & corporations.</div>
+    <div class="price">$20 <span class="price-period">/ per month</span></div>
+    <button class="btn-card">Get Started</button>
+    <div class="features-title">What you will get</div>
+    <ul class="features-list">
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Customizable employee directory
+      </li>
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Project management
+      </li>
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Resource scheduling
+      </li>
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Version control
+      </li>
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Team collaboration
+      </li>
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Advanced analytics
+      </li>
+    </ul>
+  </div>
+
+  <!-- Business Plan -->
+  <div class="pricing-card">
+    <div class="card-icon">
+      <div class="card-icon-inner"></div>
+    </div>
+    <div class="card-title">Business</div>
+    <div class="card-description">Best for business owners.</div>
+    <div class="price">$120 <span class="price-period">/ per month</span></div>
+    <button class="btn-card outline">Get Started</button>
+    <div class="features-title">What you will get</div>
+    <ul class="features-list">
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Customizable employee directory
+      </li>
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Client project management
+      </li>
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Client meeting schedule
+      </li>
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Compliance tracking
+      </li>
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Client communication
+      </li>
+      <li class="feature-item">
+        <span class="feature-icon"></span>
+        Create custom reports tailored
+      </li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  // Toggle between Monthly and Annually
+  const toggleBtns = document.querySelectorAll('.toggle-btn');
+  
+  toggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      toggleBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Theme Toggle
+  const themeToggle = document.getElementById('themeToggle');
+  
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('light-mode');
+  });
+</script>
+
+</body>
+</html>
