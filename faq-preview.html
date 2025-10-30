@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ Preview</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1a1a1a;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: none;
+    }
+
+    .page-container {
+      width: 1440px;
+      height: 1724px;
+      background: #000;
+      position: relative;
+      overflow: visible;
+    }
+
+    .top-section {
+      width: 1120px;
+      height: 752px;
+      background: #000;
+      position: absolute;
+      top: 128px;
+      left: 50%;
+      transform: translateX(-50%);
+      overflow: visible;
+      border: 1px solid rgba(255, 0, 0, 0.3);
+      box-sizing: border-box;
+    }
+
+    .top-section::before {
+      content: '';
+      position: absolute;
+      top: 128px;
+      left: 160px;
+      right: 160px;
+      bottom: 128px;
+      border: 1px dashed rgba(0, 255, 0, 0.5);
+      pointer-events: none;
+    }
+
+    /* Distance measurement lines */
+    .measure-line {
+      position: absolute;
+      background: rgba(255, 255, 0, 0.5);
+      pointer-events: none;
+      z-index: 200;
+    }
+
+    .measure-label {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.8);
+      color: #FFD700;
+      padding: 2px 5px;
+      font-family: monospace;
+      font-size: 12px;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 201;
+    }
+
+    /* Vertical line - Page top to top section */
+    .line1 { left: 50px; top: 0; width: 2px; height: 128px; }
+    .label1 { left: 55px; top: 64px; }
+
+    /* Vertical line - Top section height */
+    .line2 { left: 50px; top: 128px; width: 2px; height: 752px; }
+    .label2 { left: 55px; top: 504px; }
+
+    /* Vertical line - Gap between sections */
+    .line3 { left: 50px; top: 880px; width: 2px; height: 128px; }
+    .label3 { left: 55px; top: 944px; }
+
+    /* Vertical line - Bottom section height */
+    .line4 { left: 50px; top: 1008px; width: 2px; height: 716px; }
+    .label4 { left: 55px; top: 1366px; }
+
+    /* Horizontal line - Top section width */
+    .line5 { left: 160px; top: 100px; width: 1120px; height: 2px; }
+    .label5 { left: 700px; top: 75px; }
+
+    /* Horizontal line - Bottom section width */
+    .line6 { left: 0; top: 980px; width: 1440px; height: 2px; }
+    .label6 { left: 720px; top: 955px; }
+
+    /* Vertical line - Vixvvo text positioning from bottom */
+    .line7 { right: 50px; bottom: 0; width: 2px; height: 316.1px; }
+    .label7 { right: 55px; bottom: 158px; }
+
+    /* Horizontal line - Vixvvo text left/right margins */
+    .line8 { left: 0; bottom: 300px; width: 165px; height: 2px; }
+    .label8 { left: 70px; bottom: 305px; }
+
+    .bottom-section {
+      width: 1440px;
+      height: 716px;
+      background: #000;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      border: 1px solid rgba(0, 0, 255, 0.5);
+      box-sizing: border-box;
+      z-index: 10;
+    }
+
+    .bottom-shine {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      display: block;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .large-vixvvo-text {
+      position: absolute;
+      bottom: 316.1px;
+      left: 165px;
+      right: 165px;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      font-family: 'SF Pro Display', sans-serif;
+      font-size: 386px;
+      font-style: normal;
+      font-weight: 590;
+      line-height: 386px;
+      letter-spacing: -3.86px;
+      background: linear-gradient(180deg, #FFF 0%, #C1B2FF 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .contact-text {
+      position: absolute;
+      bottom: 844.32px;
+      left: 160px;
+      margin: 0;
+      padding: 0;
+      color: rgba(255, 255, 255, 0.80);
+      font-family: 'SF Pro Display', sans-serif;
+      font-size: 18px;
+      font-style: normal;
+      font-weight: 250;
+      line-height: 160%;
+      letter-spacing: -0.36px;
+      z-index: 2;
+    }
+
+    .contact-text a {
+      color: #A9AAFF;
+      text-decoration: none;
+    }
+
+    .contact-text a:hover {
+      text-decoration: underline;
+    }
+
+    /* Footer container */
+    #footer-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 40px 140px;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      z-index: 20;
+      box-sizing: border-box;
+    }
+    
+    /* Footer navigation */
+    #footer-nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 60px;
+    }
+    
+    .footer-nav-link {
+      color: #FFF;
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
+      text-decoration: none;
+      transition: opacity 0.3s ease;
+    }
+    
+    .footer-nav-link:hover {
+      opacity: 0.7;
+    }
+    
+    /* Footer divider */
+    #footer-divider {
+      width: 100%;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Footer bottom section */
+    #footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    #footer-copyright {
+      color: rgba(255, 255, 255, 0.60);
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
+      margin: 0;
+    }
+    
+    /* Footer social icons */
+    #footer-social {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    
+    .footer-social-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFF;
+      text-decoration: none;
+      font-size: 18px;
+      transition: background 0.3s ease;
+    }
+    
+    .footer-social-icon:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* FAQ Heading */
+    .faq-heading {
+      position: absolute;
+      top: 0;
+      left: 0;
+      margin: 0;
+      padding: 0;
+      color: rgba(255, 255, 255, 0.80);
+      font-family: 'SF Pro Display', sans-serif;
+      font-size: 18px;
+      font-style: normal;
+      font-weight: 450;
+      line-height: 160%;
+      letter-spacing: -0.36px;
+      z-index: 10;
+    }
+
+    /* FAQ Main Question */
+    .faq-main-question {
+      position: absolute;
+      top: 44.8px;
+      left: 0;
+      margin: 0;
+      padding: 0;
+      color: #F1F0FF;
+      font-family: 'SF Pro Display', sans-serif;
+      font-size: 64px;
+      font-style: normal;
+      font-weight: 450;
+      line-height: normal;
+      letter-spacing: -1.28px;
+      z-index: 10;
+    }
+
+    .faq-accordion {
+      position: absolute;
+      top: 160px;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 500px;
+      z-index: 2;
+    }
+
+    .bottom-shine {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      display: block;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .large-vixvvo-text {
+      position: absolute;
+      bottom: 316.1px;
+      left: 0;
+      right: 0;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      font-family: 'SF Pro Display', sans-serif;
+      font-size: 386px;
+      font-style: normal;
+      font-weight: 590;
+      line-height: 386px;
+      letter-spacing: -3.86px;
+      background: linear-gradient(180deg, #FFF 0%, #C1B2FF 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .contact-text {
+      position: absolute;
+      bottom: 844.32px;
+      left: 160px;
+      margin: 0;
+      padding: 0;
+      color: rgba(255, 255, 255, 0.80);
+      font-family: 'SF Pro Display', sans-serif;
+      font-size: 18px;
+      font-style: normal;
+      font-weight: 250;
+      line-height: 160%;
+      letter-spacing: -0.36px;
+      z-index: 2;
+    }
+
+    .contact-text a {
+      color: #A9AAFF;
+      text-decoration: none;
+    }
+
+    .contact-text a:hover {
+      text-decoration: underline;
+    }
+
+    .faq-accordion {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 500px;
+      z-index: 2;
+    }
+
+    .faq-item {
+      display: flex;
+      width: 500px;
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: linear-gradient(0deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.12) 100%), #000;
+      cursor: pointer;
+      transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .faq-item.closed {
+      height: 69px;
+      padding: 20px;
+      flex-direction: row;
+      align-items: center;
+      box-sizing: border-box;
+    }
+
+    .faq-item.open {
+      width: 500px;
+      height: 157px;
+      padding: 20px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .faq-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .faq-question {
+      color: #FFF;
+      font-family: 'SF Pro Display', sans-serif;
+      font-size: 18px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 140%;
+      margin: 0;
+      flex: 1;
+      white-space: normal;
+      overflow: visible;
+    }
+
+    .faq-toggle {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFF;
+      font-size: 24px;
+      font-weight: 300;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .faq-item.open .faq-toggle {
+      transform: rotate(45deg);
+    }
+
+    .faq-answer {
+      color: rgba(255, 255, 255, 0.70);
+      font-family: 'SF Pro Display', sans-serif;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 150%;
+      margin: 0;
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin-top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-top: 0;
+      display: none;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 77px;
+      opacity: 1;
+      margin-top: 10px;
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  </style>
+  <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+</head>
+<body>
+  <div class="page-container">
+    <div class="top-section">
+      <!-- Top section content (1120x752) -->
+      <p class="faq-heading">FREQUENTLY ASKED QUESTIONS</p>
+      <h2 class="faq-main-question">Have questions<br>in mind? Let us<br>answer it</h2>
+      <div class="faq-accordion">
+      <div class="faq-item open">
+        <div class="faq-item-header">
+          <h3 class="faq-question">What is Vixvvo?</h3>
+          <span class="faq-toggle">+</span>
+        </div>
+        <p class="faq-answer">Vixvvo is a comprehensive platform for 3D printing creators and vendors, offering tools to manage prints, sales, pricing, and connect with the community. We provide calculators, model upload features, and Patreon integration to help you grow your 3D printing business.</p>
+      </div>
+
+      <div class="faq-item closed">
+        <div class="faq-item-header">
+          <h3 class="faq-question">How do I upload my 3D models?</h3>
+          <span class="faq-toggle">+</span>
+        </div>
+        <p class="faq-answer">Simply navigate to the Upload Model page, fill in your model details including title, description, and pricing. You can upload STL, OBJ, or 3MF files. Add preview images and set your licensing terms before publishing to the community.</p>
+      </div>
+
+      <div class="faq-item closed">
+        <div class="faq-item-header">
+          <h3 class="faq-question">What file formats are supported?</h3>
+          <span class="faq-toggle">+</span>
+        </div>
+        <p class="faq-answer">Vixvvo supports all major 3D file formats including STL, OBJ, 3MF, and STEP files. You can upload models in any of these formats and our platform will handle the rest, ensuring compatibility across different 3D printing workflows.</p>
+      </div>
+
+      <div class="faq-item closed">
+        <div class="faq-item-header">
+          <h3 class="faq-question">What does the pricing calculator include?</h3>
+          <span class="faq-toggle">+</span>
+        </div>
+        <p class="faq-answer">Our advanced calculator helps you price prints accurately by factoring in filament cost, electricity usage, print time, post-processing labor, failure rates, and desired markup percentages. It supports multiple currencies and saves your printer/filament profiles for quick calculations.</p>
+      </div>
+
+      <div class="faq-item closed">
+        <div class="faq-item-header">
+          <h3 class="faq-question">How does Patreon integration work?</h3>
+          <span class="faq-toggle">+</span>
+        </div>
+        <p class="faq-answer">Link your Patreon account in settings to automatically grant your patrons access to exclusive models and features based on their tier level. Vixvvo syncs with Patreon in real-time, so your supporters get instant access when they subscribe.</p>
+      </div>
+
+      <div class="faq-item closed">
+        <div class="faq-item-header">
+          <h3 class="faq-question">Is my payment information secure?</h3>
+          <span class="faq-toggle">+</span>
+        </div>
+        <p class="faq-answer">Absolutely. We use industry-standard encryption and secure payment gateways. We never store your full payment details on our servers. All transactions are processed through trusted payment providers with PCI compliance.</p>
+      </div>
+
+      <div class="faq-item closed">
+        <div class="faq-item-header">
+          <h3 class="faq-question">Can I manage multiple printers and filaments?</h3>
+          <span class="faq-toggle">+</span>
+        </div>
+        <p class="faq-answer">Yes! Create and save unlimited printer profiles with specific settings like bed size, nozzle diameter, and power consumption. Track your filament inventory with color, material type, and cost per kg. All your data syncs across devices when you're logged in.</p>
+      </div>
+
+      <div class="faq-item closed">
+        <div class="faq-item-header">
+          <h3 class="faq-question">Do you offer customer support?</h3>
+          <span class="faq-toggle">+</span>
+        </div>
+        <p class="faq-answer">Yes! Our support team is available to help you with any questions or issues. Reach out through email or our in-app chat, and we'll get back to you as quickly as possible to ensure you have the best experience on Vixvvo.</p>
+      </div>
+      </div>
+    </div>
+    
+    <div class="bottom-section">
+      <!-- Bottom section content (1440x716) -->
+      <p class="contact-text">Don't answer your question?<br>contact us at <a href="mailto:Vixvvo@gmail.com">Vixvvo@gmail.com</a></p>
+
+      <h1 class="large-vixvvo-text">Vixvvo</h1>
+      <img src="images/Bottomshine.png" alt="Bottom Shine" class="bottom-shine">
+      
+      <!-- Footer Container -->
+      <div id="footer-container">
+        <!-- Footer Navigation -->
+        <nav id="footer-nav">
+          <a href="#features-heading" class="footer-nav-link">Features</a>
+          <a href="#benefits-heading" class="footer-nav-link">Use Cases</a>
+          <a href="pages/pricing.html" class="footer-nav-link">Pricing</a>
+          <a href="#about-vixvvo3d-heading" class="footer-nav-link">About Us</a>
+          <a href="#faq-category-heading" class="footer-nav-link">FAQs</a>
+        </nav>
+        
+        <!-- Footer Divider -->
+        <div id="footer-divider"></div>
+        
+        <!-- Footer Bottom Section -->
+        <div id="footer-bottom">
+          <p id="footer-copyright">© 2025 Vixvvo, all rights reserved.</p>
+          
+          <!-- Social Media Icons -->
+          <div id="footer-social">
+            <a href="https://instagram.com" target="_blank" class="footer-social-icon" aria-label="Instagram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+              </svg>
+            </a>
+            <a href="https://twitter.com" target="_blank" class="footer-social-icon" aria-label="Twitter">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+            </a>
+            <a href="https://linkedin.com" target="_blank" class="footer-social-icon" aria-label="LinkedIn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+                <rect x="2" y="9" width="4" height="12"/>
+                <circle cx="4" cy="4" r="2"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Measurement lines -->
+    <div class="measure-line line1"></div>
+    <div class="measure-label label1">128px</div>
+    
+    <div class="measure-line line2"></div>
+    <div class="measure-label label2">752px</div>
+    
+    <div class="measure-line line3"></div>
+    <div class="measure-label label3">128px gap</div>
+    
+    <div class="measure-line line4"></div>
+    <div class="measure-label label4">716px</div>
+    
+    <div class="measure-line line5"></div>
+    <div class="measure-label label5">1120px</div>
+    
+    <div class="measure-line line6"></div>
+    <div class="measure-label label6">1440px</div>
+    
+    <div class="measure-line line7"></div>
+    <div class="measure-label label7">316.1px</div>
+    
+    <div class="measure-line line8"></div>
+    <div class="measure-label label8">165px</div>
+  </div>
+
+  <script>
+    document.querySelectorAll('.faq-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.faq-item').forEach(otherItem => {
+          if (otherItem !== this) {
+            otherItem.classList.remove('open');
+            otherItem.classList.add('closed');
+          }
+        });
+        this.classList.toggle('open');
+        this.classList.toggle('closed');
+      });
+    });
+  </script>
+</body>
+</html>

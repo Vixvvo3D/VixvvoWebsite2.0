@@ -1,0 +1,3448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vixvvo Tools - 3D Printing Calculator</title>
+
+<!-- Add Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-functions-compat.js"></script>
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Load shared styles -->
+<link rel="stylesheet" href="css/shared-styles.css">
+
+<style>
+  @import url('https://fonts.cdnfonts.com/css/sf-pro-display');
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Prevent excess space below bottom shine image */
+  body {
+    overflow-x: hidden;
+  }
+</style>
+
+<!-- Load shared navbar -->
+<script src="js/navbar-helper.js"></script>
+<script src="js/navbar-loader.js"></script>
+<script src="js/settings-dropdown.js"></script>
+<script src="js/navbar-auth.js"></script>
+<script src="js/currency.js"></script>
+<style>
+  /* TEMPORARY: Hide all content except navbar 2.0 and main container 2.0 and container-2 and dashboard */
+  body > *:not(script):not(style):not(#navbar-2-0):not(#main-container-2-0):not(#container-2):not(#dashboard-image):not(#dashboard-gradient-fade):not(#about-vixvvo3d-heading):not(#about-vixvvo3d-description):not(#community-users-text):not(#user-count-text):not(#data-source-text):not(#features-heading):not(#features-description):not(#features-subtext):not(#feature-boxes-container):not(#large-feature-container):not(#benefits-heading):not(#benefits-cards-container):not(#video-shine-image):not(#faq-heading):not(#faq-description):not(#faq-video-container):not(#faq-video-image):not(#faq-play-button):not(#testimonials-heading):not(#testimonials-description):not(#testimonials-subtext):not(#testimonials-background):not(#testimonials-cards-container):not(#gradient-fade-black-overlay):not(#faq-category-heading):not(#faq-main-question):not(#faq-contact-text):not(#faq-accordion-container):not(#bottom-shine-image):not(#large-vixvvo-text):not(#footer-container) {
+    display: none !important;
+  }
+  
+  /* Main Container 2.0 */
+  #main-container-2-0 {
+    position: absolute;
+    width: 722px;
+    height: 472px;
+    top: 152px;
+    left: 359px;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  /* Title inside container */
+  #main-container-2-0 .title {
+    align-self: stretch;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 86px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: -1.72px;
+    margin: 0;
+  }
+
+  #main-container-2-0 .title .empower {
+    color: #6445F5;
+  }
+
+  #main-container-2-0 .title .your-3d {
+    color: #E9E7FF;
+  }
+
+  #main-container-2-0 .title .workflow {
+    color: #4128BA;
+  }
+
+  /* Subtitle - 24px below title */
+  #main-container-2-0 .subtitle {
+    width: 633px;
+    margin: 24px auto 0;
+    color: rgba(255, 255, 255, 0.88);
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: -0.36px;
+  }
+
+  /* Button Container - 40px below subtitle */
+  #main-container-2-0 .button-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: 40px;
+    justify-content: center;
+  }
+
+  /* Button Base Styles */
+  #main-container-2-0 .btn {
+    display: flex;
+    padding: 16px 24px;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  /* Get Started Button - Purple Gradient */
+  #main-container-2-0 .btn-get-started-2 {
+    background: linear-gradient(180deg, #6445F5 0%, #4128BA 100%);
+    color: #FFFFFF;
+  }
+
+  #main-container-2-0 .btn-get-started-2:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(100, 69, 245, 0.4);
+  }
+
+  /* See Tools Button - Clear with White Outline */
+  #main-container-2-0 .btn-see-tools {
+    background: transparent;
+    color: #FFFFFF;
+    border: 1px solid #FFFFFF;
+  }
+
+  #main-container-2-0 .btn-see-tools:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+
+  /* Payment Text - 56px below buttons */
+  #main-container-2-0 .payment-text {
+    margin-top: 56px;
+    color: rgba(255, 255, 255, 0.80);
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: -0.24px;
+  }
+
+  /* Payment Icons Container - 16px below payment text */
+  #main-container-2-0 .payment-icons {
+    width: 515px;
+    height: 24px;
+    margin: 16px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 19px;
+  }
+
+  #main-container-2-0 .payment-icons img {
+    max-height: 20px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  /* New Container - 115.56px below payment icons bottom */
+  #container-2 {
+    position: absolute;
+    width: 1120px;
+    height: 1024px;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px); /* payment icons bottom + 115.56px gap = 781.56px */
+    left: 160px; /* (1440 - 1120) / 2 = 160px for centering */
+    padding: 0;
+    margin: 0 6px; /* 6px left and right margin */
+    box-sizing: border-box;
+    border-radius: 10.889px;
+    border: 1px solid #666666;
+    background: #000000;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  /* Dashboard Image - Layered UNDER container-2 border */
+  #dashboard-image {
+    position: absolute;
+    width: 1192px;
+    height: 727px;
+    flex-shrink: 0;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px); /* container top minus 6.56px overlap */
+    left: calc(160px + (1120px / 2) - (1192px / 2)); /* center horizontally in container */
+    z-index: 4;
+    border-radius: 10.889px;
+  }
+
+  /* Dashboard Gradient Fade - Positioned 417px below dashboard-image top */
+  #dashboard-gradient-fade {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px); /* dashboard-image top + 417px */
+    left: 0; /* full width from left edge */
+    width: 1440px; /* full 1440px width */
+    height: 301.89px; /* height extends 301.89px up from bottom */
+    z-index: 10;
+    display: block;
+    pointer-events: none;
+  }
+  
+  /* About Vixvvo3D heading - 126px below gradient fade */
+  #about-vixvvo3d-heading {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px); /* gradient fade bottom + 126px */
+    left: 0;
+    width: 1440px;
+    color: #FFF;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 100;
+    line-height: 140%; /* 33.6px */
+    letter-spacing: -0.48px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* About Vixvvo3D description - 32px below heading */
+  #about-vixvvo3d-description {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px); /* heading bottom + 32px */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1062px;
+    color: #F1F0FF;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: normal;
+    letter-spacing: -0.96px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Community users text - 256px below description */
+  #community-users-text {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px); /* description bottom (estimated 3 lines at 48px) + 256px */
+    left: 0;
+    width: 1440px;
+    color: #FFF;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 140%; /* 33.6px */
+    letter-spacing: -0.48px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* User count - 40px below community text */
+  #user-count-text {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px); /* community text bottom + 40px */
+    left: 0;
+    width: 1440px;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 240px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: normal;
+    letter-spacing: -1.6px;
+    background: radial-gradient(63.21% 100% at 50% 0%, #6945F9 0%, #E9E7FF 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Data source - 40px below user count */
+  #data-source-text {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px); /* user count bottom (240px * 1.2 line-height) + 40px */
+    left: 0;
+    width: 1440px;
+    color: rgba(255, 255, 255, 0.80);
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 160%; /* 32px */
+    letter-spacing: -0.4px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Features heading - 128px below data source */
+  #features-heading {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px); /* data source bottom (line-height 160% = 32px) + 128px */
+    left: 0;
+    width: 1440px;
+    color: rgba(255, 255, 255, 0.80);
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Features description - 16px below features heading */
+  #features-description {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px); /* features heading bottom (line-height 160% = 28.8px) + 16px */
+    left: 0;
+    width: 1440px;
+    color: #F1F0FF;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: normal;
+    letter-spacing: -1.28px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Features subtext - 12px below features description */
+  #features-subtext {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px); /* features description bottom (2 lines at 64px with normal line-height) + 12px */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 582px;
+    color: rgba(255, 255, 255, 0.80);
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 250;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Feature boxes container - 88px below features subtext */
+  #feature-boxes-container {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px); /* features subtext bottom (2 lines at 28.8px) + 88px */
+    left: 168px;
+    width: 1104px; /* 1440px - 168px (left) - 168px (right) */
+    display: flex;
+    gap: 32px;
+    z-index: 9999;
+    pointer-events: auto;
+  }
+  
+  .feature-box {
+    display: flex;
+    padding-bottom: 32px;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    flex: 1 0 0;
+    border-radius: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(180deg, #161A1E 0%, #08090A 100%);
+    min-height: 368px; /* Based on your image: 368px total height with 32px padding bottom */
+  }
+  
+  /* Large feature container - 32px below feature boxes */
+  #large-feature-container {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px); /* feature boxes bottom + 32px */
+    left: 168px;
+    width: 1104px;
+    height: 400px;
+    border-radius: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(90deg, rgba(197, 196, 255, 0.12) 0%, rgba(30, 29, 53, 0.12) 100%);
+    z-index: 9999;
+    pointer-events: auto;
+  }
+  
+  /* Benefits heading - 256px below large feature container */
+  #benefits-heading {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px); /* large feature container bottom + 256px */
+    left: 0;
+    width: 1440px;
+    color: #E9E7FF;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 40px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: 140%; /* 56px */
+    letter-spacing: -0.8px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Benefits cards container - 64px below benefits heading */
+  #benefits-cards-container {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px); /* benefits heading bottom (56px line-height) + 64px */
+    left: 160px;
+    display: flex;
+    gap: 24px;
+    z-index: 9999;
+    pointer-events: auto;
+  }
+  
+  .benefit-card {
+    display: flex;
+    width: 262px; /* (1440px - 160px left - 160px right - 72px gaps) / 4 = 262px */
+    padding: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(180deg, #161A1E 0%, #08090A 100%);
+    min-height: 280px; /* Total height including padding: 232px content + 48px padding */
+    box-sizing: border-box;
+  }
+  
+  .benefit-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
+  }
+  
+  .benefit-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: white;
+    stroke-width: 2;
+    fill: none;
+  }
+  
+  .benefit-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+  }
+  
+  .benefit-heading {
+    color: #FFF;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 130%;
+    margin: 0;
+  }
+  
+  .benefit-description {
+    color: rgba(255, 255, 255, 0.70);
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 150%;
+    margin: 0;
+  }
+  
+  /* Video shine image - positioned so center rectangle (1088x805) is 534px from benefits cards container bottom */
+  #video-shine-image {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 464px); /* benefits cards container top + 464px (280px card height + 534px - 350px offset) */
+    left: 50%;
+    height: auto;
+    transform: translateX(-50%);
+    z-index: 100; /* Below FAQ text (9999) but above background */
+    pointer-events: none;
+    display: block;
+  }
+  
+  /* FAQ video container - 516px below benefits cards */
+  #faq-video-container {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px); /* benefits cards container top + 280px (card height) + 516px */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    width: 1120px;
+    height: 695px;
+    padding: 16px;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    border-radius: 48px;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+    background: #000;
+    box-sizing: border-box;
+    z-index: 200;
+  }
+  
+  #faq-video-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 32px;
+  }
+  
+  #faq-play-button {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 201;
+  }
+  
+  #faq-play-button::before {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 24px solid #000;
+    border-top: 16px solid transparent;
+    border-bottom: 16px solid transparent;
+    margin-left: 6px;
+  }
+  
+  /* FAQ heading - 256px below benefits cards */
+  #faq-heading {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 256px); /* benefits cards bottom + 256px */
+    left: 0;
+    width: 1440px;
+    color: rgba(255, 255, 255, 0.80);
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* FAQ description - 16px below FAQ heading */
+  #faq-description {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 256px + 28.8px + 16px); /* FAQ heading bottom + 16px */
+    left: 0;
+    width: 1440px;
+    color: #F1F0FF;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: normal;
+    letter-spacing: -1.28px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Testimonials heading - 256px below FAQ video container */
+  #testimonials-heading {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px); /* FAQ video container top + 695px (container height) + 256px */
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.80);
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+  }
+  
+  /* Testimonials description - 16px below testimonials heading */
+  #testimonials-description {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px); /* testimonials heading bottom + 16px */
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    color: #F1F0FF;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: normal;
+    letter-spacing: -1.28px;
+  }
+  
+  /* Testimonials subtext - 12px below testimonials description */
+  #testimonials-subtext {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px); /* testimonials description top + 153.6px (2 lines at 76.8px each with line-height normal) + 12px */
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.80);
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 250;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+  }
+  
+  /* Testimonials background gradient - aligned with cards container */
+  #testimonials-background {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px); /* same as testimonials cards container */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1121px;
+    height: 826px;
+    flex-shrink: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  
+  #testimonials-background::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.00) 17.55%, #000 108.23%);
+    z-index: 10;
+    pointer-events: none;
+  }
+  
+  /* FAQ category heading - 418px below testimonials background bottom */
+  #faq-category-heading {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px + 826px + 418px); /* testimonials background bottom + 418px */
+    left: 160px;
+    margin: 0;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.80);
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+  }
+  
+  /* FAQ main question - 16px below FAQ category heading */
+  #faq-main-question {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px + 826px + 418px + 28.8px + 16px); /* FAQ category heading bottom + 16px */
+    left: 160px;
+    margin: 0;
+    padding: 0;
+    color: #F1F0FF;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 590;
+    line-height: normal;
+    letter-spacing: -1.28px;
+  }
+  
+  /* FAQ category heading - 418px below testimonials background bottom */
+  #faq-category-heading {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px + 826px + 418px); /* testimonials background bottom + 418px */
+    left: 160px;
+    margin: 0;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.80);
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+  }
+  
+  /* FAQ main question - 16px below FAQ category heading */
+  #faq-main-question {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px + 826px + 418px + 28.8px + 16px); /* FAQ category heading bottom + 16px */
+    left: 160px;
+    margin: 0;
+    padding: 0;
+    color: #F1F0FF;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 590;
+    line-height: normal;
+    letter-spacing: -1.28px;
+  }
+  
+  /* FAQ contact text - 421px below FAQ main question bottom */
+  #faq-contact-text {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px + 826px + 418px + 28.8px + 16px + 192px + 421px); /* FAQ main question bottom (3 lines × 64px) + 421px */
+    left: 160px;
+    margin: 0;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.80);
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 250;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+  }
+  
+  #faq-contact-text a {
+    color: #A9AAFF;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 250;
+    line-height: 160%;
+    letter-spacing: -0.36px;
+    text-decoration: none;
+  }
+  
+  #faq-contact-text a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Large Vixvvo text - 295px above bottom shine image end */
+  #large-vixvvo-text {
+    position: absolute;
+    bottom: 295px;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 386px;
+    font-style: normal;
+    font-weight: 590;
+    line-height: normal;
+    letter-spacing: -3.86px;
+    background: linear-gradient(180deg, #FFF 0%, #C1B2FF 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    z-index: 10;
+    pointer-events: none;
+  }
+  
+  /* Footer container */
+  #footer-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 40px 140px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    z-index: 20;
+    box-sizing: border-box;
+  }
+  
+  /* Footer navigation */
+  #footer-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+  }
+  
+  .footer-nav-link {
+    color: #FFF;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+  }
+  
+  .footer-nav-link:hover {
+    opacity: 0.7;
+  }
+  
+  /* Footer divider */
+  #footer-divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Footer bottom section */
+  #footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  #footer-copyright {
+    color: rgba(255, 255, 255, 0.60);
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin: 0;
+  }
+  
+  /* Footer social icons */
+  #footer-social {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  
+  .footer-social-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFF;
+    text-decoration: none;
+    font-size: 18px;
+    transition: background 0.3s ease;
+  }
+  
+  .footer-social-icon:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Bottom shine image - 128px below FAQ contact text bottom */
+  #bottom-shine-image {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px + 826px + 418px + 28.8px + 16px + 192px + 421px + 57.6px + 128px); /* FAQ contact text bottom (2 lines × 28.8px) + 128px */
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    display: block;
+  }
+  
+  /* FAQ accordion container - aligned with FAQ category heading top */
+  #faq-accordion-container {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px + 826px + 418px); /* same as FAQ category heading */
+    right: 160px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 100;
+  }
+  
+  .faq-item {
+    display: flex;
+    width: 500px;
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.12) 100%), #000;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    overflow: hidden;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .faq-item.closed {
+    height: 69px;
+  }
+  
+  .faq-item.open {
+    height: auto;
+  }
+  
+  .faq-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    min-height: 29px;
+  }
+  
+  .faq-question {
+    color: #FFF;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 140%;
+    margin: 0;
+    flex: 1;
+  }
+  
+  .faq-toggle {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFF;
+    font-size: 24px;
+    font-weight: 300;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .faq-item.open .faq-toggle {
+    transform: rotate(45deg);
+  }
+  
+  .faq-answer {
+    color: rgba(255, 255, 255, 0.70);
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 150%;
+    margin: 0;
+    width: 100%;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin-top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 0;
+  }
+  
+  .faq-item.open .faq-answer {
+    max-height: 500px;
+    opacity: 1;
+    margin-top: 10px;
+  }
+  
+  /* Testimonials cards container - 80px below testimonials subtext */
+  #testimonials-cards-container {
+    position: relative;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    z-index: 1;
+  }
+  
+  .testimonial-row {
+    display: flex;
+    gap: 25px;
+    justify-content: space-between;
+  }
+  
+  .testimonial-card {
+    display: flex;
+    width: 357px;
+    height: 268px;
+    padding: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    border-radius: 24px;
+    border: 1px solid rgba(196, 227, 255, 0.10);
+    background: linear-gradient(180deg, rgba(196, 227, 255, 0.10) 0%, rgba(196, 227, 255, 0.02) 100%), #000;
+    box-sizing: border-box;
+    justify-content: space-between;
+  }
+  
+  .testimonial-quote {
+    color: #FFF;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    margin: 0;
+  }
+  
+  .testimonial-text {
+    color: #FFF;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 150%;
+    margin: 0;
+    flex: 1;
+  }
+  
+  .testimonial-author {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .testimonial-name {
+    color: #FFF;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    margin: 0;
+  }
+  
+  .testimonial-title {
+    color: rgba(255, 255, 255, 0.70);
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin: 0;
+  }
+  
+  /* Black overlay covering 550px below gradient fade */
+  #gradient-fade-black-overlay {
+    position: absolute;
+    top: calc(152px + 472px + 115.56px - 6.56px + 417px + 301.89px); /* gradient fade bottom */
+    left: 0;
+    width: 1440px;
+    height: 550px;
+    background: black;
+    z-index: 11;
+    pointer-events: none;
+  }
+  
+  /* Navbar 2.0 Styles */
+  #navbar-2-0 {
+    display: flex;
+    width: 1029px;
+    padding: 12px 12px 12px 16px;
+    align-items: center;
+    gap: 60px;
+    position: absolute;
+    right: 205px;
+    top: 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(21, 22, 26, 0.80);
+    backdrop-filter: blur(20px);
+    z-index: 1000;
+  }
+
+  #navbar-2-0 .logo {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-right: auto;
+  }
+
+  #navbar-2-0 .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  #navbar-2-0 .nav-links a {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  #navbar-2-0 .nav-links a:hover {
+    color: #FFFFFF;
+  }
+
+  #navbar-2-0 .btn-get-started {
+    padding: 10px 20px;
+    background: #6445F5;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  #navbar-2-0 .btn-get-started:hover {
+    background: #5336d4;
+    transform: translateY(-1px);
+  }
+
+  :root {
+    --side-gap: 494px;   /* Figma side spacing */
+    --top-gap: 218px;    /* Figma top spacing to title */
+    --title-h: 129px;    /* Figma title box height */
+  }
+
+  /* Hero Section */
+  .hero {
+    background: transparent;
+    color: #fff;
+    position: relative;
+  }
+
+  .hero-wrap {
+    width: calc(100% - (var(--side-gap) * 2));
+    margin: 0 auto;
+    padding-top: var(--top-gap);
+    padding-bottom: 80px;
+    text-align: center;
+  }
+  
+  /* Hero Title Styling */
+  .hero-title {
+    font-family: var(--Font-Family-Title, "SF Pro"), system-ui, -apple-system, sans-serif;
+    font-size: 86px;
+    font-weight: 590;
+    line-height: normal;
+    letter-spacing: -1.72px;
+    margin: 0;
+    height: var(--title-h);          /* lock same visual box as Figma */
+    display: flex;                   /* center text inside the box */
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.25ch;
+  }
+
+  /* Per-word colors from Figma */
+  .empower { color: #6445F5; }
+  .your    { color: #E9E7FF; }
+  .workflow{ color: #4128BA; }
+
+  .hero-sub {
+    margin: 20px 0 28px;
+    font: 16px/1.5 "SF Pro", system-ui, -apple-system, sans-serif;
+    color: #B7B5D8;
+  }
+
+  .hero-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .btn-primary {
+    background: #6445F5;
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background: #5336d4;
+    transform: translateY(-2px);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: #E9E7FF;
+    border: 2px solid #E9E7FF;
+    padding: 14px 28px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-ghost:hover {
+    background: rgba(233, 231, 255, 0.1);
+    transform: translateY(-2px);
+  }
+
+  /* Image aligns to the same column width as the title */
+  .hero-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-top: 36px;
+    border-radius: 16px;
+  }
+  
+  .hero-subtitle {
+    color: var(--text-muted);
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+  
+  .hero-buttons {
+    display: flex;
+    gap: 16px;
+  }
+  
+  .btn-large {
+    padding: 16px 36px;
+    font-size: 16px;
+  }
+  
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--border);
+    color: var(--text);
+  }
+  
+  .btn-outline:hover {
+    background: rgba(168, 85, 247, .1);
+    border-color: var(--purple);
+  }
+  
+  /* Hero Visual */
+  .hero-visual {
+    position: relative;
+    height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .visual-card {
+    position: absolute;
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .card-1 {
+    top: 50px;
+    left: 0;
+    width: 260px;
+    animation-delay: 0s;
+  }
+  
+  .card-2 {
+    top: 150px;
+    right: 40px;
+    width: 280px;
+    animation-delay: 1s;
+  }
+  
+  .card-3 {
+    bottom: 100px;
+    left: 60px;
+    width: 240px;
+    animation-delay: 2s;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+  
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+  
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  
+  .card-text {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .card-stat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--purple-light);
+  }
+  
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  
+  /* Decorative elements */
+  .bg-decoration {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: .2;
+    z-index: -1;
+  }
+  
+  .decoration-1 {
+    width: 400px;
+    height: 400px;
+    background: #a855f7;
+    top: -100px;
+    right: -100px;
+  }
+  
+  .decoration-2 {
+    width: 350px;
+    height: 350px;
+    background: #7c3aed;
+    bottom: -50px;
+    left: -50px;
+  }
+  
+  /* Features Section */
+  .features {
+    padding: 80px 60px;
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 48px;
+  }
+  
+  .feature-card {
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    transition: transform .3s, box-shadow .3s, border-color .3s;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(168, 85, 247, .2);
+    border-color: var(--purple);
+  }
+  
+  .feature-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+  
+  .feature-card h3 {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  
+  .feature-card p {
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  
+  .section-title {
+    text-align: center;
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  
+  .section-subtitle {
+    text-align: center;
+    color: var(--text-muted);
+  }
+
+  /* Memberships Section */
+  .memberships {
+    padding: 80px 60px;
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-top: 48px;
+  }
+
+  .pricing-card {
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 32px;
+    transition: transform .3s, box-shadow .3s, border-color .3s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pricing-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(168, 85, 247, .2);
+    border-color: var(--purple);
+  }
+
+  .pricing-card.featured {
+    border: 2px solid var(--purple);
+    box-shadow: 0 20px 40px rgba(168, 85, 247, .3);
+  }
+
+  .plan-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(168, 85, 247, .15);
+    border: 1px solid var(--purple);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--purple);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .plan-badge.popular {
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    color: white;
+    border: none;
+  }
+
+  .pricing-card h3 {
+    font-size: 28px;
+    margin-bottom: 16px;
+  }
+
+  .price {
+    margin-bottom: 32px;
+  }
+
+  .price .amount {
+    font-size: 48px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a855f7, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .price .period {
+    font-size: 16px;
+    color: var(--text-muted);
+  }
+
+  .features-list {
+    list-style: none;
+    margin-bottom: 32px;
+    flex-grow: 1;
+  }
+
+  .features-list li {
+    padding: 12px 0;
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.6;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+  }
+
+  .features-list li:last-child {
+    border-bottom: none;
+  }
+
+  .pricing-card .btn {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-size: 18px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .hero {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+    
+    .hero-visual {
+      height: 400px;
+    }
+    
+    .hero-buttons {
+      justify-content: center;
+    }
+    
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .hero {
+      padding: 40px 24px;
+    }
+    
+    .hero-content h1 {
+      font-size: 42px;
+    }
+    
+    .features {
+      padding: 60px 24px;
+    }
+
+    .memberships {
+      padding: 60px 24px;
+    }
+
+    .pricing-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .pricing-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+
+  /* Modern Toast Notification */
+  .notification {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    transform: translateX(400px);
+    background: #1e172e;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(168, 85, 247, 0.1);
+    z-index: 9999;
+    min-width: 320px;
+    max-width: 420px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .notification.show {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+
+  .notification-icon {
+    font-size: 28px;
+    min-width: 28px;
+    text-align: center;
+    filter: drop-shadow(0 0 8px currentColor);
+  }
+
+  .notification-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .notification-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .notification-message {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .notification-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    line-height: 1;
+    opacity: 0.6;
+  }
+
+  .notification-close:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    opacity: 1;
+  }
+
+  /* Success variant */
+  .notification.success {
+    border-color: rgba(16, 185, 129, 0.4);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(30, 23, 46, 0.95) 50%);
+  }
+
+  .notification.success .notification-icon {
+    color: #10b981;
+  }
+
+  /* Error variant */
+  .notification.error {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(30, 23, 46, 0.95) 50%);
+  }
+
+  .notification.error .notification-icon {
+    color: #ef4444;
+  }
+
+  /* Warning variant */
+  .notification.warning {
+    border-color: rgba(245, 158, 11, 0.4);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(30, 23, 46, 0.95) 50%);
+  }
+
+  .notification.warning .notification-icon {
+    color: #f59e0b;
+  }
+
+  /* Progress bar animation */
+  .notification::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--purple), var(--purple-light));
+    border-radius: 0 0 12px 12px;
+    animation: notificationProgress 3s linear forwards;
+  }
+
+  .notification.success::after {
+    background: linear-gradient(90deg, #10b981, #34d399);
+  }
+
+  .notification.error::after {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+  }
+
+  .notification.warning::after {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  }
+
+  @keyframes notificationProgress {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .notification {
+      top: 12px;
+      right: 12px;
+      left: 12px;
+      min-width: auto;
+      max-width: none;
+    }
+  }
+
+  /* Confirmation Dialog Styles */
+  .confirm-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: linear-gradient(135deg, #241d35, #1d1530);
+    border: 2px solid var(--purple);
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.8);
+    z-index: 400;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    max-width: 420px;
+    width: 90%;
+    display: block;
+  }
+
+  .confirm-dialog.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+  }
+
+  .confirm-icon {
+    font-size: 56px;
+    text-align: center;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .confirm-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .confirm-message {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.6;
+    text-align: center;
+  }
+
+  .confirm-buttons {
+    display: flex;
+    gap: 12px;
+  }
+
+  .confirm-buttons .btn {
+    flex: 1;
+    padding: 14px;
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, .4);
+  }
+</style>
+</head>
+<body>
+  <!-- Navbar 2.0 -->
+  <nav id="navbar-2-0">
+    <div class="logo">Vixvvo</div>
+    <ul class="nav-links">
+      <li><a href="#features-heading">Features</a></li>
+      <li><a href="#benefits-heading">Use Cases</a></li>
+      <li><a href="pages/pricing.html">Pricing</a></li>
+      <li><a href="pages/calculator.html">Calculator</a></li>
+      <li><a href="#career">Career</a></li>
+      <li><a href="#blog">Blog</a></li>
+      <li><a href="#about-vixvvo3d-heading">About Us</a></li>
+      <li><a href="#faq-category-heading">FAQs</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="btn-get-started">Get Started</button>
+  </nav>
+
+  <!-- Main Container 2.0 - Empty for redesign -->
+  <div id="main-container-2-0">
+    <h1 class="title">
+      <span class="empower">Empower your</span><br>
+      <span class="your-3d">3D printing</span><br>
+      <span class="workflow">workflow</span>
+    </h1>
+    <p class="subtitle">All the tools you need to calculate, design, and monetize your 3D prints in one platform</p>
+    <div class="button-container">
+      <button class="btn btn-get-started-2">Get Started</button>
+      <button class="btn btn-see-tools">See Tools</button>
+    </div>
+    <p class="payment-text">We accept various payment methods</p>
+    <div class="payment-icons">
+      <img src="images/PaymentsLogo/logos_visa.svg" alt="Visa">
+      <img src="images/PaymentsLogo/logos_mastercard.svg" alt="Mastercard">
+      <img src="images/PaymentsLogo/simple-icons_americanexpress.svg" alt="American Express">
+      <img src="images/PaymentsLogo/PayPal_Logo_Icon_2014 1.svg" alt="PayPal">
+      <img src="images/PaymentsLogo/logos_apple-pay.svg" alt="Apple Pay">
+      <img src="images/PaymentsLogo/logos_google-pay.svg" alt="Google Pay">
+      <img src="images/PaymentsLogo/logos_maestro.svg" alt="Maestro">
+      <img src="images/PaymentsLogo/Klarna_Payment_Badge 1.svg" alt="Klarna">
+      <img src="images/PaymentsLogo/Afterpay-logo 1.svg" alt="Afterpay">
+      <img src="images/PaymentsLogo/InteracLogo 1.svg" alt="Interac">
+    </div>
+  </div>
+
+  <!-- Container 2 - Empty for redesign -->
+  <div id="container-2"></div>
+
+  <!-- Dashboard Image - On top of container-2 -->
+  <img id="dashboard-image" src="images/shine-dashboard.png" alt="Dashboard Preview">
+
+  <!-- Dashboard Gradient Fade - Bottom positioned inside container-2 -->
+  <img id="dashboard-gradient-fade" src="images/DashboardGradiantFade.png" alt="Dashboard Gradient Fade">
+  
+  <!-- About Vixvvo3D text - 126px below gradient fade -->
+  <h5 id="about-vixvvo3d-heading">ABOUT VIXVVO3D</h5>
+  
+  <!-- Description text - 32px below about heading -->
+  <p id="about-vixvvo3d-description">Vixvvo3D is the premier 3D design studio dedicated to creativity and innovation. Discover high-quality digital models and prints with our all-in-one platform for artists, collectors, and vendors worldwide.</p>
+  
+  <!-- Community users text - 256px below description -->
+  <h5 id="community-users-text">Total users who joined Vixvvo3D's community</h5>
+  
+  <!-- User count - 40px below community text -->
+  <div id="user-count-text">8.9 K</div>
+  
+  <!-- Data source - 40px below user count -->
+  <p id="data-source-text">Based on 2025 Q2 data</p>
+  
+  <!-- Features heading - 128px below data source -->
+  <p id="features-heading">FEATURES</p>
+  
+  <!-- Features description - 16px below features heading -->
+  <p id="features-description">Find out what Vixvvo<br>can provide you</p>
+  
+  <!-- Features subtext - 12px below features description -->
+  <p id="features-subtext">Here are Vixvvo features that could boost your daily work into<br>the best possibility.</p>
+  
+  <!-- Feature boxes container - 88px below features subtext -->
+  <div id="feature-boxes-container">
+    <div class="feature-box"></div>
+    <div class="feature-box"></div>
+  </div>
+  
+  <!-- Large feature container - 32px below feature boxes -->
+  <div id="large-feature-container"></div>
+  
+  <!-- Benefits heading - 256px below large feature container -->
+  <h2 id="benefits-heading">Receive benefits instantly</h2>
+  
+  <!-- Benefits cards container - 64px below benefits heading -->
+  <div id="benefits-cards-container">
+    <div class="benefit-card">
+      <div class="benefit-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 6v6l4 2"/>
+        </svg>
+      </div>
+      <div class="benefit-content">
+        <h3 class="benefit-heading">MultiTools For Vendors</h3>
+        <p class="benefit-description">Access powerful tools to manage prints, sales, and pricing—all in one place</p>
+      </div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </div>
+      <div class="benefit-content">
+        <h3 class="benefit-heading">Communicate with the community</h3>
+        <p class="benefit-description">Access powerful tools to manage prints, sales, and pricing—all in one place</p>
+      </div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <div class="benefit-content">
+        <h3 class="benefit-heading">Customer Supports</h3>
+        <p class="benefit-description">Get help anytime with our dedicated support team.</p>
+      </div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="5" width="20" height="14" rx="2"/>
+          <path d="M2 10h20"/>
+        </svg>
+      </div>
+      <div class="benefit-content">
+        <h3 class="benefit-heading">Easy Payments and Patreon integration</h3>
+        <p class="benefit-description">Link Patreon and receive payments instantly and securely.</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Video shine image - 128px below benefits cards -->
+  <img id="video-shine-image" src="images/VideoShine2.0.png" alt="Video Shine">
+  
+  <!-- FAQ video container - 516px below benefits cards -->
+  <div id="faq-video-container">
+    <img id="faq-video-image" src="images/PaymentsLogo/ImageDisplay.png" alt="FAQ Video">
+    <div id="faq-play-button"></div>
+  </div>
+  
+  <!-- Testimonials heading - 256px below FAQ video container -->
+  <p id="testimonials-heading">TESTIMONIALS</p>
+  
+  <!-- Testimonials description - 16px below testimonials heading -->
+  <p id="testimonials-description">Read what our<br>members said</p>
+  
+  <!-- Testimonials subtext - 12px below testimonials description -->
+  <p id="testimonials-subtext">Here are some reviews from our members.</p>
+  
+  <!-- Testimonials background gradient -->
+  <div id="testimonials-background">
+    <!-- Testimonials cards container - 80px below testimonials subtext -->
+    <div id="testimonials-cards-container">
+      <div class="testimonial-row">
+        <div class="testimonial-card">
+          <p class="testimonial-text">made some earrings with them :) such a cute dragon my daughter loves them. this are at 50% however i did have to add a solid core to the tail 3 sections to keep it from breaking at this size.</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@cselby</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-text">it was a long print with a ton of waste, but it came out beautiful and my wife and daughter love it</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@dshay</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-text">This was my first print using the AMS feature on my printer, as well as my first print over 4 hours. I think it turned out very well! My daughter is going to Love this!!</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@user_3150357687</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-row">
+        <div class="testimonial-card">
+          <p class="testimonial-text">such a beautiful print.. took 14 hours for two to make .. love it</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@boydbrothers865</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-text">slicing as is gave a bunch of errors. after file repair it removed all prepainting but dropped the print time to 3 hrs. had to use a gradient filament but turned out well all in all.</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@tickitytom</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-text">Just made 3! I used the second file. No print issues. They are so adorable! The supports came right off. Took about 9 hours. Love it! Thank you🤩</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@user_166102260</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-row">
+        <div class="testimonial-card">
+          <p class="testimonial-text">Just finished printing this sweet baby in my colors variant 🥰 looks like it's made of chocolate 🤤 I love it! Printed without any problems from phone directly (coz my laptop is dying) no special settings. Great file, amazing dragon ❤️</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@Hi_5</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-text">Such a wonderful print and deserves 2 boosts! We did one in red and pink. You could do it in any color and it would look great! It is a part of our valentine center piece. Thank you so much for this beautiful print!</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@Hockey_Dad</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-text">One of the prettiest designs I've ever printed. The kids love it</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@Marti82</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- FAQ heading - 256px below benefits cards -->
+  <p id="faq-heading">FREQUENTLY ASKED QUESTIONS</p>
+  
+  <!-- FAQ description - 16px below FAQ heading -->
+  <p id="faq-description">Watch how we help<br>vendors grow</p>
+  
+  <!-- Black overlay covering 550px below gradient fade -->
+  <div id="gradient-fade-black-overlay"></div>
+  
+  <!-- FAQ category heading - 418px below testimonials background bottom -->
+  <p id="faq-category-heading">FREQUENTLY ASKED QUESTIONS</p>
+  
+  <!-- FAQ main question - 16px below FAQ category heading -->
+  <h2 id="faq-main-question">Have questions<br>in mind? Let us<br>answer it</h2>
+  
+  <!-- FAQ contact text - 421px below FAQ main question bottom -->
+  <p id="faq-contact-text">Don't answer your question?<br>contact us at <a href="mailto:Vixvvo@gmail.com">Vixvvo@gmail.com</a></p>
+  
+  <!-- Large Vixvvo text - 255.9px below FAQ contact text bottom -->
+  <h1 id="large-vixvvo-text">Vixvvo</h1>
+  
+  <!-- Bottom shine image - 128px below FAQ contact text bottom -->
+  <img id="bottom-shine-image" src="images/Bottomshine.png" alt="Bottom Shine">
+  
+  <!-- Footer Container -->
+  <div id="footer-container">
+    <!-- Footer Navigation -->
+    <nav id="footer-nav">
+      <a href="#features-heading" class="footer-nav-link">Features</a>
+      <a href="#benefits-heading" class="footer-nav-link">Use Cases</a>
+      <a href="pages/pricing.html" class="footer-nav-link">Pricing</a>
+      <a href="#about-vixvvo3d-heading" class="footer-nav-link">About Us</a>
+      <a href="#faq-category-heading" class="footer-nav-link">FAQs</a>
+    </nav>
+    
+    <!-- Footer Divider -->
+    <div id="footer-divider"></div>
+    
+    <!-- Footer Bottom Section -->
+    <div id="footer-bottom">
+      <p id="footer-copyright">© 2025 Vixvvo, all rights reserved.</p>
+      
+      <!-- Social Media Icons -->
+      <div id="footer-social">
+        <a href="https://instagram.com" target="_blank" class="footer-social-icon" aria-label="Instagram">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+          </svg>
+        </a>
+        <a href="https://twitter.com" target="_blank" class="footer-social-icon" aria-label="Twitter">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </a>
+        <a href="https://linkedin.com" target="_blank" class="footer-social-icon" aria-label="LinkedIn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+            <rect x="2" y="9" width="4" height="12"/>
+            <circle cx="4" cy="4" r="2"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- FAQ Accordion Container - aligned with FAQ category heading -->
+  <div id="faq-accordion-container">
+    <div class="faq-item open">
+      <div class="faq-item-header">
+        <h3 class="faq-question">What is Vixvvo?</h3>
+        <span class="faq-toggle">+</span>
+      </div>
+      <p class="faq-answer">Vixvvo is a comprehensive platform for 3D printing creators and vendors, offering tools to manage prints, sales, pricing, and connect with the community. We provide calculators, model upload features, and Patreon integration to help you grow your 3D printing business.</p>
+    </div>
+    <div class="faq-item closed">
+      <div class="faq-item-header">
+        <h3 class="faq-question">How do I upload my 3D models?</h3>
+        <span class="faq-toggle">+</span>
+      </div>
+      <p class="faq-answer">Simply navigate to the Upload Model page, fill in your model details including title, description, and pricing. You can upload STL, OBJ, or 3MF files. Add preview images and set your licensing terms before publishing to the community.</p>
+    </div>
+    <div class="faq-item closed">
+      <div class="faq-item-header">
+        <h3 class="faq-question">Can I sell my 3D models on Vixvvo?</h3>
+        <span class="faq-toggle">+</span>
+      </div>
+      <p class="faq-answer">Yes! Vixvvo allows you to sell your 3D models directly through the platform. Set your own prices, offer bundle deals, and receive payments securely. We also support Patreon integration for subscription-based access to your exclusive designs.</p>
+    </div>
+    <div class="faq-item closed">
+      <div class="faq-item-header">
+        <h3 class="faq-question">What does the pricing calculator include?</h3>
+        <span class="faq-toggle">+</span>
+      </div>
+      <p class="faq-answer">Our advanced calculator helps you price prints accurately by factoring in filament cost, electricity usage, print time, post-processing labor, failure rates, and desired markup percentages. It supports multiple currencies and saves your printer/filament profiles for quick calculations.</p>
+    </div>
+    <div class="faq-item closed">
+      <div class="faq-item-header">
+        <h3 class="faq-question">How does Patreon integration work?</h3>
+        <span class="faq-toggle">+</span>
+      </div>
+      <p class="faq-answer">Link your Patreon account in settings to automatically grant your patrons access to exclusive models and features based on their tier level. Vixvvo syncs with Patreon in real-time, so your supporters get instant access when they subscribe.</p>
+    </div>
+    <div class="faq-item closed">
+      <div class="faq-item-header">
+        <h3 class="faq-question">Is my payment information secure?</h3>
+        <span class="faq-toggle">+</span>
+      </div>
+      <p class="faq-answer">Absolutely. We use industry-standard encryption and secure payment gateways. We never store your full payment details on our servers. All transactions are processed through trusted payment providers with PCI compliance.</p>
+    </div>
+    <div class="faq-item closed">
+      <div class="faq-item-header">
+        <h3 class="faq-question">Can I manage multiple printers and filaments?</h3>
+        <span class="faq-toggle">+</span>
+      </div>
+      <p class="faq-answer">Yes! Create and save unlimited printer profiles with specific settings like bed size, nozzle diameter, and power consumption. Track your filament inventory with color, material type, and cost per kg. All your data syncs across devices when you're logged in.</p>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--dark-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: opacity 0.3s ease;
+  ">
+    <div style="
+      width: 60px;
+      height: 60px;
+      border: 4px solid var(--border);
+      border-top: 4px solid var(--purple);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    "></div>
+    <p style="margin-top: 20px; color: var(--text-muted); font-size: 14px;">Going home...</p>
+    <style>
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </div>
+
+  <!-- Navbar will be loaded here dynamically -->
+  <div id="navbar-container"></div>
+
+  <section class="hero" id="home">
+    <div class="hero-wrap">
+      <h1 class="hero-title">
+        <span class="empower">Empower</span>
+        <span class="your"> Your 3D </span>
+        <span class="workflow">Printing Workflow</span>
+      </h1>
+
+      <p class="hero-sub">All-in-one tools to power your 3D printing business</p>
+
+      <div class="hero-actions">
+        <button class="btn-primary">Get Started</button>
+        <button class="btn-ghost">See Tools</button>
+      </div>
+
+      <!-- Replace with your hero image -->
+      <img class="hero-image" src="images/hero-shot.png" alt="Preview">
+    </div>
+  </section>
+
+  <!-- Old hero visual section kept for reference -->
+  <section style="display:none;">
+    <div class="hero-visual">
+      <div class="visual-card card-1">
+        <div class="card-icon">💰</div>
+        <div class="card-title">Cost Breakdown</div>
+        <div class="card-text">Detailed analysis of filament, electricity, and printer costs</div>
+        <div class="card-stat">
+          <div>
+            <div class="stat-value">$24.50</div>
+            <div class="stat-label">Total Cost</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="visual-card card-2">
+        <div class="card-icon">📊</div>
+        <div class="card-title">Live Tracking</div>
+        <div class="card-text">Real-time calculations with markup and failure rates</div>
+        <div class="card-stat">
+          <div>
+            <div class="stat-value">25%</div>
+            <div class="stat-label">Profit Margin</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="visual-card card-3">
+        <div class="card-icon">☁️</div>
+        <div class="card-title">Cloud Sync</div>
+        <div class="card-text">Your printers and filaments synced across devices</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <h2 class="section-title reveal">Powerful Features</h2>
+    <p class="section-subtitle reveal">Everything you need to calculate and manage 3D printing costs</p>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🧮</div>
+        <h3>Advanced Calculator</h3>
+        <p>Calculate costs including filament, electricity, post-processing time, markups, and failure rates with precision.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🖨️</div>
+        <h3>Printer Management</h3>
+        <p>Add and manage multiple printers with custom cost-per-hour rates. Switch between printers instantly.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🎨</div>
+        <h3>Filament Library</h3>
+        <p>Store unlimited filament types with brand names and costs. Automatically calculate material expenses.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">☁️</div>
+        <h3>Cloud Storage</h3>
+        <p>All your data synced securely with Firebase. Access from any device, anytime.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>Admin Controls</h3>
+        <p>Secure login system for managing printers and filaments. Public calculator access for everyone.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Responsive Design</h3>
+        <p>Works perfectly on desktop, tablet, and mobile. Calculate costs on the go.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Login Modal -->
+  <div id="overlay" style="display: none;"></div>
+  <div id="modal" style="background: rgba(0,0,0,.7);">
+    <div class="modal-card">
+      <h3>Login</h3>
+      <label>Email</label>
+      <input id="loginEmail" type="email" placeholder="your@email.com">
+      <label>Password</label>
+      <div style="position: relative;">
+        <input id="loginPass" type="password" placeholder="••••••••" style="padding-right: 45px;">
+        <button id="toggleLoginPass" type="button" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-muted); padding: 4px 8px;">👁</button>
+      </div>
+      <div style="text-align: right; margin-top: 4px;">
+        <a href="#" id="forgotPasswordLink" style="color: var(--purple); text-decoration: none; font-size: 13px;">Forgot Password?</a>
+      </div>
+      <div id="loginErr" class="err"></div>
+      <div class="modal-buttons">
+        <button id="doLogin" class="btn btn-primary">Login</button>
+        <button id="doClose" class="btn btn-ghost">Cancel</button>
+      </div>
+      <div style="text-align: center; margin-top: 16px; color: var(--text-muted); font-size: 14px;">
+        Don't have an account? <a href="#" id="signUpLink" style="color: var(--purple); text-decoration: none; font-weight: 600;">Sign Up</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sign Up Modal -->
+  <div id="signupModal" style="display: none; background: rgba(0,0,0,.7);">
+    <div class="modal-card">
+      <h3>Sign Up</h3>
+      <label>Username</label>
+      <input id="signupUsername" type="text" placeholder="Choose a username">
+      <label>Email</label>
+      <input id="signupEmail" type="email" placeholder="your@email.com">
+      <label>Password</label>
+      <div style="position: relative;">
+        <input id="signupPass" type="password" placeholder="••••••••" style="padding-right: 45px;">
+        <button id="toggleSignupPass" type="button" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-muted); padding: 4px 8px;">👁</button>
+      </div>
+      <label>Confirm Password</label>
+      <div style="position: relative;">
+        <input id="signupPassConfirm" type="password" placeholder="••••••••" style="padding-right: 45px;">
+        <button id="toggleSignupPassConfirm" type="button" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 18px; color: var(--text-muted); padding: 4px 8px;">👁</button>
+      </div>
+      <div id="signupErr" class="err"></div>
+      <div class="modal-buttons">
+        <button id="doSignup" class="btn btn-primary">Continue</button>
+        <button id="doSignupClose" class="btn btn-ghost">Cancel</button>
+      </div>
+      <div style="text-align: center; margin-top: 16px; color: var(--text-muted); font-size: 14px;">
+        Already have an account? <a href="#" id="backToLoginLink" style="color: var(--purple); text-decoration: none; font-weight: 600;">Login</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Verification Modal -->
+  <div id="verificationModal" style="display: none; position: fixed; inset: 0; z-index: 300; place-items: center; background: rgba(0,0,0,.7);">
+    <div class="modal-card" style="max-width: 500px;">
+      <h3>Verify Your Email</h3>
+      <p style="color: var(--text-muted); margin-bottom: 24px;">
+        Enter the 6-digit code we sent to <strong id="verifyEmailDisplay"></strong>
+      </p>
+      
+      <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 16px;">
+        <input id="code1" type="text" maxlength="1" class="code-input" style="width: 50px; height: 60px; text-align: center; font-size: 24px; font-weight: bold;">
+        <input id="code2" type="text" maxlength="1" class="code-input" style="width: 50px; height: 60px; text-align: center; font-size: 24px; font-weight: bold;">
+        <input id="code3" type="text" maxlength="1" class="code-input" style="width: 50px; height: 60px; text-align: center; font-size: 24px; font-weight: bold;">
+        <input id="code4" type="text" maxlength="1" class="code-input" style="width: 50px; height: 60px; text-align: center; font-size: 24px; font-weight: bold;">
+        <input id="code5" type="text" maxlength="1" class="code-input" style="width: 50px; height: 60px; text-align: center; font-size: 24px; font-weight: bold;">
+        <input id="code6" type="text" maxlength="1" class="code-input" style="width: 50px; height: 60px; text-align: center; font-size: 24px; font-weight: bold;">
+      </div>
+      
+      <div style="text-align: center; margin-bottom: 16px;">
+        <span id="codeTimer" style="color: var(--text-muted); font-size: 14px;">Expires in 10:00</span>
+      </div>
+      
+      <div id="verifyErr" class="err"></div>
+      
+      <div class="modal-buttons">
+        <button id="doVerify" class="btn btn-primary">Verify & Create Account</button>
+        <button id="resendCode" class="btn btn-ghost">Resend Code</button>
+      </div>
+      
+      <div style="text-align: center; margin-top: 16px;">
+        <a href="#" id="backToSignup" style="color: var(--purple); text-decoration: none; font-size: 14px;">← Back to Sign Up</a>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* Firebase Config */
+  const firebaseConfig = {
+    apiKey: "AIzaSyDwEDp5SfrxeEntOJg_XzbiBoGc9ADbX5g",
+    authDomain: "vixvvowebsite.firebaseapp.com",
+    projectId: "vixvvowebsite",
+    storageBucket: "vixvvowebsite.appspot.com",
+    messagingSenderId: "862620702799",
+    appId: "1:862620702799:web:d06c0ec4e7b0f3010d323a",
+    measurementId: "G-VX36JF6PTT",
+    databaseURL: "https://vixvvowebsite-default-rtdb.firebaseio.com"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+  const functions = firebase.functions();
+  
+  // Set the region for Cloud Functions (us-central1 is default)
+  functions.useEmulator = false;
+
+  // Enable auth persistence
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+  
+  /* FAQ Accordion Functionality */
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('click', function() {
+      // Close all other items
+      document.querySelectorAll('.faq-item').forEach(otherItem => {
+        if (otherItem !== this) {
+          otherItem.classList.remove('open');
+          otherItem.classList.add('closed');
+        }
+      });
+      
+      // Toggle current item
+      this.classList.toggle('open');
+      this.classList.toggle('closed');
+    });
+  });
+
+  /* Login Modal */
+  const modal = document.getElementById('modal');
+  const signupModal = document.getElementById('signupModal');
+  
+  document.getElementById('doClose').onclick = () => {
+    modal.style.display = 'none';
+  };
+
+  // Click outside modal to close
+  modal.onclick = (e) => {
+    if (e.target.id === 'modal') {
+      modal.style.display = 'none';
+    }
+  };
+
+  document.getElementById('signUpLink').onclick = (e) => {
+    e.preventDefault();
+    modal.style.display = 'none';
+    signupModal.style.display = 'grid';
+    document.getElementById('signupErr').textContent = '';
+    document.getElementById('signupUsername').value = '';
+    document.getElementById('signupEmail').value = '';
+    document.getElementById('signupPass').value = '';
+    document.getElementById('signupPassConfirm').value = '';
+  };
+
+  document.getElementById('backToLoginLink').onclick = (e) => {
+    e.preventDefault();
+    signupModal.style.display = 'none';
+    modal.style.display = 'grid';
+    document.getElementById('loginErr').textContent = '';
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginPass').value = '';
+  };
+
+  document.getElementById('doSignupClose').onclick = () => {
+    signupModal.style.display = 'none';
+  };
+
+  // Click outside signup modal to close
+  signupModal.onclick = (e) => {
+    if (e.target.id === 'signupModal') {
+      signupModal.style.display = 'none';
+    }
+  };
+
+  /* Password Visibility Toggles */
+  // Login password toggle
+  document.getElementById('toggleLoginPass').onclick = (e) => {
+    e.preventDefault();
+    const passInput = document.getElementById('loginPass');
+    const toggleBtn = document.getElementById('toggleLoginPass');
+    if (passInput.type === 'password') {
+      passInput.type = 'text';
+      toggleBtn.textContent = '�‍🗨';
+    } else {
+      passInput.type = 'password';
+      toggleBtn.textContent = '👁';
+    }
+  };
+
+  // Signup password toggle
+  document.getElementById('toggleSignupPass').onclick = (e) => {
+    e.preventDefault();
+    const passInput = document.getElementById('signupPass');
+    const toggleBtn = document.getElementById('toggleSignupPass');
+    if (passInput.type === 'password') {
+      passInput.type = 'text';
+      toggleBtn.textContent = '�‍🗨';
+    } else {
+      passInput.type = 'password';
+      toggleBtn.textContent = '👁';
+    }
+  };
+
+  // Signup confirm password toggle
+  document.getElementById('toggleSignupPassConfirm').onclick = (e) => {
+    e.preventDefault();
+    const passInput = document.getElementById('signupPassConfirm');
+    const toggleBtn = document.getElementById('toggleSignupPassConfirm');
+    if (passInput.type === 'password') {
+      passInput.type = 'text';
+      toggleBtn.textContent = '👁‍�';
+    } else {
+      passInput.type = 'password';
+      toggleBtn.textContent = '👁';
+    }
+  };
+
+  /* Forgot Password */
+  document.getElementById('forgotPasswordLink').onclick = (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    
+    if (!email) {
+      document.getElementById('loginErr').textContent = 'Please enter your email address first.';
+      return;
+    }
+
+    showConfirm(`Send password reset email to ${email}?`, '', 'Reset Password').then((confirmed) => {
+      if (confirmed) {
+        auth.sendPasswordResetEmail(email)
+          .then(() => {
+            showNotification('Password reset email sent! Check your inbox.', '', 'Email Sent');
+            document.getElementById('loginErr').textContent = '';
+          })
+          .catch((error) => {
+            if (error.code === 'auth/user-not-found') {
+              document.getElementById('loginErr').textContent = 'No account found with this email.';
+            } else if (error.code === 'auth/invalid-email') {
+              document.getElementById('loginErr').textContent = 'Invalid email address.';
+            } else {
+              document.getElementById('loginErr').textContent = 'Error: ' + error.message;
+            }
+          });
+      }
+    });
+  };
+
+  // Store signup data temporarily
+  let pendingSignupData = null;
+  let verificationTimer = null;
+  let timeRemaining = 600; // 10 minutes in seconds
+
+  document.getElementById('doSignup').onclick = async () => {
+    const username = document.getElementById('signupUsername').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const pass = document.getElementById('signupPass').value;
+    const passConfirm = document.getElementById('signupPassConfirm').value;
+    const errDiv = document.getElementById('signupErr');
+
+    if (!username || !email || !pass || !passConfirm) {
+      errDiv.textContent = 'Please fill in all fields.';
+      return;
+    }
+
+    if (username.length < 3) {
+      errDiv.textContent = 'Username must be at least 3 characters.';
+      return;
+    }
+
+    if (username.length > 20) {
+      errDiv.textContent = 'Username must be less than 20 characters.';
+      return;
+    }
+
+    // Check if username contains only valid characters
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      errDiv.textContent = 'Username can only contain letters, numbers, and underscores.';
+      return;
+    }
+
+    if (pass.length < 6) {
+      errDiv.textContent = 'Password must be at least 6 characters.';
+      return;
+    }
+
+    if (pass !== passConfirm) {
+      errDiv.textContent = 'Passwords do not match.';
+      return;
+    }
+
+    try {
+      // Check if username already exists
+      const usernamesSnapshot = await db.ref('usernames').once('value');
+      const usernames = usernamesSnapshot.val() || {};
+      
+      // Check if username is taken (case-insensitive)
+      const usernameLower = username.toLowerCase();
+      const usernameExists = Object.values(usernames).some(
+        existingUsername => existingUsername.toLowerCase() === usernameLower
+      );
+      
+      if (usernameExists) {
+        errDiv.textContent = 'This username is already taken. Please choose another.';
+        return;
+      }
+
+      // Check if email is already registered BEFORE sending verification code
+      errDiv.textContent = 'Checking if email is available...';
+      errDiv.style.color = '#888';
+      
+      try {
+        // Use Firebase Auth methods to check if email exists
+        const signInMethods = await auth.fetchSignInMethodsForEmail(email);
+        
+        if (signInMethods && signInMethods.length > 0) {
+          // Email is already registered
+          errDiv.textContent = 'This email is already registered. Please login instead.';
+          errDiv.style.color = '#ff4444';
+          return;
+        }
+      } catch (emailCheckError) {
+        // If error checking email, log it but continue (better UX)
+        console.warn('Error checking email availability:', emailCheckError);
+      }
+
+      // Store data for later account creation
+      pendingSignupData = { username, email, pass };
+      
+      // Send verification code
+      errDiv.textContent = 'Sending verification code...';
+      errDiv.style.color = '#888';
+      
+      try {
+        const sendCode = functions.httpsCallable('sendVerificationCode');
+        const result = await sendCode({ email });
+        
+        console.log('Verification code sent successfully:', result);
+        
+        showNotification('Verification code sent to your email!', 'success', 'Check Your Email');
+        
+        // Show verification modal
+        signupModal.style.display = 'none';
+        document.getElementById('verificationModal').style.display = 'grid';
+        document.getElementById('verifyEmailDisplay').textContent = email;
+        errDiv.textContent = '';
+        errDiv.style.color = '#ff4444';
+        
+        // Clear code inputs
+        for (let i = 1; i <= 6; i++) {
+          document.getElementById(`code${i}`).value = '';
+        }
+        document.getElementById('code1').focus();
+        
+        // Start countdown timer
+        startVerificationTimer();
+        
+      } catch (codeError) {
+        console.error('Failed to send verification code:', codeError);
+        errDiv.style.color = '#ff4444';
+        
+        // Check both error.code and error.message for "already exists" scenarios
+        if (codeError.code === 'already-exists' || 
+            (codeError.message && codeError.message.includes('already registered'))) {
+          errDiv.textContent = 'This email is already registered. Please login instead.';
+        } else if (codeError.code === 'unauthenticated') {
+          errDiv.textContent = 'Email service authentication failed. Please contact support.';
+        } else if (codeError.code === 'failed-precondition') {
+          errDiv.textContent = 'Email verification is not configured. Please contact support.';
+        } else if (codeError.message && codeError.message.includes('already')) {
+          // Catch any other "already" related errors
+          errDiv.textContent = 'This email is already registered. Please login instead.';
+        } else {
+          errDiv.textContent = 'Failed to send verification code. Please try again.';
+        }
+        
+        // Clear pending data since verification failed
+        pendingSignupData = null;
+        return;
+      }
+      
+    } catch (error) {
+      if (error.code === 'auth/email-already-in-use') {
+        errDiv.textContent = 'This email is already registered.';
+      } else if (error.code === 'auth/invalid-email') {
+        errDiv.textContent = 'Invalid email address.';
+      } else {
+        errDiv.textContent = 'Error: ' + error.message;
+      }
+    }
+  };
+
+  // Verification timer
+  function startVerificationTimer() {
+    timeRemaining = 600; // Reset to 10 minutes
+    updateTimerDisplay();
+    
+    if (verificationTimer) clearInterval(verificationTimer);
+    
+    verificationTimer = setInterval(() => {
+      timeRemaining--;
+      updateTimerDisplay();
+      
+      if (timeRemaining <= 0) {
+        clearInterval(verificationTimer);
+        document.getElementById('verifyErr').textContent = 'Code expired. Please request a new one.';
+      }
+    }, 1000);
+  }
+  
+  function updateTimerDisplay() {
+    const minutes = Math.floor(timeRemaining / 60);
+    const seconds = timeRemaining % 60;
+    document.getElementById('codeTimer').textContent = 
+      `Expires in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  // Code input auto-focus
+  for (let i = 1; i <= 6; i++) {
+    const input = document.getElementById(`code${i}`);
+    input.addEventListener('input', (e) => {
+      if (e.target.value.length === 1 && i < 6) {
+        document.getElementById(`code${i + 1}`).focus();
+      }
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && e.target.value === '' && i > 1) {
+        document.getElementById(`code${i - 1}`).focus();
+      }
+    });
+  }
+
+  // Verify code and create account
+  document.getElementById('doVerify').onclick = async () => {
+    const code = Array.from({length: 6}, (_, i) => 
+      document.getElementById(`code${i + 1}`).value
+    ).join('');
+    
+    const errDiv = document.getElementById('verifyErr');
+    
+    if (code.length !== 6) {
+      errDiv.textContent = 'Please enter the complete 6-digit code.';
+      return;
+    }
+    
+    if (!pendingSignupData) {
+      errDiv.textContent = 'Session expired. Please start over.';
+      return;
+    }
+    
+    try {
+      // Verify the code first - CRITICAL: Don't create account without verification
+      errDiv.textContent = 'Verifying code...';
+      const verifyCode = functions.httpsCallable('verifyCode');
+      const verifyResult = await verifyCode({ email: pendingSignupData.email, code });
+      
+      if (!verifyResult.data.success) {
+        errDiv.textContent = 'Verification failed. Please try again.';
+        return;
+      }
+      
+      showNotification('Email verified successfully!', 'success', 'Verified!');
+      console.log('Code verified successfully, creating account...');
+      
+      // Double-check email availability before account creation (prevents race condition)
+      errDiv.textContent = 'Creating account...';
+      try {
+        const signInMethods = await auth.fetchSignInMethodsForEmail(pendingSignupData.email);
+        if (signInMethods && signInMethods.length > 0) {
+          // Email is already registered (either by this user or someone else)
+          errDiv.textContent = 'This email is already registered. If this is your account, please login instead.';
+          // Clean up verification code
+          const emailKey = pendingSignupData.email.replace(/\./g, ",");
+          await db.ref('verificationCodes/' + emailKey).remove();
+          return;
+        }
+      } catch (emailCheckError) {
+        console.warn('Could not verify email availability:', emailCheckError);
+        // Continue anyway - Firebase will throw error if email is taken
+      }
+      
+      // Code is valid and email still available, create the account
+      const userCredential = await auth.createUserWithEmailAndPassword(
+        pendingSignupData.email, 
+        pendingSignupData.pass
+      );
+      const user = userCredential.user;
+
+      // Update Firebase Auth display name
+      await user.updateProfile({
+        displayName: pendingSignupData.username
+      });
+
+      // Save user data to database
+      await db.ref('users/' + user.uid).set({
+        username: pendingSignupData.username,
+        email: pendingSignupData.email,
+        role: 'user',
+        createdAt: new Date().toISOString(),
+        emailVerified: true
+      });
+
+      // Save username to usernames list
+      await db.ref('usernames/' + user.uid).set(pendingSignupData.username);
+      
+      // Delete the verification code from database
+      const emailKey = pendingSignupData.email.replace(/\./g, ",");
+      await db.ref('verificationCodes/' + emailKey).remove();
+      
+      // Clean up
+      clearInterval(verificationTimer);
+      pendingSignupData = null;
+      document.getElementById('verificationModal').style.display = 'none';
+      
+      // Clear all form fields
+      document.getElementById('signupUsername').value = '';
+      document.getElementById('signupEmail').value = '';
+      document.getElementById('signupPass').value = '';
+      document.getElementById('signupPassConfirm').value = '';
+      
+      showNotification('Account created successfully! Welcome to Vixvvo Tools.', '', 'Welcome!');
+      console.log('Account created successfully for:', pendingSignupData.email);
+      
+    } catch (error) {
+      console.error('Account creation error:', error);
+      
+      if (error.code === 'deadline-exceeded') {
+        errDiv.textContent = 'Code has expired. Please request a new one.';
+      } else if (error.code === 'invalid-argument') {
+        errDiv.textContent = 'Invalid verification code. Please try again.';
+      } else if (error.code === 'not-found') {
+        errDiv.textContent = 'Verification code not found. Please request a new one.';
+      } else if (error.code === 'auth/email-already-in-use') {
+        errDiv.textContent = 'This email is already registered. If this is your account, please login instead.';
+        // Clean up verification code
+        const emailKey = pendingSignupData.email.replace(/\./g, ",");
+        db.ref('verificationCodes/' + emailKey).remove().catch(e => console.warn('Could not remove verification code:', e));
+        // Clean up and close modal after a delay
+        setTimeout(() => {
+          clearInterval(verificationTimer);
+          pendingSignupData = null;
+          document.getElementById('verificationModal').style.display = 'none';
+        }, 3000);
+      } else {
+        errDiv.textContent = 'Error: ' + (error.message || 'Account creation failed');
+      }
+    }
+  };
+
+  // Resend code
+  document.getElementById('resendCode').onclick = async () => {
+    if (!pendingSignupData) {
+      document.getElementById('verifyErr').textContent = 'Session expired. Please start over.';
+      return;
+    }
+    
+    const errDiv = document.getElementById('verifyErr');
+    errDiv.textContent = 'Sending new code...';
+    errDiv.style.color = '#888';
+    
+    try {
+      const sendCode = functions.httpsCallable('sendVerificationCode');
+      const result = await sendCode({ email: pendingSignupData.email });
+      
+      console.log('New verification code sent:', result);
+      errDiv.textContent = '';
+      startVerificationTimer();
+      showNotification('New verification code sent!', '', 'Check your email');
+    } catch (error) {
+      console.error('Failed to resend code:', error);
+      errDiv.style.color = '#ff4444';
+      
+      if (error.code === 'unauthenticated' || error.code === 'failed-precondition') {
+        errDiv.textContent = 'Email service is not available. Please contact support.';
+      } else {
+        errDiv.textContent = 'Failed to resend code: ' + (error.message || 'Please try again');
+      }
+    }
+  };
+
+  // Back to signup
+  document.getElementById('backToSignup').onclick = (e) => {
+    e.preventDefault();
+    clearInterval(verificationTimer);
+    document.getElementById('verificationModal').style.display = 'none';
+    signupModal.style.display = 'grid';
+  };
+
+  // Click outside verification modal to close
+  document.getElementById('verificationModal').onclick = (e) => {
+    if (e.target.id === 'verificationModal') {
+      clearInterval(verificationTimer);
+      document.getElementById('verificationModal').style.display = 'none';
+      signupModal.style.display = 'grid';
+    }
+  };
+
+  document.getElementById('doLogin').onclick = () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    const errDiv = document.getElementById('loginErr');
+
+    if (!email || !pass) {
+      errDiv.textContent = 'Please enter both email and password.';
+      return;
+    }
+    
+    auth.signInWithEmailAndPassword(email, pass)
+      .then(() => {
+        modal.style.display = 'none';
+        errDiv.textContent = '';
+        showNotification('Login successful! Welcome back.', 'success', 'Welcome!');
+        // Reload page to fetch all user data
+        setTimeout(() => window.location.reload(), 1000);
+      })
+      .catch((error) => {
+        if (error.code === 'auth/user-not-found') {
+          errDiv.textContent = 'No account found with this email.';
+        } else if (error.code === 'auth/wrong-password') {
+          errDiv.textContent = 'Incorrect password. Please try again.';
+        } else if (error.code === 'auth/invalid-email') {
+          errDiv.textContent = 'Invalid email address.';
+        } else if (error.code === 'auth/invalid-credential') {
+          errDiv.textContent = 'Invalid credentials. Please check your email and password.';
+        } else {
+          errDiv.textContent = 'Invalid credentials. Please check your email and password.';
+        }
+      });
+  };
+
+  /* Settings Dropdown - Wait for navbar to load */
+  function initializeNavbarHandlers() {
+    const btnSettings = document.getElementById('btnSettings');
+    const settingsDropdown = document.getElementById('settingsDropdown');
+    const btnLoginSettings = document.getElementById('btnLoginSettings');
+    const btnLogoutSettings = document.getElementById('btnLogoutSettings');
+    const userInfoDisplay = document.getElementById('userInfoDisplay');
+    const settingsUsername = document.getElementById('settingsUsername');
+    const settingsRole = document.getElementById('settingsRole');
+    const userAvatar = document.getElementById('userAvatar');
+    const btnLoginNav = document.getElementById('btnLoginNav');
+    const btnSettingsPage = document.getElementById('btnSettingsPage');
+
+    if (!btnSettings || !settingsDropdown) {
+      console.error('Navbar elements not found');
+      return;
+    }
+
+    // Login button in nav (visible when logged out)
+    if (btnLoginNav) {
+      btnLoginNav.addEventListener('click', () => {
+        // On index.html, just open the modal directly
+        document.getElementById('loginErr').textContent = '';
+        modal.style.display = 'grid';
+      });
+    }
+
+    // Dropdown toggle functionality is now handled by settings-dropdown.js
+
+  // Add smooth scrolling for all anchor links (navbar and footer)
+  function setupSmoothScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if (href && href.startsWith('#') && href.length > 1) {
+          e.preventDefault();
+          const targetId = href.substring(1);
+          const targetElement = document.getElementById(targetId);
+          if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+    });
+  }
+  
+  // Initialize smooth scroll after navbar loads
+  setTimeout(setupSmoothScroll, 100);
+
+  // Login button in settings
+  btnLoginSettings.addEventListener('click', () => {
+    settingsDropdown.classList.remove('active');
+    btnSettings.classList.remove('active');
+    // On index.html, just open the modal directly
+    document.getElementById('loginErr').textContent = '';
+    modal.style.display = 'grid';
+  });
+
+  // Logout button in settings
+  btnLogoutSettings.addEventListener('click', () => {
+    showConfirm('Are you sure you want to log out?', '', 'Logout', 'Logout').then((confirmed) => {
+      if (confirmed) {
+        settingsDropdown.classList.remove('active');
+        btnSettings.classList.remove('active');
+        auth.signOut().then(() => {
+          console.log('User logged out');
+          showNotification('You have been logged out successfully.', 'success', 'Goodbye!');
+          // Reload page to clear all user data
+          window.location.reload();
+        });
+      }
+    });
+  });
+
+  // Currency handling
+  const currencySelect = document.getElementById('currencySelect');
+  const btnSaveCurrency = document.getElementById('btnSaveCurrency');
+  window.currentCurrency = 'USD';
+  window.lastSavedCurrency = 'USD';
+
+  // Function to update the save button state
+  function updateSaveButton() {
+    if (currencySelect.value !== window.lastSavedCurrency) {
+      btnSaveCurrency.disabled = false;
+      btnSaveCurrency.style.opacity = '1';
+    } else {
+      btnSaveCurrency.disabled = true;
+      btnSaveCurrency.style.opacity = '0.5';
+    }
+  }
+
+  // Update save button when currency changes
+  currencySelect.addEventListener('change', updateSaveButton);
+
+  // Save currency to Firebase
+  btnSaveCurrency.addEventListener('click', () => {
+    const user = auth.currentUser;
+    if (!user) {
+      console.log('No user logged in');
+      return;
+    }
+
+    window.currentCurrency = currencySelect.value;
+    
+    // Save to Firebase
+    db.ref('users/' + user.uid + '/currency').set(window.currentCurrency)
+      .then(() => {
+        console.log('Currency saved to Firebase:', window.currentCurrency);
+        window.lastSavedCurrency = window.currentCurrency;
+        
+        // Show success feedback
+        btnSaveCurrency.textContent = 'Saved';
+        btnSaveCurrency.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        
+        // Show notification
+        showNotification('Currency preference saved!', 'success');
+        
+        // Reload page after 1 second to show new currency
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
+      })
+      .catch(error => {
+        console.error('Error saving currency:', error);
+        showNotification('Failed to save currency. Please try again.', '', 'Error');
+      });
+  });
+
+    // Return references for auth state handler
+    return {
+      btnLoginSettings,
+      btnLogoutSettings,
+      userInfoDisplay,
+      settingsUsername,
+      settingsRole,
+      userAvatar,
+      btnLoginNav,
+      btnSettingsPage,
+      currencySelect,
+      updateSaveButton
+    };
+  }
+
+  // Wait for navbar to load before initializing handlers
+  let navbarElements = null;
+  document.addEventListener('navbarLoaded', function() {
+    console.log('Navbar loaded, initializing handlers...');
+    navbarElements = initializeNavbarHandlers();
+  });
+
+  // Hide loading overlay
+  function hideLoadingOverlay() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) {
+      loadingOverlay.style.opacity = '0';
+      setTimeout(() => {
+        loadingOverlay.style.display = 'none';
+      }, 300);
+    }
+  }
+
+  // Track initialization
+  let authInitialized = false;
+  let firebaseConnected = false;
+
+  function checkInitComplete() {
+    if (authInitialized && firebaseConnected) {
+      hideLoadingOverlay();
+    }
+  }
+
+  // Check Firebase connection
+  db.ref('.info/connected').on('value', snapshot => {
+    if (snapshot.val() === true) {
+      console.log('✅ Connected to Firebase');
+      firebaseConnected = true;
+      checkInitComplete();
+    }
+  });
+
+  // Handle auth state changes (persists across page refreshes)
+  auth.onAuthStateChanged(user => {
+    authInitialized = true;
+    checkInitComplete();
+    
+    // Wait for navbar elements to be available
+    let retryCount = 0;
+    const maxRetries = 50; // Max 5 seconds (50 * 100ms)
+    
+    function updateAuthUI() {
+      if (!navbarElements) {
+        // Retry after a short delay if navbar isn't ready yet
+        if (retryCount < maxRetries) {
+          retryCount++;
+          setTimeout(updateAuthUI, 100);
+          return;
+        } else {
+          console.error('Navbar elements failed to load after max retries');
+          return;
+        }
+      }
+
+      const {
+        btnLoginSettings,
+        btnLogoutSettings,
+        userInfoDisplay,
+        settingsUsername,
+        settingsRole,
+        userAvatar,
+        btnLoginNav,
+        btnSettingsPage,
+        currencySelect,
+        updateSaveButton
+      } = navbarElements;
+
+      if (user) {
+        // Update settings dropdown
+        btnLoginSettings.style.display = 'none';
+        btnLogoutSettings.style.display = 'block';
+        if (btnSettingsPage) btnSettingsPage.style.display = 'block';
+        userInfoDisplay.style.display = 'block';
+        
+        // Set user info
+        const email = user.email || 'User';
+        const username = user.displayName || email.split('@')[0];
+        
+        // Fetch role and membership tier from Firebase Database
+        Promise.all([
+          db.ref('users/' + user.uid + '/role').once('value'),
+          db.ref('users/' + user.uid + '/membership/tier').once('value')
+        ])
+          .then(([roleSnapshot, tierSnapshot]) => {
+            const roleFromDb = roleSnapshot.val() || 'member';
+            const tier = tierSnapshot.val() || 'free';
+            console.log('User role from Firebase:', roleFromDb);
+            console.log('User tier from Firebase:', tier);
+            
+            // Display role with proper capitalization
+            if (roleFromDb.toLowerCase() === 'admin' || roleFromDb.toLowerCase() === 'administrator') {
+              settingsRole.textContent = 'Administrator';
+            } else {
+              // Display membership tier
+              const tierInfo = typeof TIER_INFO !== 'undefined' ? TIER_INFO[tier] : null;
+              settingsRole.textContent = tierInfo ? tierInfo.name : tier.charAt(0).toUpperCase() + tier.slice(1);
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching role/tier:', error);
+            settingsRole.textContent = 'Free';
+          });
+        
+        // Listen for real-time currency changes from Firebase
+        db.ref('users/' + user.uid + '/currency').on('value', snapshot => {
+          const savedCurrency = snapshot.val();
+          if (savedCurrency && currencySelect && updateSaveButton) {
+            window.currentCurrency = savedCurrency;
+            window.lastSavedCurrency = savedCurrency;
+            currencySelect.value = savedCurrency;
+            console.log('Currency updated from Firebase:', savedCurrency);
+            updateSaveButton();
+          }
+        });
+        
+        settingsUsername.textContent = username;
+        userAvatar.textContent = username.charAt(0).toUpperCase();
+        
+        // Hide nav login button when logged in
+        if (btnLoginNav) btnLoginNav.style.display = 'none';
+      } else {
+        // Update settings dropdown
+        btnLoginSettings.style.display = 'block';
+        btnLogoutSettings.style.display = 'none';
+        if (btnSettingsPage) btnSettingsPage.style.display = 'none';
+        userInfoDisplay.style.display = 'none';
+        
+        // Show nav login button when logged out
+        if (btnLoginNav) btnLoginNav.style.display = 'block';
+      }
+    }
+
+    updateAuthUI();
+  });
+
+  // Fallback: Hide loading overlay after max 5 seconds
+  setTimeout(() => {
+    hideLoadingOverlay();
+  }, 5000);
+
+  // Force scroll to top and prevent auto-scroll (unless there's a hash)
+  history.scrollRestoration = 'manual';
+  if (!window.location.hash) {
+    window.scrollTo(0, 0);
+  }
+
+  // Helper function to scroll to center of element
+  function scrollToCenter(element) {
+    const elementRect = element.getBoundingClientRect();
+    const absoluteElementTop = elementRect.top + window.pageYOffset;
+    const elementHeight = elementRect.height;
+    const windowHeight = window.innerHeight;
+    
+    // Calculate position to center the element
+    const offsetPosition = absoluteElementTop - (windowHeight / 2) + (elementHeight / 2);
+    
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    });
+  }
+
+  // Smooth scroll for nav links - use event delegation for dynamically loaded navbar
+  document.addEventListener('click', function(e) {
+    const anchor = e.target.closest('a[href^="#"]');
+    if (!anchor) return;
+    
+    const href = anchor.getAttribute('href');
+    
+    // Skip modal trigger links (signUpLink, backToLoginLink, etc.)
+    if (href === '#' || anchor.id === 'signUpLink' || anchor.id === 'backToLoginLink') {
+      return;
+    }
+    
+    e.preventDefault();
+    const target = document.querySelector(href);
+    if (target) {
+      scrollToCenter(target);
+    }
+  });
+
+  // Handle hash navigation on page load
+  window.addEventListener('load', () => {
+    // Set body height to cut off at bottom shine image
+    const bottomShineImage = document.getElementById('bottom-shine-image');
+    if (bottomShineImage) {
+      bottomShineImage.onload = function() {
+        const imageBottom = bottomShineImage.offsetTop + bottomShineImage.height;
+        document.body.style.minHeight = imageBottom + 'px';
+        document.body.style.maxHeight = imageBottom + 'px';
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'auto';
+      };
+      // Trigger if already loaded
+      if (bottomShineImage.complete) {
+        const imageBottom = bottomShineImage.offsetTop + bottomShineImage.height;
+        document.body.style.minHeight = imageBottom + 'px';
+        document.body.style.maxHeight = imageBottom + 'px';
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'auto';
+      }
+    }
+    
+    // Check URL parameters for login/signup modal
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('login') === 'true') {
+      // Open login modal
+      setTimeout(() => {
+        const modal = document.getElementById('modal');
+        if (modal) {
+          const loginErr = document.getElementById('loginErr');
+          if (loginErr) loginErr.textContent = '';
+          modal.style.display = 'grid';
+        }
+        // Remove the parameter from URL without refreshing
+        window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+      }, 500);
+    } else if (urlParams.get('signup') === 'true') {
+      // Open signup modal
+      setTimeout(() => {
+        const signupModal = document.getElementById('signupModal');
+        if (signupModal) {
+          const signupErr = document.getElementById('signupErr');
+          if (signupErr) signupErr.textContent = '';
+          signupModal.style.display = 'grid';
+        }
+        // Remove the parameter from URL without refreshing
+        window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+      }, 500);
+    }
+
+    // Check if there's a hash in the URL
+    if (window.location.hash) {
+      const hash = window.location.hash;
+      const target = document.querySelector(hash);
+      
+      if (target) {
+        // Wait for page to fully render, then scroll
+        setTimeout(() => {
+          scrollToCenter(target);
+        }, 100);
+      }
+    }
+    
+    // Auto-open signup modal if redirected from another page
+    const shouldOpenSignup = sessionStorage.getItem('openSignup');
+    if (shouldOpenSignup === 'true') {
+      // Clear the flag
+      sessionStorage.removeItem('openSignup');
+      
+      // Wait a moment for the page to fully load, then open signup modal
+      setTimeout(() => {
+        document.getElementById('signupModal').style.display = 'grid';
+        document.getElementById('signupUsername').focus();
+      }, 300);
+    }
+  });
+</script>
+
+<!-- Modern Toast Notification -->
+<div id="customNotification" class="notification">
+  <div class="notification-icon">✓</div>
+  <div class="notification-content">
+    <div class="notification-title">Success!</div>
+    <div class="notification-message"></div>
+  </div>
+  <button class="notification-close" onclick="hideNotification()">×</button>
+</div>
+
+<!-- Custom Confirm Dialog -->
+<div id="customConfirm" class="confirm-dialog">
+  <div class="confirm-icon"></div>
+  <div class="confirm-title">Are you sure?</div>
+  <div class="confirm-message"></div>
+  <div class="confirm-buttons">
+    <button id="confirmYes" class="btn btn-danger">Confirm</button>
+    <button id="confirmNo" class="btn btn-ghost">Cancel</button>
+  </div>
+</div>
+
+<script>
+/* Modern Toast Notification System */
+function showNotification(message, type = 'success', title = '') {
+  const notification = document.getElementById('customNotification');
+  
+  // Remove previous type classes
+  notification.classList.remove('success', 'error', 'warning');
+  
+  // Set icon and title based on type
+  let icon = '✓';
+  let notificationTitle = title || 'Success!';
+  
+  if (type === 'error') {
+    icon = '✕';
+    notificationTitle = title || 'Error';
+  } else if (type === 'warning') {
+    icon = '⚠';
+    notificationTitle = title || 'Warning';
+  }
+  
+  // Update content
+  notification.querySelector('.notification-icon').textContent = icon;
+  notification.querySelector('.notification-title').textContent = notificationTitle;
+  notification.querySelector('.notification-message').textContent = message;
+  
+  // Add type class and show
+  notification.classList.add(type);
+  notification.classList.add('show');
+  
+  // Auto-hide after 3 seconds
+  setTimeout(() => {
+    hideNotification();
+  }, 3000);
+}
+
+function hideNotification() {
+  const notification = document.getElementById('customNotification');
+  notification.classList.remove('show');
+}
+
+/* Custom Confirm Dialog */
+function showConfirm(message, icon = '', title = 'Are you sure?', buttonText = 'Confirm') {
+  return new Promise((resolve) => {
+    const confirmDialog = document.getElementById('customConfirm');
+    const overlay = document.getElementById('overlay');
+    const yesBtn = document.getElementById('confirmYes');
+    const noBtn = document.getElementById('confirmNo');
+    
+    confirmDialog.querySelector('.confirm-icon').textContent = icon;
+    confirmDialog.querySelector('.confirm-title').textContent = title;
+    confirmDialog.querySelector('.confirm-message').textContent = message;
+    yesBtn.textContent = buttonText;
+    
+    overlay.style.display = 'block';
+    confirmDialog.classList.add('show');
+    
+    const cleanup = () => {
+      confirmDialog.classList.remove('show');
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 300);
+    };
+    
+    yesBtn.onclick = () => {
+      cleanup();
+      resolve(true);
+    };
+    
+    noBtn.onclick = () => {
+      cleanup();
+      resolve(false);
+    };
+  });
+}
+
+// Smooth scroll function
+function scrollToHero() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>

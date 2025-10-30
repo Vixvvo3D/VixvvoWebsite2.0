@@ -1,0 +1,264 @@
+<!-- 
+  BOTTOM SECTION TEMPLATE
+  
+  This template contains the complete bottom section for Vixvvo pages.
+  
+  USAGE: Copy the HTML and CSS sections below and paste them into your page.
+  
+  DIMENSIONS:
+  - Bottom section container: 1440px wide × 716px tall
+  - Positioned at bottom: 0
+  
+  CONTENTS:
+  1. Contact text: "Don't answer your question? contact us at Vixvvo@gmail.com" (844.32px from page bottom)
+  2. Large Vixvvo text: Gradient text at 386px font size (316.1px from page bottom, 165px left/right margins)
+  3. Bottom shine image: Centered at bottom
+  4. Footer: Navigation links, divider, copyright, social icons (40px padding top/bottom, 140px left/right)
+  
+  REQUIRED IMAGE:
+  - images/Bottomshine.png
+  
+  REQUIRED FONT:
+  - SF Pro Display (via CDN: https://fonts.cdnfonts.com/css/sf-pro-display)
+-->
+
+<!-- ======================== CSS STYLES ======================== -->
+<!-- Add this to your <style> section -->
+
+<style>
+  /* Bottom Section Container */
+  .bottom-section {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 1440px;
+    height: 716px;
+    background-color: transparent;
+    border: 1px solid rgba(0, 0, 255, 0.5); /* Blue border - remove if not needed */
+    z-index: 10;
+  }
+
+  /* Contact Text */
+  .contact-text {
+    position: absolute;
+    bottom: 844.32px;
+    left: 160px;
+    margin: 0;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.80);
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: 160%;
+    letter-spacing: -0.36px;
+    z-index: 100;
+  }
+
+  .contact-text a {
+    color: rgba(255, 255, 255, 0.80);
+    text-decoration: underline;
+  }
+
+  /* Large Vixvvo Text */
+  .large-vixvvo-text {
+    position: absolute;
+    bottom: 316.1px;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 386px;
+    font-style: normal;
+    font-weight: 590;
+    line-height: 386px;
+    letter-spacing: -3.86px;
+    background: linear-gradient(180deg, #FFF 0%, #C1B2FF 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Bottom Shine Image */
+  .bottom-shine {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    display: block;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Footer Container */
+  #footer-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: calc(100% - 280px);
+    padding: 40px 140px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    z-index: 201;
+  }
+
+  /* Footer Navigation */
+  #footer-nav {
+    display: flex;
+    gap: 48px;
+    align-items: center;
+  }
+
+  .footer-nav-link {
+    color: #FFF;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .footer-nav-link:hover {
+    opacity: 0.7;
+  }
+
+  /* Footer Divider */
+  #footer-divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Footer Bottom Section */
+  #footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  #footer-copyright {
+    color: rgba(255, 255, 255, 0.60);
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin: 0;
+  }
+
+  /* Footer Social Icons */
+  #footer-social {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .footer-social-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFF;
+    text-decoration: none;
+    font-size: 18px;
+    transition: background 0.3s ease;
+  }
+
+  .footer-social-icon:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+</style>
+
+<!-- ======================== HTML MARKUP ======================== -->
+<!-- Add this inside your page container -->
+
+<div class="bottom-section">
+  <!-- Contact Text -->
+  <p class="contact-text">Don't answer your question?<br>contact us at <a href="mailto:Vixvvo@gmail.com">Vixvvo@gmail.com</a></p>
+
+  <!-- Large Vixvvo Text with Gradient -->
+  <h1 class="large-vixvvo-text">Vixvvo</h1>
+
+  <!-- Bottom Shine Background Image -->
+  <img src="images/Bottomshine.png" alt="Bottom Shine" class="bottom-shine">
+  
+  <!-- Footer Container -->
+  <div id="footer-container">
+    <!-- Footer Navigation Links -->
+    <nav id="footer-nav">
+      <a href="#features-heading" class="footer-nav-link">Features</a>
+      <a href="#benefits-heading" class="footer-nav-link">Use Cases</a>
+      <a href="pages/pricing.html" class="footer-nav-link">Pricing</a>
+      <a href="#about-vixvvo3d-heading" class="footer-nav-link">About Us</a>
+      <a href="#faq-category-heading" class="footer-nav-link">FAQs</a>
+    </nav>
+    
+    <!-- Footer Divider Line -->
+    <div id="footer-divider"></div>
+    
+    <!-- Footer Bottom: Copyright & Social Icons -->
+    <div id="footer-bottom">
+      <p id="footer-copyright">© 2025 Vixvvo, all rights reserved.</p>
+      
+      <!-- Social Media Icons -->
+      <div id="footer-social">
+        <!-- Instagram -->
+        <a href="https://instagram.com" target="_blank" class="footer-social-icon" aria-label="Instagram">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+          </svg>
+        </a>
+        
+        <!-- Twitter/X -->
+        <a href="https://twitter.com" target="_blank" class="footer-social-icon" aria-label="Twitter">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </a>
+        
+        <!-- LinkedIn -->
+        <a href="https://linkedin.com" target="_blank" class="footer-social-icon" aria-label="LinkedIn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+            <rect x="2" y="9" width="4" height="12"/>
+            <circle cx="4" cy="4" r="2"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== NOTES ========================
+  
+  POSITIONING SPECIFICATIONS:
+  - .bottom-section: bottom: 0, left: 0, 1440×716px, z-index: 10
+  - .contact-text: bottom: 844.32px from PAGE bottom, left: 160px, z-index: 100
+  - .large-vixvvo-text: bottom: 316.1px from PAGE bottom, centered, z-index: 2
+  - .bottom-shine: bottom: 0, centered horizontally, z-index: 1
+  - #footer-container: bottom: 0, padding: 40px 140px, z-index: 201
+  
+  CUSTOMIZATION:
+  1. Update footer navigation links to match your page structure
+  2. Replace social media URLs with your actual profiles
+  3. Update copyright year if needed
+  4. Adjust contact email if different
+  5. Remove blue border on .bottom-section if not needed for debugging
+  
+  FONT REQUIREMENT:
+  Make sure to include in your <head>:
+  <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+  
+-->

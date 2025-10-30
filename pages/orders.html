@@ -35,10 +35,282 @@
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDN2UpD_xHvxrQ2LQjDHIlLmuRi8e4wAQQ&loading=async&libraries=places&callback=initGoogleMaps" async defer></script>
 
 <style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #0a0a0a;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  body {
+    display: flex;
+  }
+
+  /* Sidebar Styles */
+  .sidebar {
+    width: 250px;
+    background: #000000;
+    height: 100vh;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    border-right: none;
+    overflow-y: auto;
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+    padding: 15px 10px;
+    margin-bottom: 20px;
+  }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar-brand {
+    font-size: 36px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .sidebar-subtitle {
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+  }
+
+  .sidebar-menu {
+    list-style: none;
+    flex: 1;
+  }
+
+  .sidebar-menu li {
+    margin-bottom: 8px;
+  }
+
+  .sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    color: #9ca3af;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .sidebar-menu a:hover {
+    background: #1f1f1f;
+    color: #ffffff;
+  }
+
+  .sidebar-menu a.active {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: #ffffff;
+  }
+
+  .sidebar-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar-icon img {
+    width: 100%;
+    height: 100%;
+    filter: brightness(0) invert(1);
+    opacity: 0.7;
+  }
+
+  .sidebar-menu a.active .sidebar-icon img {
+    filter: brightness(0) invert(1);
+    opacity: 1;
+  }
+
+  .sidebar-menu a:hover .sidebar-icon img {
+    filter: brightness(0) invert(1);
+    opacity: 1;
+  }
+
+  /* Main Content Area */
+  .dashboard-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow-y: auto;
+    background: #000000;
+    padding: 12px;
+  }
+
+  .dashboard-header {
+    background: transparent;
+    padding: 0 0 30px 0;
+    border-bottom: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-left h1 {
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .header-date {
+    color: #6b7280;
+    font-size: 14px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .header-icon-btn {
+    width: 40px;
+    height: 40px;
+    background: #1f1f1f;
+    border: none;
+    border-radius: 10px;
+    color: #9ca3af;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+
+  .header-icon-btn img {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) saturate(100%) invert(67%) sepia(8%) saturate(321%) hue-rotate(180deg) brightness(91%) contrast(87%);
+  }
+
+  .header-icon-btn:hover {
+    background: #2a2a2a;
+  }
+
+  .header-icon-btn:hover img {
+    filter: brightness(0) invert(1);
+  }
+
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  /* Dashboard Content */
+  .dashboard-content {
+    flex: 1;
+    padding: 0;
+    overflow: visible;
+    background: transparent;
+  }
+
+  /* Content Container with Dark Grey Background */
+  .content-container {
+    background: #15161A;
+    border-radius: 24px;
+    padding: 30px;
+  }
+
+  /* Page Sections */
+  .page-section {
+    display: none;
+  }
+
+  .page-section.active {
+    display: block;
+  }
+
+  .page-section h2 {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  .page-section p {
+    color: #9ca3af;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* Tab Navigation Styles */
+  .tab-navigation {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+    border-bottom: 2px solid #2a2a2a;
+    padding-bottom: 0;
+  }
+
+  .tab-btn {
+    padding: 12px 24px;
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    position: relative;
+  }
+
+  .tab-btn:hover {
+    color: #ffffff;
+  }
+
+  .tab-btn.active {
+    color: #ffffff;
+    border-bottom-color: var(--purple);
+  }
+
+  /* ORDERS-SPECIFIC STYLES */
   .orders-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 40px 60px;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
   }
 
   .address-dropdown {
@@ -1339,7 +1611,7 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
     "></div>
-    <p style="margin-top: 20px; color: var(--text-muted); font-size: 14px;">Loading orders...</p>
+    <p style="margin-top: 20px; color: var(--text-muted); font-size: 14px;">Loading...</p>
     <style>
       @keyframes spin {
         0% { transform: rotate(0deg); }
@@ -1348,69 +1620,171 @@
     </style>
   </div>
 
-  <!-- Navbar Container -->
-  <div id="navbar-container"></div>
-
-  <div class="orders-container">
-    <div class="orders-header">
-      <h1 class="orders-title">Orders</h1>
-      <p class="orders-subtitle">Manage and track your orders</p>
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <span class="sidebar-brand">VIXVVO</span>
+      </div>
+      <span class="sidebar-subtitle">TOOLS</span>
     </div>
 
-    <div class="action-bar">
-      <div style="display: flex; gap: 12px; align-items: center;">
-        <div class="search-box">
-          <input type="text" id="searchInput" placeholder="Search orders...">
+    <ul class="sidebar-menu">
+      <li>
+        <a href="../pages/dashboard.html" class="nav-link">
+          <span class="sidebar-icon"><img src="../images/Icons/House.svg" alt="Dashboard"></span>
+          <span>Dashboard</span>
+        </a>
+      </li>
+      <li>
+        <a href="../pages/dashboard.html" class="nav-link">
+          <span class="sidebar-icon"><img src="../images/Icons/Calculator.svg" alt="Calculator"></span>
+          <span>Calculator</span>
+        </a>
+      </li>
+      <li>
+        <a href="../pages/upload-model.html" class="nav-link">
+          <span class="sidebar-icon"><img src="../images/Icons/Upload.svg" alt="Upload"></span>
+          <span>Upload Model</span>
+        </a>
+      </li>
+      <li>
+        <a href="../pages/orders.html" class="nav-link active">
+          <span class="sidebar-icon"><img src="../images/Icons/ShoppingCart.svg" alt="Orders"></span>
+          <span>Orders</span>
+        </a>
+      </li>
+      <li>
+        <a href="../pages/more-tools.html" class="nav-link">
+          <span class="sidebar-icon"><img src="../images/Icons/Toolbox.svg" alt="Tools"></span>
+          <span>Tools</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="nav-link" data-page="activity">
+          <span class="sidebar-icon"><img src="../images/Icons/Clock.svg" alt="Activity"></span>
+          <span>Activity</span>
+        </a>
+      </li>
+      <li>
+        <a href="../pages/settings.html" class="nav-link">
+          <span class="sidebar-icon"><img src="../images/Icons/GearSix.svg" alt="Settings"></span>
+          <span>Settings</span>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Main Dashboard -->
+  <div class="dashboard-wrapper">
+    <!-- Dashboard Content -->
+    <main class="dashboard-content">
+      <div class="content-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+          <div class="header-left">
+            <h1>Orders Management</h1>
+            <p class="header-date">Manage and track your orders</p>
+          </div>
+          <div class="header-right">
+            <button class="header-icon-btn" title="Search">
+              <img src="../images/Icons/MagnifyingGlass.svg" alt="Search">
+            </button>
+            <button class="header-icon-btn" title="Notifications">
+              <img src="../images/Icons/Bell.svg" alt="Notifications">
+            </button>
+            <div class="user-avatar" id="user-avatar">?</div>
+          </div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+          <button class="tab-btn active" data-tab="orders-tab">Orders</button>
+          <button class="tab-btn" data-tab="colors-tab">Colors</button>
+          <button class="tab-btn" data-tab="materials-tab">Materials</button>
         </div>
-        <select id="statusFilter" class="status-filter">
-          <option value="all">All Orders</option>
-          <optgroup label="Order Status">
-            <option value="pending">Pending</option>
-            <option value="processing">Processing</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
-          </optgroup>
-          <optgroup label="Payment Status">
-            <option value="paid">Paid</option>
-            <option value="partially">Partially</option>
-            <option value="unpaid">Unpaid</option>
-          </optgroup>
-        </select>
-      </div>
-      <div style="display: flex; gap: 12px;">
-        <button class="btn" id="btnManageColors">Manage Colors</button>
-        <button class="btn" id="btnNewOrder">New Order</button>
-      </div>
-    </div>
 
-    <div id="ordersContent">
-      <!-- Content will be loaded here -->
-    </div>
+        <!-- Page Content Container -->
+        <div id="page-content-wrapper">
+          <!-- ORDERS TAB -->
+          <div class="page-section active" id="orders-tab">
+            <div class="orders-container">
+              <div class="action-bar">
+                <div style="display: flex; gap: 12px; align-items: center;">
+                  <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search orders...">
+                  </div>
+                  <select id="statusFilter" class="status-filter">
+                    <option value="all">All Orders</option>
+                    <optgroup label="Order Status">
+                      <option value="pending">Pending</option>
+                      <option value="processing">Processing</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </optgroup>
+                    <optgroup label="Payment Status">
+                      <option value="paid">Paid</option>
+                      <option value="partially">Partially</option>
+                      <option value="unpaid">Unpaid</option>
+                    </optgroup>
+                  </select>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                  <button class="btn-calc-ghost btn-small" id="btnManageColors">Manage Colors</button>
+                  <button class="btn-calc btn-small" id="btnNewOrder">New Order</button>
+                </div>
+              </div>
+
+              <div id="ordersContent">
+                <!-- Content will be loaded here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- COLORS TAB -->
+          <div class="page-section" id="colors-tab">
+            <h2>Color Management</h2>
+            <p>Manage your global and personal color libraries</p>
+            <!-- Color management will be moved here -->
+          </div>
+
+          <!-- MATERIALS TAB -->
+          <div class="page-section" id="materials-tab">
+            <h2>Materials</h2>
+            <p>Manage filaments and materials</p>
+            <!-- Materials management will be added here -->
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 
   <!-- Color Management Modal -->
-  <div id="colorManagementModal" class="order-modal" style="display: none;">
-    <div class="modal-content-wrapper" style="max-width: 900px; position: relative;">
-      <div class="modal-header">
-        <h2>Color Management</h2>
+  <div id="colorManagementModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card modal-wide" style="max-width: 1000px;">
+      <!-- Modal Header -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+        <div>
+          <h3 style="color: var(--purple-light); margin-bottom: 8px;">Color Management</h3>
+          <p style="font-size: 14px; color: var(--text-muted);">Manage your global and personal color libraries</p>
+        </div>
+        <button class="modal-close" onclick="closeColorManagementModal()">×</button>
       </div>
       
-      <div style="position: absolute; top: 20px; right: 20px; z-index: 1000;">
-        <button class="btn btn-primary" onclick="closeColorManagementModal()">Close & Save</button>
-      </div>
-      
+      <!-- Tabs -->
       <div class="preset-tabs">
         <button class="preset-tab active" data-tab="globalColors">Global Colors</button>
         <button class="preset-tab" data-tab="userColors">Your Colors</button>
       </div>
 
+      <!-- Global Colors Tab -->
       <div id="globalColors" class="tab-content active">
         <div class="tab-header">
           <h3>Global Color Library</h3>
           <div style="display: flex; gap: 8px;">
-            <button class="btn btn-ghost" id="btnCancelGlobalSelection" style="display: none;" onclick="cancelGlobalSelection()">Cancel</button>
-            <button class="btn btn-danger" id="btnMassDeleteGlobalColors" style="display: none;" onclick="massDeleteGlobalColors()">Mass Delete</button>
-            <button class="btn btn-primary" id="btnAddGlobalColor" style="display: none;">+ Add Global Color</button>
+            <button class="btn-calc-ghost btn-small" id="btnCancelGlobalSelection" style="display: none;" onclick="cancelGlobalSelection()">Cancel</button>
+            <button class="btn-calc btn-small" id="btnMassDeleteGlobalColors" style="display: none; background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);" onclick="massDeleteGlobalColors()">Mass Delete</button>
+            <button class="btn-calc btn-small" id="btnAddGlobalColor" style="display: none;">+ Add Global Color</button>
           </div>
         </div>
         <div id="globalColorsGrid" class="colors-grid">
@@ -1418,13 +1792,14 @@
         </div>
       </div>
 
+      <!-- User Colors Tab -->
       <div id="userColors" class="tab-content" style="display: none;">
         <div class="tab-header">
           <h3>Your Personal Colors</h3>
           <div style="display: flex; gap: 8px;">
-            <button class="btn btn-ghost" id="btnCancelUserSelection" style="display: none;" onclick="cancelUserSelection()">Cancel</button>
-            <button class="btn btn-danger" id="btnMassDeleteUserColors" onclick="massDeleteUserColors()">Mass Delete</button>
-            <button class="btn btn-primary" id="btnAddUserColor">+ Add Color</button>
+            <button class="btn-calc-ghost btn-small" id="btnCancelUserSelection" style="display: none;" onclick="cancelUserSelection()">Cancel</button>
+            <button class="btn-calc btn-small" id="btnMassDeleteUserColors" style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);" onclick="massDeleteUserColors()">Mass Delete</button>
+            <button class="btn-calc btn-small" id="btnAddUserColor">+ Add Color</button>
           </div>
         </div>
         <div id="userColorsGrid" class="colors-grid">
@@ -1459,11 +1834,14 @@
   </div>
 
   <!-- New Order Modal -->
-  <div id="newOrderModal" class="order-modal">
-    <div class="modal-content-wrapper">
-      <div class="order-modal-header">
-        <h2 class="order-modal-title">Create New Order</h2>
-        <button class="btn-close" onclick="closeNewOrderModal()">×</button>
+  <div id="newOrderModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+        <div>
+          <h3 style="color: var(--purple-light); margin-bottom: 8px;">Create New Order</h3>
+          <p style="font-size: 14px; color: var(--text-muted);">Fill in the order details</p>
+        </div>
+        <button class="modal-close" onclick="closeNewOrderModal()">×</button>
       </div>
 
       <form id="newOrderForm">
@@ -1738,20 +2116,23 @@
       </div>
 
       <!-- Modal Actions -->
-      <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" onclick="closeNewOrderModal()">Cancel</button>
-        <button type="submit" class="btn btn-primary">Create Order</button>
+      <div class="modal-actions" style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border);">
+        <button type="button" class="btn-calc-ghost" onclick="closeNewOrderModal()">Cancel</button>
+        <button type="submit" class="btn-calc">Create Order</button>
       </div>
       </form>
     </div>
   </div>
 
   <!-- View Order Modal -->
-  <div id="viewOrderModal" class="order-modal">
-    <div class="modal-content-wrapper">
-      <div class="order-modal-header">
-        <h2 class="order-modal-title">Order Details</h2>
-        <button class="btn-close" onclick="closeViewOrderModal()">×</button>
+  <div id="viewOrderModal" class="modal-overlay" style="display: none;">
+    <div class="modal-card" style="max-width: 800px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+        <div>
+          <h3 style="color: var(--purple-light); margin-bottom: 8px;">Order Details</h3>
+          <p style="font-size: 14px; color: var(--text-muted);">View and manage order information</p>
+        </div>
+        <button class="modal-close" onclick="closeViewOrderModal()">×</button>
       </div>
 
       <div id="viewOrderContent">
@@ -1781,6 +2162,40 @@
     
     // Wait for auth to be ready and load orders
     document.addEventListener('DOMContentLoaded', () => {
+      // Tab switching logic
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const tabContents = document.querySelectorAll('.page-section');
+
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          // Remove active class from all buttons and contents
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          tabContents.forEach(content => content.classList.remove('active'));
+
+          // Add active class to clicked button
+          button.classList.add('active');
+
+          // Show corresponding content
+          const tabId = button.getAttribute('data-tab');
+          const tabContent = document.getElementById(tabId);
+          if (tabContent) {
+            tabContent.classList.add('active');
+          }
+        });
+      });
+
+      // Initialize user avatar
+      const userAvatar = document.getElementById('user-avatar');
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user && userAvatar) {
+          // Get first letter of email or display name
+          const initial = user.displayName 
+            ? user.displayName.charAt(0).toUpperCase()
+            : user.email.charAt(0).toUpperCase();
+          userAvatar.textContent = initial;
+        }
+      });
+      
       // Add a listener to auth state changes to load orders, filaments, and colors
       firebase.auth().onAuthStateChanged(async (user) => {
         // Load currency first if user is logged in
@@ -2118,28 +2533,16 @@
     // Color modal functions
     function openColorManagementModal() {
       const modal = document.getElementById('colorManagementModal');
-      const overlay = document.getElementById('overlay');
-      
-      modal.style.display = 'block';
-      overlay.style.display = 'block';
-      
-      setTimeout(() => {
-        overlay.classList.add('show');
-        modal.classList.add('show');
-      }, 10);
+      if (modal) {
+        modal.style.display = 'grid';
+      }
     }
 
     function closeColorManagementModal() {
       const modal = document.getElementById('colorManagementModal');
-      const overlay = document.getElementById('overlay');
-      
-      modal.classList.remove('show');
-      overlay.classList.remove('show');
-      
-      setTimeout(() => {
+      if (modal) {
         modal.style.display = 'none';
-        overlay.style.display = 'none';
-      }, 400);
+      }
     }
 
     // Tab switching
@@ -3726,11 +4129,7 @@
         setTimeout(initEditAutocomplete, 200);
       }, 100);
       
-      overlay.style.display = 'block';
-      setTimeout(() => {
-        overlay.classList.add('show');
-        modal.classList.add('show');
-      }, 10);
+      modal.style.display = 'grid';
     }
 
     // Function to save order changes
@@ -3810,14 +4209,9 @@
 
     function closeViewOrderModal() {
       const modal = document.getElementById('viewOrderModal');
-      const overlay = document.getElementById('overlay');
-      
-      modal.classList.remove('show');
-      overlay.classList.remove('show');
-      setTimeout(() => {
-        overlay.style.display = 'none';
-      }, 400);
-      
+      if (modal) {
+        modal.style.display = 'none';
+      }
       currentViewingOrderId = null;
     }
 
@@ -3910,7 +4304,6 @@
 
     function openNewOrderModal() {
       const modal = document.getElementById('newOrderModal');
-      const overlay = document.getElementById('overlay');
       const form = document.getElementById('newOrderForm');
       
       // Reset form and selected colors
@@ -3970,22 +4363,14 @@
         }
       }, 100);
       
-      overlay.style.display = 'block';
-      setTimeout(() => {
-        overlay.classList.add('show');
-        modal.classList.add('show');
-      }, 10);
+      modal.style.display = 'grid';
     }
 
     function closeNewOrderModal() {
       const modal = document.getElementById('newOrderModal');
-      const overlay = document.getElementById('overlay');
-      
-      modal.classList.remove('show');
-      overlay.classList.remove('show');
-      setTimeout(() => {
-        overlay.style.display = 'none';
-      }, 400);
+      if (modal) {
+        modal.style.display = 'none';
+      }
     }
 
     // Handle new order form submission

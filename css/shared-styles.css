@@ -58,29 +58,36 @@
 
 html {
   scroll-behavior: smooth;
-  background: #1a1625;
+  background: #000;
   overscroll-behavior-y: none;
 }
 
 body {
+  margin: 0 auto;
   font-family: 'Inter', sans-serif;
-  background: 
-    radial-gradient(ellipse 1200px 1200px at 20% 30%, rgba(168, 85, 247, 0.03) 0%, transparent 60%),
-    radial-gradient(ellipse 1200px 1200px at 80% 70%, rgba(124, 58, 237, 0.03) 0%, transparent 60%),
-    repeating-linear-gradient(135deg, 
-      #1a1625 0px, 
-      #0f0b16 400px,
-      #1d1530 800px,
-      #1a1625 1200px
-    );
-  background-attachment: fixed;
+  background: #000 url('../images/HomeBackRound.png') no-repeat center top;
+  background-size: 1440px auto;
+  background-attachment: scroll;
   color: var(--text);
-  overflow-x: hidden;
-  min-height: 100vh;
+  position: relative;
+  overflow-x: auto;
   overscroll-behavior-y: none;
+  width: 1440px;
+  max-width: 1440px;
+  min-height: 100vh;
 }
 
 /* Navigation Styles */
+/* Hide old dynamically loaded navbar */
+#navbar-container nav {
+  display: none !important;
+}
+
+/* Always show navbar-2-0 */
+#navbar-2-0 {
+  display: flex !important;
+}
+
 nav {
   display: flex;
   justify-content: space-between;
@@ -88,7 +95,7 @@ nav {
   padding: 2px 60px;
   position: relative;
   z-index: 100;
-  max-width: 1920px;
+  max-width: 1800px;
   margin: 0 auto;
 }
 
@@ -376,7 +383,78 @@ nav {
   border-color: var(--purple);
 }
 
-/* Modal Styles */
+/* Calculator Buttons */
+.btn-calc {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-calc:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
+.btn-calc:active {
+  transform: translateY(0);
+}
+
+.btn-calc:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-calc::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.4);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-calc:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-calc-ghost {
+  padding: 12px 24px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-calc-ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+.btn-small {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+/* Modal Styles - Kindle3D Inspired Design */
 #overlay {
   position: fixed;
   inset: 0;
@@ -385,69 +463,385 @@ nav {
   z-index: 200;
 }
 
-#modal, #signupModal {
+#modal, #signupModal, #verificationModal, #printerModal, #filamentModal, #savePresetModal, #managePresetsModal {
   position: fixed;
   inset: 0;
   display: none;
-  z-index: 300;
+  z-index: 10000;
   place-items: center;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
 }
 
 .modal-card {
-  width: min(450px, 95vw);
-  background: linear-gradient(135deg, #241d35, #1d1530);
-  border: 1px solid var(--border);
+  position: relative;
+  width: 1100px;
+  max-width: 90vw;
+  max-height: 85vh;
+  background: #0a0a0a !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  padding: 48px 64px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modal-card > * {
+  max-width: 1000px;
+  width: 100%;
+}
+
+/* Wider modal for forms with more content */
+.modal-card.modal-wide > * {
+  max-width: 1000px;
+}
+
+/* Two-column layout for modals */
+.modal-two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.modal-column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Modal close button */
+.modal-close {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 24px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+/* Modal Logo */
+.modal-logo {
+  width: 100px;
+  height: auto;
+  margin-bottom: 24px;
+  display: block;
 }
 
 .modal-card h3 {
-  font-size: 24px;
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.modal-card .modal-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
   margin-bottom: 24px;
-  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Social Login Buttons */
+.social-login-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.social-login-btn {
+  width: 100%;
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: 'Inter', sans-serif;
+}
+
+.social-login-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.social-login-btn svg,
+.social-login-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Divider */
+.modal-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 16px 0;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.modal-divider::before,
+.modal-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-divider::before {
+  margin-right: 12px;
+}
+
+.modal-divider::after {
+  margin-left: 12px;
+}
+
+/* Modal hint text */
+.modal-hint {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 10px;
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+.modal-format-hint {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 10px;
+  margin-bottom: 10px;
+  line-height: 1.5;
 }
 
 .modal-card label {
   display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
   margin-bottom: 8px;
-  margin-top: 16px;
+  margin-top: 14px;
+}
+
+.modal-card label:first-of-type {
+  margin-top: 0;
+}
+
+.modal-input-wrapper {
+  position: relative;
 }
 
 .modal-card input {
   width: 100%;
-  padding: 12px 16px;
-  background: rgba(15, 11, 22, 0.6);
-  border: 1px solid var(--border);
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
-  color: var(--text);
-  font-size: 14px;
+  color: #ffffff;
+  font-size: 15px;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+}
+
+.modal-card input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .modal-card input:focus {
   outline: none;
-  border-color: var(--purple);
+  border-color: #6445F5;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 3px rgba(100, 69, 245, 0.1);
+}
+
+.modal-card textarea {
+  width: 100%;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  font-family: 'Courier New', monospace;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.modal-card textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.modal-card textarea:focus {
+  outline: none;
+  border-color: #6445F5;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 3px rgba(100, 69, 245, 0.1);
+}
+
+/* Password toggle button */
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: rgba(255, 255, 255, 0.4);
+  transition: color 0.2s ease;
+  font-size: 18px;
+}
+
+.password-toggle:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Forgot password link */
+.forgot-password-link {
+  display: block;
+  text-align: right;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  margin-top: 6px;
+  transition: color 0.2s ease;
+}
+
+.forgot-password-link:hover {
+  color: #ffffff;
 }
 
 .err {
-  color: #ff7b7b;
-  font-size: 13px;
-  margin: 12px 0;
-  min-height: 18px;
+  color: #ff6b6b;
+  font-size: 11px;
+  margin: 8px 0;
+  min-height: 14px;
+  background: rgba(255, 107, 107, 0.1);
+  padding: 6px 10px;
+  border-radius: 6px;
+  border-left: 3px solid #ff6b6b;
 }
 
 .modal-buttons {
   display: flex;
-  gap: 12px;
-  margin-top: 24px;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .modal-buttons .btn {
-  flex: 1;
-  padding: 14px;
+  width: 100%;
+  padding: 11px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  font-family: 'Inter', sans-serif;
+}
+
+.modal-buttons .btn-primary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.modal-buttons .btn-primary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+  box-shadow: none;
+}
+
+.modal-buttons .btn-ghost {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: none;
+}
+
+.modal-buttons .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+/* Sign up / Login switch */
+.modal-footer-text {
+  text-align: center;
+  margin-top: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+}
+
+.modal-footer-text a {
+  color: #6445F5;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.modal-footer-text a:hover {
+  color: #7d5ff7;
+}
+
+/* Code Input for Verification */
+.code-inputs-container {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 24px 0;
+}
+
+.code-input {
+  width: 50px;
+  height: 60px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.code-input:focus {
+  outline: none;
+  border-color: #6445F5;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 3px rgba(100, 69, 245, 0.1);
 }
 
 /* Responsive Design */

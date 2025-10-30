@@ -158,19 +158,10 @@ async function verifyEmailCode(email, code) {
   }
 }
 
-// Signup function (now requires verified email)
+// Signup function (email verification disabled - direct signup)
 async function signup(email, password) {
   try {
-    // Check if email was verified
-    const verificationRef = db.ref(`verificationCodes/${email.replace(/\./g, ',')}`);
-    const snapshot = await verificationRef.once('value');
-    const verificationData = snapshot.val();
-    
-    if (!verificationData || !verificationData.verified) {
-      return { success: false, error: 'Email not verified. Please verify your email first.' };
-    }
-    
-    // Create the account
+    // Create the account directly without email verification
     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
     const user = userCredential.user;
     
@@ -179,11 +170,8 @@ async function signup(email, password) {
       email: email,
       role: 'member',
       createdAt: new Date().toISOString(),
-      emailVerified: true
+      emailVerified: false
     });
-    
-    // Clean up verification code
-    await verificationRef.remove();
     
     return { success: true };
   } catch (error) {

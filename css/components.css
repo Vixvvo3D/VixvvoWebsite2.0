@@ -80,14 +80,7 @@
     z-index: 1000;
 }
 
-.modal {
-    background: var(--surface);
-    border-radius: 1rem;
-    padding: 2rem;
-    max-width: 500px;
-    width: 90%;
-    box-shadow: 0 10px 40px var(--shadow);
-}
+/* Legacy modal card styles - use shared-styles.css .modal-card instead */
 
 .modal-header {
     margin-bottom: 1.5rem;

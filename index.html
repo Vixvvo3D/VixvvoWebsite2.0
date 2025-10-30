@@ -17,6 +17,20 @@
 <!-- Load shared styles -->
 <link rel="stylesheet" href="css/shared-styles.css">
 
+<style>
+  @import url('https://fonts.cdnfonts.com/css/sf-pro-display');
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Prevent excess space below bottom shine image */
+  body {
+    overflow-x: hidden;
+  }
+</style>
+
 <!-- Load shared navbar -->
 <script src="js/navbar-helper.js"></script>
 <script src="js/navbar-loader.js"></script>
@@ -24,32 +38,1220 @@
 <script src="js/navbar-auth.js"></script>
 <script src="js/currency.js"></script>
 <style>
-  /* Hero Section */
-  .hero {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-        padding: 40px 60px 80px 60px;
-    max-width: 1400px;
+  /* TEMPORARY: Hide all content except navbar 2.0 and main container 2.0 and container-2 and dashboard */
+  body > *:not(script):not(style):not(#navbar-2-0):not(#main-container-2-0):not(#container-2):not(#dashboard-image):not(#dashboard-gradient-fade):not(#about-vixvvo3d-heading):not(#about-vixvvo3d-description):not(#community-users-text):not(#user-count-text):not(#data-source-text):not(#features-heading):not(#features-description):not(#features-subtext):not(#feature-boxes-container):not(#large-feature-container):not(#benefits-heading):not(#benefits-cards-container):not(#video-shine-image):not(#faq-heading):not(#faq-description):not(#faq-video-container):not(#faq-video-image):not(#faq-play-button):not(#testimonials-heading):not(#testimonials-description):not(#testimonials-subtext):not(#testimonials-background):not(#testimonials-cards-container):not(#gradient-fade-black-overlay):not(#faq-category-heading):not(#faq-main-question):not(#faq-contact-text):not(#faq-accordion-container):not(#bottom-shine-image):not(#large-vixvvo-text):not(#footer-container) {
+    display: none !important;
+  }
+  
+  /* Main Container 2.0 */
+  #main-container-2-0 {
+    position: absolute;
+    width: 722px;
+    height: 472px;
+    top: 152px;
+    left: 359px;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-    margin: 0 auto;
+  /* Title inside container */
+  #main-container-2-0 .title {
+    align-self: stretch;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 86px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: -1.72px;
+    margin: 0;
+  }
+
+  #main-container-2-0 .title .empower {
+    color: #6445F5;
+  }
+
+  #main-container-2-0 .title .your-3d {
+    color: #E9E7FF;
+  }
+
+  #main-container-2-0 .title .workflow {
+    color: #4128BA;
+  }
+
+  /* Subtitle - 24px below title */
+  #main-container-2-0 .subtitle {
+    width: 633px;
+    margin: 24px auto 0;
+    color: rgba(255, 255, 255, 0.88);
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: -0.36px;
+  }
+
+  /* Button Container - 40px below subtitle */
+  #main-container-2-0 .button-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-top: 40px;
+    justify-content: center;
+  }
+
+  /* Button Base Styles */
+  #main-container-2-0 .btn {
+    display: flex;
+    padding: 16px 24px;
+    justify-content: center;
     align-items: center;
-    position: relative;
-    width: 100%;
+    gap: 4px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  /* Get Started Button - Purple Gradient */
+  #main-container-2-0 .btn-get-started-2 {
+    background: linear-gradient(180deg, #6445F5 0%, #4128BA 100%);
+    color: #FFFFFF;
+  }
+
+  #main-container-2-0 .btn-get-started-2:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(100, 69, 245, 0.4);
+  }
+
+  /* See Tools Button - Clear with White Outline */
+  #main-container-2-0 .btn-see-tools {
+    background: transparent;
+    color: #FFFFFF;
+    border: 1px solid #FFFFFF;
+  }
+
+  #main-container-2-0 .btn-see-tools:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+
+  /* Payment Text - 56px below buttons */
+  #main-container-2-0 .payment-text {
+    margin-top: 56px;
+    color: rgba(255, 255, 255, 0.80);
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: -0.24px;
+  }
+
+  /* Payment Icons Container - 16px below payment text */
+  #main-container-2-0 .payment-icons {
+    width: 515px;
+    height: 24px;
+    margin: 16px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 19px;
+  }
+
+  #main-container-2-0 .payment-icons img {
+    max-height: 20px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  /* New Container - 115.56px below payment icons */
+  #container-2 {
+    position: absolute;
+    width: 1120px;
+    height: 1024px;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px); /* main container top + height + gap */
+    left: 160px; /* (1440 - 1120) / 2 = 160px for centering */
+    padding: 0;
+    margin: 0 6px; /* 6px left and right margin */
+    box-sizing: border-box;
+    border-radius: 10.889px;
+    border: 1px solid #666666;
+    background: #000000;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  /* Dashboard Image - Layered UNDER container-2 border */
+  #dashboard-image {
+    position: absolute;
+    width: 1192px;
+    height: 727px;
+    flex-shrink: 0;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px); /* container top minus 6.56px overlap */
+    left: calc(160px + (1120px / 2) - (1192px / 2)); /* center horizontally in container */
+    z-index: 4;
+    border-radius: 10.889px;
+  }
+
+  /* Dashboard Gradient Fade - Positioned 417px below dashboard-image top */
+  #dashboard-gradient-fade {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px); /* dashboard-image top + 417px = 1150px */
+    left: 0; /* full width from left edge */
+    width: 1440px; /* full 1440px width */
+    height: 301.89px; /* height extends 301.89px up from bottom */
+    z-index: 10;
+    display: block;
+    pointer-events: none;
   }
   
-  .hero-content h1 {
-    font-size: 64px;
-    font-weight: 800;
-    line-height: 1.1;
-    margin-bottom: 24px;
+  /* About Vixvvo3D heading - 126px below gradient fade */
+  #about-vixvvo3d-heading {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px); /* gradient fade bottom + 126px */
+    left: 0;
+    width: 1440px;
+    color: #FFF;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 100;
+    line-height: 140%; /* 33.6px */
+    letter-spacing: -0.48px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
   }
   
-  .hero-content h1 .highlight {
-    background: linear-gradient(135deg, #a855f7, #c084fc);
+  /* About Vixvvo3D description - 32px below heading */
+  #about-vixvvo3d-description {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px); /* heading bottom + 32px */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1062px;
+    color: #F1F0FF;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: normal;
+    letter-spacing: -0.96px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Community users text - 256px below description */
+  #community-users-text {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px); /* description bottom (estimated 3 lines at 48px) + 256px */
+    left: 0;
+    width: 1440px;
+    color: #FFF;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 140%; /* 33.6px */
+    letter-spacing: -0.48px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* User count - 40px below community text */
+  #user-count-text {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px); /* community text bottom + 40px */
+    left: 0;
+    width: 1440px;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 240px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: normal;
+    letter-spacing: -1.6px;
+    background: radial-gradient(63.21% 100% at 50% 0%, #6945F9 0%, #E9E7FF 100%);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Data source - 40px below user count */
+  #data-source-text {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px); /* user count bottom (240px * 1.2 line-height) + 40px */
+    left: 0;
+    width: 1440px;
+    color: rgba(255, 255, 255, 0.80);
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 160%; /* 32px */
+    letter-spacing: -0.4px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Features heading - 128px below data source */
+  #features-heading {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px); /* data source bottom (line-height 160% = 32px) + 128px */
+    left: 0;
+    width: 1440px;
+    color: rgba(255, 255, 255, 0.80);
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Features description - 16px below features heading */
+  #features-description {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px); /* features heading bottom (line-height 160% = 28.8px) + 16px */
+    left: 0;
+    width: 1440px;
+    color: #F1F0FF;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: normal;
+    letter-spacing: -1.28px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Features subtext - 12px below features description */
+  #features-subtext {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px); /* features description bottom (2 lines at 64px with normal line-height) + 12px */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 582px;
+    color: rgba(255, 255, 255, 0.80);
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 250;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Feature boxes container - 88px below features subtext */
+  #feature-boxes-container {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px); /* features subtext bottom (2 lines at 28.8px) + 88px */
+    left: 168px;
+    width: 1104px; /* 1440px - 168px (left) - 168px (right) */
+    display: flex;
+    gap: 32px;
+    z-index: 9999;
+    pointer-events: auto;
+  }
+  
+  .feature-box {
+    display: flex;
+    padding-bottom: 32px;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    flex: 1 0 0;
+    border-radius: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(180deg, #161A1E 0%, #08090A 100%);
+    min-height: 368px; /* Based on your image: 368px total height with 32px padding bottom */
+  }
+  
+  /* Large feature container - 32px below feature boxes */
+  #large-feature-container {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px); /* feature boxes bottom + 32px */
+    left: 168px;
+    width: 1104px;
+    height: 400px;
+    border-radius: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(90deg, rgba(197, 196, 255, 0.12) 0%, rgba(30, 29, 53, 0.12) 100%);
+    z-index: 9999;
+    pointer-events: auto;
+  }
+  
+  /* Benefits heading - 256px below large feature container */
+  #benefits-heading {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px); /* large feature container bottom + 256px */
+    left: 0;
+    width: 1440px;
+    color: #E9E7FF;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 40px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: 140%; /* 56px */
+    letter-spacing: -0.8px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Benefits cards container - 64px below benefits heading */
+  #benefits-cards-container {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px); /* benefits heading bottom (56px line-height) + 64px */
+    left: 160px;
+    display: flex;
+    gap: 24px;
+    z-index: 9999;
+    pointer-events: auto;
+  }
+  
+  .benefit-card {
+    display: flex;
+    width: 262px; /* (1440px - 160px left - 160px right - 72px gaps) / 4 = 262px */
+    padding: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(180deg, #161A1E 0%, #08090A 100%);
+    min-height: 280px; /* Total height including padding: 232px content + 48px padding */
+    box-sizing: border-box;
+  }
+  
+  .benefit-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
+  }
+  
+  .benefit-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke: white;
+    stroke-width: 2;
+    fill: none;
+  }
+  
+  .benefit-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+  }
+  
+  .benefit-heading {
+    color: #FFF;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 130%;
+    margin: 0;
+  }
+  
+  .benefit-description {
+    color: rgba(255, 255, 255, 0.70);
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 150%;
+    margin: 0;
+  }
+  
+  /* Video shine image - positioned so center rectangle (1088x805) is 534px from benefits cards container bottom */
+  #video-shine-image {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 464px); /* benefits cards container top + 464px (280px card height + 534px - 350px offset) */
+    left: 50%;
+    height: auto;
+    transform: translateX(-50%);
+    z-index: 100; /* Below FAQ text (9999) but above background */
+    pointer-events: none;
+    display: block;
+  }
+  
+  /* FAQ video container - 516px below benefits cards */
+  #faq-video-container {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px); /* benefits cards container top + 280px (card height) + 516px */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    width: 1120px;
+    height: 695px;
+    padding: 16px;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    border-radius: 48px;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+    background: #000;
+    box-sizing: border-box;
+    z-index: 200;
+  }
+  
+  #faq-video-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 32px;
+  }
+  
+  #faq-play-button {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 201;
+  }
+  
+  #faq-play-button::before {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 24px solid #000;
+    border-top: 16px solid transparent;
+    border-bottom: 16px solid transparent;
+    margin-left: 6px;
+  }
+  
+  /* FAQ heading - 256px below benefits cards */
+  #faq-heading {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 256px); /* benefits cards bottom + 256px */
+    left: 0;
+    width: 1440px;
+    color: rgba(255, 255, 255, 0.80);
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* FAQ description - 16px below FAQ heading */
+  #faq-description {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 256px + 28.8px + 16px); /* FAQ heading bottom + 16px */
+    left: 0;
+    width: 1440px;
+    color: #F1F0FF;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: normal;
+    letter-spacing: -1.28px;
+    z-index: 9999;
+    margin: 0;
+    pointer-events: none;
+  }
+  
+  /* Testimonials heading - 256px below FAQ video container */
+  #testimonials-heading {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px); /* FAQ video container top + 695px (container height) + 256px */
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.80);
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+  }
+  
+  /* Testimonials description - 16px below testimonials heading */
+  #testimonials-description {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px); /* testimonials heading bottom + 16px */
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    color: #F1F0FF;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: normal;
+    letter-spacing: -1.28px;
+  }
+  
+  /* Testimonials subtext - 12px below testimonials description */
+  #testimonials-subtext {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px); /* testimonials description top + 153.6px (2 lines at 76.8px each with line-height normal) + 12px */
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.80);
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 250;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+  }
+  
+  /* Testimonials background gradient - aligned with cards container */
+  #testimonials-background {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px); /* same as testimonials cards container */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1121px;
+    height: 826px;
+    flex-shrink: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  
+  #testimonials-background::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.00) 17.55%, #000 108.23%);
+    z-index: 10;
+    pointer-events: none;
+  }
+  
+  /* FAQ category heading - 418px below testimonials background bottom */
+  #faq-category-heading {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px + 826px + 418px); /* testimonials background bottom + 418px */
+    left: 160px;
+    margin: 0;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.80);
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+  }
+  
+  /* FAQ main question - 16px below FAQ category heading */
+  #faq-main-question {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px + 826px + 418px + 28.8px + 16px); /* FAQ category heading bottom + 16px */
+    left: 160px;
+    margin: 0;
+    padding: 0;
+    color: #F1F0FF;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 590;
+    line-height: normal;
+    letter-spacing: -1.28px;
+  }
+  
+  /* FAQ category heading - 418px below testimonials background bottom */
+  #faq-category-heading {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px + 826px + 418px); /* testimonials background bottom + 418px */
+    left: 160px;
+    margin: 0;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.80);
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+  }
+  
+  /* FAQ main question - 16px below FAQ category heading */
+  #faq-main-question {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px + 826px + 418px + 28.8px + 16px); /* FAQ category heading bottom + 16px */
+    left: 160px;
+    margin: 0;
+    padding: 0;
+    color: #F1F0FF;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 590;
+    line-height: normal;
+    letter-spacing: -1.28px;
+  }
+  
+  /* FAQ contact text - 421px below FAQ main question bottom */
+  #faq-contact-text {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px + 826px + 418px + 28.8px + 16px + 192px + 421px); /* FAQ main question bottom (3 lines × 64px) + 421px */
+    left: 160px;
+    margin: 0;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.80);
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 250;
+    line-height: 160%; /* 28.8px */
+    letter-spacing: -0.36px;
+  }
+  
+  #faq-contact-text a {
+    color: #A9AAFF;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 250;
+    line-height: 160%;
+    letter-spacing: -0.36px;
+    text-decoration: none;
+  }
+  
+  #faq-contact-text a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Large Vixvvo text - 295px above bottom shine image end */
+  #large-vixvvo-text {
+    position: absolute;
+    bottom: 295px;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 386px;
+    font-style: normal;
+    font-weight: 590;
+    line-height: normal;
+    letter-spacing: -3.86px;
+    background: linear-gradient(180deg, #FFF 0%, #C1B2FF 100%);
     background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    z-index: 10;
+    pointer-events: none;
+    /* Only show when at bottom of page */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  /* Show large vixvvo text when scrolled near bottom */
+  body.scrolled-to-bottom #large-vixvvo-text {
+    opacity: 1;
+  }
+  
+  /* Footer container */
+  #footer-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 40px 140px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    z-index: 20;
+    box-sizing: border-box;
+    /* Only show when at bottom of page */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  /* Show footer when scrolled near bottom */
+  body.scrolled-to-bottom #footer-container {
+    opacity: 1;
+  }
+  
+  /* Footer navigation */
+  #footer-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+  }
+  
+  .footer-nav-link {
+    color: #FFF;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+  }
+  
+  .footer-nav-link:hover {
+    opacity: 0.7;
+  }
+  
+  /* Footer divider */
+  #footer-divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Footer bottom section */
+  #footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  #footer-copyright {
+    color: rgba(255, 255, 255, 0.60);
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin: 0;
+  }
+  
+  /* Footer social icons */
+  #footer-social {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  
+  .footer-social-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFF;
+    text-decoration: none;
+    font-size: 18px;
+    transition: background 0.3s ease;
+  }
+  
+  .footer-social-icon:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Bottom shine image - 128px below FAQ contact text bottom */
+  #bottom-shine-image {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px + 826px + 418px + 28.8px + 16px + 192px + 421px + 57.6px + 128px); /* FAQ contact text bottom (2 lines × 28.8px) + 128px */
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    display: block;
+  }
+  
+  /* FAQ accordion container - aligned with FAQ category heading top */
+  #faq-accordion-container {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px + 126px + 33.6px + 32px + 144px + 256px + 33.6px + 40px + 288px + 40px + 32px + 128px + 28.8px + 16px + 153.6px + 12px + 57.6px + 88px + 368px + 32px + 400px + 256px + 56px + 64px + 280px + 516px + 695px + 256px + 28.8px + 16px + 153.6px + 12px + 28.8px + 80px + 826px + 418px); /* same as FAQ category heading */
+    right: 160px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 100;
+  }
+  
+  .faq-item {
+    display: flex;
+    width: 500px;
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.12) 100%), #000;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    overflow: hidden;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .faq-item.closed {
+    height: 69px;
+  }
+  
+  .faq-item.open {
+    height: auto;
+  }
+  
+  .faq-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    min-height: 29px;
+  }
+  
+  .faq-question {
+    color: #FFF;
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 140%;
+    margin: 0;
+    flex: 1;
+  }
+  
+  .faq-toggle {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFF;
+    font-size: 24px;
+    font-weight: 300;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .faq-item.open .faq-toggle {
+    transform: rotate(45deg);
+  }
+  
+  .faq-answer {
+    color: rgba(255, 255, 255, 0.70);
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 150%;
+    margin: 0;
+    width: 100%;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin-top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 0;
+  }
+  
+  .faq-item.open .faq-answer {
+    max-height: 500px;
+    opacity: 1;
+    margin-top: 10px;
+  }
+  
+  /* Testimonials cards container - 80px below testimonials subtext */
+  #testimonials-cards-container {
+    position: relative;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    z-index: 1;
+  }
+  
+  .testimonial-row {
+    display: flex;
+    gap: 25px;
+    justify-content: space-between;
+  }
+  
+  .testimonial-card {
+    display: flex;
+    width: 357px;
+    height: 268px;
+    padding: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    border-radius: 24px;
+    border: 1px solid rgba(196, 227, 255, 0.10);
+    background: linear-gradient(180deg, rgba(196, 227, 255, 0.10) 0%, rgba(196, 227, 255, 0.02) 100%), #000;
+    box-sizing: border-box;
+    justify-content: space-between;
+  }
+  
+  .testimonial-quote {
+    color: #FFF;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    margin: 0;
+  }
+  
+  .testimonial-text {
+    color: #FFF;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 150%;
+    margin: 0;
+    flex: 1;
+  }
+  
+  .testimonial-author {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .testimonial-name {
+    color: #FFF;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    margin: 0;
+  }
+  
+  .testimonial-title {
+    color: rgba(255, 255, 255, 0.70);
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin: 0;
+  }
+  
+  /* Black overlay covering 550px below gradient fade */
+  #gradient-fade-black-overlay {
+    position: absolute;
+    top: calc(152px + 258px + 24px + 28.8px + 40px + 48px + 56px + 19.2px + 16px + 24px + 115.56px - 6.56px + 417px + 301.89px); /* gradient fade bottom */
+    left: 0;
+    width: 1440px;
+    height: 550px;
+    background: black;
+    z-index: 11;
+    pointer-events: none;
+  }
+  
+  /* Navbar 2.0 Styles */
+  #navbar-2-0 {
+    display: flex;
+    width: 1029px;
+    padding: 12px 12px 12px 16px;
+    align-items: center;
+    gap: 60px;
+    position: absolute;
+    right: 205px;
+    top: 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(21, 22, 26, 0.80);
+    backdrop-filter: blur(20px);
+    z-index: 1000;
+  }
+
+  #navbar-2-0 .logo {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-right: auto;
+  }
+
+  #navbar-2-0 .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  #navbar-2-0 .nav-links a {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  #navbar-2-0 .nav-links a:hover {
+    color: #FFFFFF;
+  }
+
+  #navbar-2-0 .btn-get-started {
+    padding: 10px 20px;
+    background: #6445F5;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  #navbar-2-0 .btn-get-started:hover {
+    background: #5336d4;
+    transform: translateY(-1px);
+  }
+
+  :root {
+    --side-gap: 494px;   /* Figma side spacing */
+    --top-gap: 218px;    /* Figma top spacing to title */
+    --title-h: 129px;    /* Figma title box height */
+  }
+
+  /* Hero Section */
+  .hero {
+    background: transparent;
+    color: #fff;
+    position: relative;
+  }
+
+  .hero-wrap {
+    width: calc(100% - (var(--side-gap) * 2));
+    margin: 0 auto;
+    padding-top: var(--top-gap);
+    padding-bottom: 80px;
+    text-align: center;
+  }
+  
+  /* Hero Title Styling */
+  .hero-title {
+    font-family: var(--Font-Family-Title, "SF Pro"), system-ui, -apple-system, sans-serif;
+    font-size: 86px;
+    font-weight: 590;
+    line-height: normal;
+    letter-spacing: -1.72px;
+    margin: 0;
+    height: var(--title-h);          /* lock same visual box as Figma */
+    display: flex;                   /* center text inside the box */
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.25ch;
+  }
+
+  /* Per-word colors from Figma */
+  .empower { color: #6445F5; }
+  .your    { color: #E9E7FF; }
+  .workflow{ color: #4128BA; }
+
+  .hero-sub {
+    margin: 20px 0 28px;
+    font: 16px/1.5 "SF Pro", system-ui, -apple-system, sans-serif;
+    color: #B7B5D8;
+  }
+
+  .hero-actions {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .btn-primary {
+    background: #6445F5;
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background: #5336d4;
+    transform: translateY(-2px);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: #E9E7FF;
+    border: 2px solid #E9E7FF;
+    padding: 14px 28px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-ghost:hover {
+    background: rgba(233, 231, 255, 0.1);
+    transform: translateY(-2px);
+  }
+
+  /* Image aligns to the same column width as the title */
+  .hero-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-top: 36px;
+    border-radius: 16px;
   }
   
   .hero-subtitle {
@@ -631,6 +1833,359 @@
 </style>
 </head>
 <body>
+  <!-- Navbar 2.0 -->
+  <nav id="navbar-2-0">
+    <div class="logo">Vixvvo</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="#features-heading">Features</a></li>
+      <li><a href="pages/pricing.html">Pricing</a></li>
+      <li><a href="#blog">Blog</a></li>
+      <li><a href="#about-vixvvo3d-heading">About Us</a></li>
+      <li><a href="#faq-category-heading">FAQs</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="btn-get-started" id="navbar-get-started">Get Started</button>
+  </nav>
+
+  <!-- Main Container 2.0 - Empty for redesign -->
+  <div id="main-container-2-0">
+    <h1 class="title">
+      <span class="empower">Empower your</span><br>
+      <span class="your-3d">3D printing</span><br>
+      <span class="workflow">workflow</span>
+    </h1>
+    <p class="subtitle">All the tools you need to calculate, design, and monetize your 3D prints in one platform</p>
+    <div class="button-container">
+      <button class="btn btn-get-started-2" id="hero-get-started">Get Started</button>
+      <button class="btn btn-see-tools">See Tools</button>
+    </div>
+    <p class="payment-text">We accept various payment methods</p>
+    <div class="payment-icons">
+      <img src="images/PaymentsLogo/logos_visa.svg" alt="Visa">
+      <img src="images/PaymentsLogo/logos_mastercard.svg" alt="Mastercard">
+      <img src="images/PaymentsLogo/simple-icons_americanexpress.svg" alt="American Express">
+      <img src="images/PaymentsLogo/PayPal_Logo_Icon_2014 1.svg" alt="PayPal">
+      <img src="images/PaymentsLogo/logos_apple-pay.svg" alt="Apple Pay">
+      <img src="images/PaymentsLogo/logos_google-pay.svg" alt="Google Pay">
+      <img src="images/PaymentsLogo/logos_maestro.svg" alt="Maestro">
+      <img src="images/PaymentsLogo/Klarna_Payment_Badge 1.svg" alt="Klarna">
+      <img src="images/PaymentsLogo/Afterpay-logo 1.svg" alt="Afterpay">
+      <img src="images/PaymentsLogo/InteracLogo 1.svg" alt="Interac">
+    </div>
+  </div>
+
+  <!-- Container 2 - Empty for redesign -->
+  <div id="container-2"></div>
+
+  <!-- Dashboard Image - On top of container-2 -->
+  <img id="dashboard-image" src="images/shine-dashboard.png" alt="Dashboard Preview">
+
+  <!-- Dashboard Gradient Fade - Bottom positioned inside container-2 -->
+  <img id="dashboard-gradient-fade" src="images/DashboardGradiantFade.png" alt="Dashboard Gradient Fade">
+  
+  <!-- About Vixvvo3D text - 126px below gradient fade -->
+  <h5 id="about-vixvvo3d-heading">ABOUT VIXVVO3D</h5>
+  
+  <!-- Description text - 32px below about heading -->
+  <p id="about-vixvvo3d-description">Vixvvo3D is the premier 3D design studio dedicated to creativity and innovation. Discover high-quality digital models and prints with our all-in-one platform for artists, collectors, and vendors worldwide.</p>
+  
+  <!-- Community users text - 256px below description -->
+  <h5 id="community-users-text">Total users who joined Vixvvo3D's community</h5>
+  
+  <!-- User count - 40px below community text -->
+  <div id="user-count-text">8.9 K</div>
+  
+  <!-- Data source - 40px below user count -->
+  <p id="data-source-text">Based on 2025 Q2 data</p>
+  
+  <!-- Features heading - 128px below data source -->
+  <p id="features-heading">FEATURES</p>
+  
+  <!-- Features description - 16px below features heading -->
+  <p id="features-description">Find out what Vixvvo<br>can provide you</p>
+  
+  <!-- Features subtext - 12px below features description -->
+  <p id="features-subtext">Here are Vixvvo features that could boost your daily work into<br>the best possibility.</p>
+  
+  <!-- Feature boxes container - 88px below features subtext -->
+  <div id="feature-boxes-container">
+    <div class="feature-box"></div>
+    <div class="feature-box"></div>
+  </div>
+  
+  <!-- Large feature container - 32px below feature boxes -->
+  <div id="large-feature-container"></div>
+  
+  <!-- Benefits heading - 256px below large feature container -->
+  <h2 id="benefits-heading">Receive benefits instantly</h2>
+  
+  <!-- Benefits cards container - 64px below benefits heading -->
+  <div id="benefits-cards-container">
+    <div class="benefit-card">
+      <div class="benefit-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 6v6l4 2"/>
+        </svg>
+      </div>
+      <div class="benefit-content">
+        <h3 class="benefit-heading">MultiTools For Vendors</h3>
+        <p class="benefit-description">Access powerful tools to manage prints, sales, and pricing—all in one place</p>
+      </div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+      </div>
+      <div class="benefit-content">
+        <h3 class="benefit-heading">Communicate with the community</h3>
+        <p class="benefit-description">Access powerful tools to manage prints, sales, and pricing—all in one place</p>
+      </div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <div class="benefit-content">
+        <h3 class="benefit-heading">Customer Supports</h3>
+        <p class="benefit-description">Get help anytime with our dedicated support team.</p>
+      </div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="5" width="20" height="14" rx="2"/>
+          <path d="M2 10h20"/>
+        </svg>
+      </div>
+      <div class="benefit-content">
+        <h3 class="benefit-heading">Easy Payments and Patreon integration</h3>
+        <p class="benefit-description">Link Patreon and receive payments instantly and securely.</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Video shine image - 128px below benefits cards -->
+  <img id="video-shine-image" src="images/VideoShine2.0.png" alt="Video Shine">
+  
+  <!-- FAQ video container - 516px below benefits cards -->
+  <div id="faq-video-container">
+    <img id="faq-video-image" src="images/PaymentsLogo/ImageDisplay.png" alt="FAQ Video">
+    <div id="faq-play-button"></div>
+  </div>
+  
+  <!-- Testimonials heading - 256px below FAQ video container -->
+  <p id="testimonials-heading">TESTIMONIALS</p>
+  
+  <!-- Testimonials description - 16px below testimonials heading -->
+  <p id="testimonials-description">Read what our<br>members said</p>
+  
+  <!-- Testimonials subtext - 12px below testimonials description -->
+  <p id="testimonials-subtext">Here are some reviews from our members.</p>
+  
+  <!-- Testimonials background gradient -->
+  <div id="testimonials-background">
+    <!-- Testimonials cards container - 80px below testimonials subtext -->
+    <div id="testimonials-cards-container">
+      <div class="testimonial-row">
+        <div class="testimonial-card">
+          <p class="testimonial-text">made some earrings with them :) such a cute dragon my daughter loves them. this are at 50% however i did have to add a solid core to the tail 3 sections to keep it from breaking at this size.</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@cselby</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-text">it was a long print with a ton of waste, but it came out beautiful and my wife and daughter love it</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@dshay</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-text">This was my first print using the AMS feature on my printer, as well as my first print over 4 hours. I think it turned out very well! My daughter is going to Love this!!</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@user_3150357687</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-row">
+        <div class="testimonial-card">
+          <p class="testimonial-text">such a beautiful print.. took 14 hours for two to make .. love it</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@boydbrothers865</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-text">slicing as is gave a bunch of errors. after file repair it removed all prepainting but dropped the print time to 3 hrs. had to use a gradient filament but turned out well all in all.</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@tickitytom</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-text">Just made 3! I used the second file. No print issues. They are so adorable! The supports came right off. Took about 9 hours. Love it! Thank you🤩</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@user_166102260</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-row">
+        <div class="testimonial-card">
+          <p class="testimonial-text">Just finished printing this sweet baby in my colors variant 🥰 looks like it's made of chocolate 🤤 I love it! Printed without any problems from phone directly (coz my laptop is dying) no special settings. Great file, amazing dragon ❤️</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@Hi_5</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-text">Such a wonderful print and deserves 2 boosts! We did one in red and pink. You could do it in any color and it would look great! It is a part of our valentine center piece. Thank you so much for this beautiful print!</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@Hockey_Dad</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <p class="testimonial-text">One of the prettiest designs I've ever printed. The kids love it</p>
+          <div class="testimonial-author">
+            <p class="testimonial-name">@Marti82</p>
+            <p class="testimonial-title">MakerWorld</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- FAQ heading - 256px below benefits cards -->
+  <p id="faq-heading">FREQUENTLY ASKED QUESTIONS</p>
+  
+  <!-- FAQ description - 16px below FAQ heading -->
+  <p id="faq-description">Watch how we help<br>vendors grow</p>
+  
+  <!-- Black overlay covering 550px below gradient fade -->
+  <div id="gradient-fade-black-overlay"></div>
+  
+  <!-- FAQ category heading - 418px below testimonials background bottom -->
+  <p id="faq-category-heading">FREQUENTLY ASKED QUESTIONS</p>
+  
+  <!-- FAQ main question - 16px below FAQ category heading -->
+  <h2 id="faq-main-question">Have questions<br>in mind? Let us<br>answer it</h2>
+  
+  <!-- FAQ contact text - 421px below FAQ main question bottom -->
+  <p id="faq-contact-text">Don't answer your question?<br>contact us at <a href="mailto:Vixvvo@gmail.com">Vixvvo@gmail.com</a></p>
+  
+  <!-- Large Vixvvo text - 255.9px below FAQ contact text bottom -->
+  <h1 id="large-vixvvo-text">Vixvvo</h1>
+  
+  <!-- Bottom shine image - 128px below FAQ contact text bottom -->
+  <img id="bottom-shine-image" src="images/Bottomshine.png" alt="Bottom Shine">
+  
+  <!-- Footer Container -->
+  <div id="footer-container">
+    <!-- Footer Navigation -->
+    <nav id="footer-nav">
+      <a href="#features-heading" class="footer-nav-link">Features</a>
+      <a href="#benefits-heading" class="footer-nav-link">Use Cases</a>
+      <a href="pages/pricing.html" class="footer-nav-link">Pricing</a>
+      <a href="#about-vixvvo3d-heading" class="footer-nav-link">About Us</a>
+      <a href="#faq-category-heading" class="footer-nav-link">FAQs</a>
+    </nav>
+    
+    <!-- Footer Divider -->
+    <div id="footer-divider"></div>
+    
+    <!-- Footer Bottom Section -->
+    <div id="footer-bottom">
+      <p id="footer-copyright">© 2025 Vixvvo, all rights reserved.</p>
+      
+      <!-- Social Media Icons -->
+      <div id="footer-social">
+        <a href="https://instagram.com" target="_blank" class="footer-social-icon" aria-label="Instagram">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+          </svg>
+        </a>
+        <a href="https://twitter.com" target="_blank" class="footer-social-icon" aria-label="Twitter">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </a>
+        <a href="https://linkedin.com" target="_blank" class="footer-social-icon" aria-label="LinkedIn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+            <rect x="2" y="9" width="4" height="12"/>
+            <circle cx="4" cy="4" r="2"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- FAQ Accordion Container - aligned with FAQ category heading -->
+  <div id="faq-accordion-container">
+    <div class="faq-item open">
+      <div class="faq-item-header">
+        <h3 class="faq-question">What is Vixvvo?</h3>
+        <span class="faq-toggle">+</span>
+      </div>
+      <p class="faq-answer">Vixvvo is a comprehensive platform for 3D printing creators and vendors, offering tools to manage prints, sales, pricing, and connect with the community. We provide calculators, model upload features, and Patreon integration to help you grow your 3D printing business.</p>
+    </div>
+    <div class="faq-item closed">
+      <div class="faq-item-header">
+        <h3 class="faq-question">How do I upload my 3D models?</h3>
+        <span class="faq-toggle">+</span>
+      </div>
+      <p class="faq-answer">Simply navigate to the Upload Model page, fill in your model details including title, description, and pricing. You can upload STL, OBJ, or 3MF files. Add preview images and set your licensing terms before publishing to the community.</p>
+    </div>
+    <div class="faq-item closed">
+      <div class="faq-item-header">
+        <h3 class="faq-question">Can I sell my 3D models on Vixvvo?</h3>
+        <span class="faq-toggle">+</span>
+      </div>
+      <p class="faq-answer">Yes! Vixvvo allows you to sell your 3D models directly through the platform. Set your own prices, offer bundle deals, and receive payments securely. We also support Patreon integration for subscription-based access to your exclusive designs.</p>
+    </div>
+    <div class="faq-item closed">
+      <div class="faq-item-header">
+        <h3 class="faq-question">What does the pricing calculator include?</h3>
+        <span class="faq-toggle">+</span>
+      </div>
+      <p class="faq-answer">Our advanced calculator helps you price prints accurately by factoring in filament cost, electricity usage, print time, post-processing labor, failure rates, and desired markup percentages. It supports multiple currencies and saves your printer/filament profiles for quick calculations.</p>
+    </div>
+    <div class="faq-item closed">
+      <div class="faq-item-header">
+        <h3 class="faq-question">How does Patreon integration work?</h3>
+        <span class="faq-toggle">+</span>
+      </div>
+      <p class="faq-answer">Link your Patreon account in settings to automatically grant your patrons access to exclusive models and features based on their tier level. Vixvvo syncs with Patreon in real-time, so your supporters get instant access when they subscribe.</p>
+    </div>
+    <div class="faq-item closed">
+      <div class="faq-item-header">
+        <h3 class="faq-question">Is my payment information secure?</h3>
+        <span class="faq-toggle">+</span>
+      </div>
+      <p class="faq-answer">Absolutely. We use industry-standard encryption and secure payment gateways. We never store your full payment details on our servers. All transactions are processed through trusted payment providers with PCI compliance.</p>
+    </div>
+    <div class="faq-item closed">
+      <div class="faq-item-header">
+        <h3 class="faq-question">Can I manage multiple printers and filaments?</h3>
+        <span class="faq-toggle">+</span>
+      </div>
+      <p class="faq-answer">Yes! Create and save unlimited printer profiles with specific settings like bed size, nozzle diameter, and power consumption. Track your filament inventory with color, material type, and cost per kg. All your data syncs across devices when you're logged in.</p>
+    </div>
+  </div>
+
   <!-- Loading Overlay -->
   <div id="loadingOverlay" style="
     position: fixed;
@@ -663,26 +2218,28 @@
     </style>
   </div>
 
-  <!-- Navbar will be loaded here dynamically -->
-  <div id="navbar-container"></div>
-
   <section class="hero" id="home">
-    <div class="bg-decoration decoration-1"></div>
-    <div class="bg-decoration decoration-2"></div>
-    
-    <div class="hero-content">
-      <h1>
-        Calculate <span class="highlight">3D Printing Costs</span> with Precision
+    <div class="hero-wrap">
+      <h1 class="hero-title">
+        <span class="empower">Empower</span>
+        <span class="your"> Your 3D </span>
+        <span class="workflow">Printing Workflow</span>
       </h1>
-      <p class="hero-subtitle">
-        Professional cost calculator for 3D printing projects. Track filament usage, printer depreciation, electricity costs, and apply custom markups with cloud sync.
-      </p>
-      <div class="hero-buttons">
-        <a href="pages/calculator.html" class="btn btn-primary btn-large">Launch Calculator →</a>
-        <button class="btn btn-outline btn-large">▶ Watch Demo</button>
+
+      <p class="hero-sub">All-in-one tools to power your 3D printing business</p>
+
+      <div class="hero-actions">
+        <button class="btn-primary" id="bottom-get-started">Get Started</button>
+        <button class="btn-ghost">See Tools</button>
       </div>
+
+      <!-- Replace with your hero image -->
+      <img class="hero-image" src="images/hero-shot.png" alt="Preview">
     </div>
-    
+  </section>
+
+  <!-- Old hero visual section kept for reference -->
+  <section style="display:none;">
     <div class="hero-visual">
       <div class="visual-card card-1">
         <div class="card-icon">💰</div>
@@ -870,6 +2427,60 @@
 
   // Enable auth persistence
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+  
+  /* Get Started Button Handlers with Auth Check */
+  function initializeGetStartedButtons() {
+    const navGetStartedBtn = document.getElementById('navbar-get-started');
+    const heroGetStartedBtn = document.getElementById('hero-get-started');
+    const bottomGetStartedBtn = document.getElementById('bottom-get-started');
+    
+    // Handle all Get Started buttons
+    [navGetStartedBtn, heroGetStartedBtn, bottomGetStartedBtn].forEach(btn => {
+      if (btn) {
+        btn.addEventListener('click', async function(e) {
+          e.preventDefault();
+          
+          // Wait for Firebase auth to be ready
+          await new Promise(resolve => {
+            const unsubscribe = auth.onAuthStateChanged(() => {
+              unsubscribe();
+              resolve();
+            });
+          });
+          
+          const user = auth.currentUser;
+          
+          if (user) {
+            // User is logged in - go to dashboard
+            window.location.href = 'pages/dashboard.html';
+          } else {
+            // User is logged out - open signup modal
+            signupModal.style.display = 'grid';
+          }
+        });
+      }
+    });
+  }
+  
+  // Initialize buttons after DOM is ready
+  document.addEventListener('DOMContentLoaded', initializeGetStartedButtons);
+  
+  /* FAQ Accordion Functionality */
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('click', function() {
+      // Close all other items
+      document.querySelectorAll('.faq-item').forEach(otherItem => {
+        if (otherItem !== this) {
+          otherItem.classList.remove('open');
+          otherItem.classList.add('closed');
+        }
+      });
+      
+      // Toggle current item
+      this.classList.toggle('open');
+      this.classList.toggle('closed');
+    });
+  });
 
   /* Login Modal */
   const modal = document.getElementById('modal');
@@ -1401,6 +3012,26 @@
 
     // Dropdown toggle functionality is now handled by settings-dropdown.js
 
+  // Add smooth scrolling for all anchor links (navbar and footer)
+  function setupSmoothScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if (href && href.startsWith('#') && href.length > 1) {
+          e.preventDefault();
+          const targetId = href.substring(1);
+          const targetElement = document.getElementById(targetId);
+          if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+    });
+  }
+  
+  // Initialize smooth scroll after navbar loads
+  setTimeout(setupSmoothScroll, 100);
+
   // Login button in settings
   btnLoginSettings.addEventListener('click', () => {
     settingsDropdown.classList.remove('active');
@@ -1683,6 +3314,26 @@
 
   // Handle hash navigation on page load
   window.addEventListener('load', () => {
+    // Set body height to cut off at bottom shine image
+    const bottomShineImage = document.getElementById('bottom-shine-image');
+    if (bottomShineImage) {
+      bottomShineImage.onload = function() {
+        const imageBottom = bottomShineImage.offsetTop + bottomShineImage.height;
+        document.body.style.minHeight = imageBottom + 'px';
+        document.body.style.maxHeight = imageBottom + 'px';
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'auto';
+      };
+      // Trigger if already loaded
+      if (bottomShineImage.complete) {
+        const imageBottom = bottomShineImage.offsetTop + bottomShineImage.height;
+        document.body.style.minHeight = imageBottom + 'px';
+        document.body.style.maxHeight = imageBottom + 'px';
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'auto';
+      }
+    }
+    
     // Check URL parameters for login/signup modal
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('login') === 'true') {
@@ -1839,6 +3490,19 @@ function showConfirm(message, icon = '', title = 'Are you sure?', buttonText = '
 function scrollToHero() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// Show large Vixvvo text only when scrolled near bottom
+window.addEventListener('scroll', function() {
+  const scrollPosition = window.scrollY + window.innerHeight;
+  const pageHeight = document.documentElement.scrollHeight;
+  
+  // Show when within 1000px of bottom
+  if (pageHeight - scrollPosition < 1000) {
+    document.body.classList.add('scrolled-to-bottom');
+  } else {
+    document.body.classList.remove('scrolled-to-bottom');
+  }
+});
 </script>
 
 </body>

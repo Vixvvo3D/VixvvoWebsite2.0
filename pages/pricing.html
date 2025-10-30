@@ -20,23 +20,112 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+<style>
+  @import url('https://fonts.cdnfonts.com/css/sf-pro-display');
+</style>
+
 <!-- ========================================
      SHARED STYLES - REQUIRED
      ======================================== -->
 <link rel="stylesheet" href="../css/shared-styles.css">
 
 <!-- ========================================
-     NAVBAR SYSTEM - REQUIRED
+     NAVBAR LOADER - REQUIRED
      ======================================== -->
-<script src="../js/navbar-helper.js"></script>
 <script src="../js/navbar-loader.js"></script>
-<script src="../js/settings-dropdown.js"></script>
-<script src="../js/navbar-auth.js"></script>
-<script src="../js/auth.js"></script>
-<script src="../js/membership.js"></script>
-<script src="../js/navigation.js"></script>
 
 <style>
+  /* ========================================
+     NAVBAR 2.0 STYLES
+     ======================================== */
+  #navbar-2-0 {
+    display: flex;
+    width: 1029px;
+    padding: 12px 12px 12px 16px;
+    align-items: center;
+    gap: 60px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(21, 22, 26, 0.80);
+    backdrop-filter: blur(20px);
+    z-index: 9999;
+  }
+
+  #navbar-2-0 .logo {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-right: auto;
+  }
+
+  #navbar-2-0 .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  #navbar-2-0 .nav-links a {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  #navbar-2-0 .nav-links a:hover {
+    color: #FFFFFF;
+  }
+
+  #navbar-2-0 .btn-get-started {
+    padding: 10px 20px;
+    background: #6445F5;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  #navbar-2-0 .btn-get-started:hover {
+    background: #5336d4;
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 1200px) {
+    #navbar-2-0 {
+      width: 90%;
+      gap: 30px;
+    }
+
+    #navbar-2-0 .nav-links {
+      gap: 20px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    #navbar-2-0 {
+      width: calc(100% - 32px);
+      padding: 12px;
+      gap: 16px;
+    }
+
+    #navbar-2-0 .nav-links {
+      display: none;
+    }
+  }
+
   /* ========================================
      PAGE STYLES
      ======================================== */
@@ -51,96 +140,118 @@
   }
 
   body {
-    min-height: 100vh;
+    width: 1440px;
+    height: 1440px;
+    margin: 0 auto;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .page-container {
-    max-width: 1300px;
+    max-width: 1440px;
+    width: 1440px;
     margin: 0 auto;
-    padding: 20px 40px 80px;
+    padding: 100px 40px 96px;
   }
   
   .page-header {
     text-align: center;
     margin-bottom: 60px;
-    padding-top: 60px;
+    padding-top: 70px;
   }
   
-  .page-title {
-    font-size: 64px;
-    font-weight: 900;
-    margin-bottom: 20px;
-    letter-spacing: -1px;
-    line-height: 1.1;
+    .page-title {
+    color: #E9E7FF;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 86px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: normal;
+    letter-spacing: -1.72px;
+    margin-bottom: 24px;
   }
   
-  .page-title .highlight {
-    background: linear-gradient(135deg, #a855f7, #c084fc, #e879f9);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  .page-subtitle {
-    color: var(--text-muted);
+    .page-subtitle {
+    color: rgba(255, 255, 255, 0.88);
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
     font-size: 18px;
-    max-width: 600px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 160%;
+    letter-spacing: -0.36px;
+    width: 580px;
     margin: 0 auto;
-    line-height: 1.7;
   }
 
   /* Billing Toggle */
   .billing-toggle {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 40px;
+    gap: 16px;
+    margin-bottom: 60px;
+    margin-top: 100px;
   }
 
   .billing-toggle-buttons {
-    display: inline-flex;
-    background: var(--card-bg);
-    border: 1px solid rgba(168, 85, 247, 0.2);
-    border-radius: 50px;
-    padding: 6px;
-    gap: 6px;
+    display: flex;
+    width: 330px;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 100px;
+    background: linear-gradient(180deg, rgba(196, 227, 255, 0.12) 0%, rgba(196, 227, 255, 0.02) 100%);
+    padding: 0;
+    gap: 0;
+    position: relative;
   }
 
-  .billing-toggle-btn {
-    padding: 12px 32px;
+    .billing-toggle-btn {
+    display: flex;
+    padding: 14px 28px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 100px;
     border: none;
     background: transparent;
-    color: var(--text-muted);
-    font-size: 15px;
-    font-weight: 600;
-    border-radius: 50px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 18px;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-family: 'Inter', sans-serif;
+    font-family: 'SF Pro Display', sans-serif;
+    flex: 0 0 auto;
+    min-width: 62px;
   }
 
   .billing-toggle-btn:hover {
-    color: var(--text);
+    color: #FFFFFF;
   }
 
   .billing-toggle-btn.active {
-    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    background: linear-gradient(135deg, #6445F5 0%, #4128BA 100%);
     color: white;
-    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+    flex: 1;
+    min-width: 161px;
   }
 
-  .save-badge {
+  .save-badge-inline {
     display: inline-block;
-    padding: 8px 16px;
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-    font-size: 13px;
-    font-weight: 700;
-    border-radius: 20px;
-    letter-spacing: 0.5px;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.88);
+    color: #6445F5;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 100px;
+    margin-left: 8px;
+    font-family: 'SF Pro Display', sans-serif;
+  }
+
+  .billing-toggle-btn:not(.active) .save-badge-inline {
+    display: none;
   }
 
   /* Price amount animation */
@@ -151,80 +262,74 @@
 
   /* Pricing Grid */
   .pricing-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-    margin-bottom: 80px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 128px;
+    max-width: 1500px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .pricing-card {
-    background: var(--card-bg);
-    border: 1px solid rgba(168, 85, 247, 0.2);
-    border-radius: 20px;
-    padding: 36px 28px;
+    display: flex;
+    width: 290px;
+    padding: 32px;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 32px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%), #010101;
     transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
     position: relative;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
     will-change: transform;
   }
 
   .pricing-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, transparent, var(--purple), transparent);
-    opacity: 0;
-    transition: opacity .3s;
-  }
-
-  .pricing-card:hover::before {
-    opacity: 1;
+    display: none;
   }
 
   .pricing-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 15px 35px rgba(168, 85, 247, .15);
-    border-color: rgba(168, 85, 247, 0.5);
+    box-shadow: 0 15px 35px rgba(255, 255, 255, .1);
+    border-color: rgba(255, 255, 255, 0.4);
   }
 
   .pricing-card.featured {
-    border: 2px solid var(--purple);
-    background: var(--card-bg);
-    box-shadow: 0 10px 30px rgba(168, 85, 247, .2);
-    transform: scale(1.03);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%), #010101;
+    box-shadow: none;
   }
 
   .pricing-card.featured::before {
-    opacity: 1;
-    background: linear-gradient(90deg, var(--purple), var(--purple-light), var(--purple));
+    display: none;
   }
 
   .pricing-card.featured:hover {
-    transform: scale(1.03) translateY(-8px);
-    box-shadow: 0 20px 40px rgba(168, 85, 247, .25);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(255, 255, 255, .1);
+    border-color: rgba(255, 255, 255, 0.4);
   }
 
   .pricing-card.current-tier {
-    border: 2px solid #f59e0b;
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(217, 119, 6, 0.03));
-    box-shadow: 0 10px 30px rgba(245, 158, 11, .2);
+    border: 2px solid #6945F9;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%), #010101;
+    box-shadow: 0 10px 30px rgba(105, 69, 249, .3);
   }
 
   .pricing-card.current-tier::before {
-    opacity: 1;
-    background: linear-gradient(90deg, #f59e0b, #d97706, #f59e0b);
+    display: none;
   }
 
   .pricing-card.current-tier .plan-badge {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
+    background: linear-gradient(135deg, #6945F9, #8b5cf6);
     color: white;
     border: none;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, .3);
+    box-shadow: 0 4px 12px rgba(105, 69, 249, .3);
   }
 
   .pricing-card.current-tier .plan-badge::after {
@@ -235,110 +340,142 @@
 
   .plan-badge {
     display: inline-block;
-    padding: 8px 16px;
-    background: rgba(168, 85, 247, .12);
-    border: 1px solid rgba(168, 85, 247, .3);
-    border-radius: 25px;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--purple);
-    margin-bottom: 24px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     align-self: flex-start;
+    margin: 0;
   }
 
   .plan-badge.popular {
-    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    background: linear-gradient(135deg, #6945F9, #8b5cf6);
     color: white;
     border: none;
-    box-shadow: 0 4px 12px rgba(168, 85, 247, .3);
+    box-shadow: 0 4px 12px rgba(105, 69, 249, .3);
   }
 
   .pricing-card h3 {
     font-size: 32px;
-    margin-bottom: 12px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: #ffffff;
+  }
+
+  .pricing-card > div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
   }
 
   .price {
-    margin-bottom: 28px;
-    padding-bottom: 28px;
-    border-bottom: 1px solid rgba(255,255,255,.08);
+    margin: 0;
+    padding: 0;
+    border: none;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
   }
 
   .price .amount {
     font-size: 56px;
-    font-weight: 900;
-    background: linear-gradient(135deg, #a855f7, #c084fc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-weight: 400;
+    color: #ffffff;
     letter-spacing: -2px;
+    line-height: 1;
   }
 
   .price .period {
-    font-size: 15px;
-    color: var(--text-muted);
-    font-weight: 500;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 400;
+  }
+
+  .pricing-card > div:first-child::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-top: 24px;
   }
 
   .features-list {
     list-style: none;
-    margin-bottom: 32px;
+    margin: 0;
     flex-grow: 1;
+    width: 100%;
+    padding: 0;
+  }
+
+  .features-list::before {
+    content: "What's included:";
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 16px;
   }
 
   .features-list li {
-    padding: 14px 0;
-    color: var(--text-muted);
+    padding: 10px 0;
+    color: #ffffff;
     font-size: 14px;
     line-height: 1.5;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 10px;
   }
 
   .features-list li::before {
     content: attr(data-icon);
     flex-shrink: 0;
-    font-size: 16px;
+    font-size: 11px;
     width: 20px;
     height: 20px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    font-weight: 900;
+    font-weight: 700;
   }
 
   .features-list li[data-icon="✓"]::before {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    background: #6945F9;
+    color: white;
+    border: none;
   }
 
   .features-list li[data-icon="✗"]::before {
-    background: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    opacity: 0.6;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+    border: none;
   }
 
   .features-list li[data-icon="✗"] {
-    opacity: 0.5;
+    opacity: 0.4;
   }
 
   .pricing-card .btn {
     width: 100%;
-    padding: 18px;
-    font-size: 15px;
-    font-weight: 700;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 600;
     border-radius: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    text-transform: none;
+    letter-spacing: 0;
     transition: all .3s;
+    align-self: stretch;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    color: #ffffff;
   }
 
   .pricing-card .btn {
@@ -346,60 +483,23 @@
   }
 
   .pricing-card .btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.4);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(168, 85, 247, .25);
   }
 
   .pricing-card.featured .btn-primary {
-    background: linear-gradient(135deg, var(--purple), var(--purple-light));
-    box-shadow: 0 6px 18px rgba(168, 85, 247, .3);
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    color: #ffffff;
   }
 
-  /* FAQ Section */
-  .faq-section {
-    margin-top: 100px;
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
+  .pricing-card.featured .btn-primary:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.4);
   }
 
-  .faq-title {
-    font-size: 42px;
-    font-weight: 800;
-    text-align: center;
-    margin-bottom: 56px;
-    letter-spacing: -0.5px;
-  }
 
-  .faq-item {
-    background: var(--card-bg);
-    border: 1px solid rgba(168, 85, 247, 0.15);
-    border-radius: 16px;
-    padding: 28px 32px;
-    margin-bottom: 20px;
-    transition: border-color .3s ease, background .3s ease;
-  }
-
-  .faq-item:hover {
-    border-color: rgba(168, 85, 247, 0.4);
-    background: rgba(36, 29, 53, 0.5);
-  }
-
-  .faq-question {
-    font-size: 19px;
-    font-weight: 700;
-    margin-bottom: 14px;
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .faq-answer {
-    font-size: 15px;
-    color: var(--text-muted);
-    line-height: 1.7;
-  }
 
   /* CTA Section */
   .cta-section {
@@ -449,20 +549,21 @@
   /* Responsive */
   @media (max-width: 1200px) {
     .pricing-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
+      gap: 20px;
+    }
+
+    .pricing-card {
+      width: 320px;
+      padding: 32px;
+      gap: 32px;
     }
 
     .pricing-card.featured {
-      transform: scale(1);
-      grid-column: span 2;
-      max-width: 500px;
-      margin: 0 auto;
-      width: 100%;
+      box-shadow: none;
     }
 
     .pricing-card.featured:hover {
-      transform: translateY(-12px);
+      transform: translateY(-8px);
     }
   }
 
@@ -485,37 +586,26 @@
     }
 
     .pricing-grid {
-      grid-template-columns: 1fr;
-      gap: 20px;
-    }
-
-    .pricing-card.featured {
-      grid-column: span 1;
-      max-width: 100%;
+      gap: 16px;
     }
 
     .pricing-card {
+      width: 100%;
+      max-width: 290px;
       padding: 32px 24px;
+      gap: 32px;
+    }
+
+    .pricing-card.featured {
+      box-shadow: none;
+    }
+
+    .pricing-card h3 {
+      font-size: 32px;
     }
 
     .price .amount {
       font-size: 48px;
-    }
-
-    .faq-section {
-      margin-top: 70px;
-    }
-
-    .faq-title {
-      font-size: 32px;
-    }
-
-    .faq-item {
-      padding: 24px;
-    }
-
-    .faq-question {
-      font-size: 17px;
     }
 
     .cta-section {
@@ -538,12 +628,121 @@
     }
 
     .price .amount {
-      font-size: 42px;
+      font-size: 56px;
     }
 
     .pricing-card h3 {
-      font-size: 26px;
+      font-size: 28px;
     }
+  }
+
+  /* Compare Section */
+  .compare-section {
+    margin-top: 216px;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+    .compare-title {
+    color: #F1F0FF;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 450;
+    line-height: normal;
+    letter-spacing: -1.28px;
+    margin-bottom: 12px;
+  }
+
+  .compare-description {
+    color: rgba(255, 255, 255, 0.80);
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 250;
+    line-height: 160%;
+    letter-spacing: -0.36px;
+    margin: 0 auto;
+    max-width: 800px;
+  }
+
+  /* Comparison Table */
+  .comparison-table {
+    margin-top: 88px;
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    table-layout: fixed;
+  }
+
+  .comparison-table thead th {
+    padding: 24px;
+    text-align: center;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: #FFFFFF;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    width: 20%;
+  }
+
+  .comparison-table thead th:first-child {
+    text-align: left;
+    width: 40%;
+  }
+
+  .comparison-table thead th:last-child {
+    border-right: none;
+  }
+
+  .comparison-table tbody td {
+    padding: 20px 24px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    width: 20%;
+  }
+
+  .comparison-table tbody td:first-child {
+    text-align: left;
+    font-family: 'SF Pro Display', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.9);
+    width: 40%;
+  }
+
+  .comparison-table tbody td:last-child {
+    border-right: none;
+  }
+
+  .comparison-table .check-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #6445F5;
+    color: white;
+    font-size: 14px;
+  }
+
+  .comparison-table .cross-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 14px;
   }
 
   /* Notification Styles */
@@ -696,65 +895,49 @@
 </style>
 </head>
 <body>
-  <!-- Loading Overlay -->
-  <div id="loadingOverlay" style="
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--dark-bg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 10000;
-    transition: opacity 0.3s ease;
-  ">
-    <div style="
-      width: 60px;
-      height: 60px;
-      border: 4px solid var(--border);
-      border-top: 4px solid var(--purple);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    "></div>
-    <p style="margin-top: 20px; color: var(--text-muted); font-size: 14px;">Loading pricing...</p>
-    <style>
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    </style>
-  </div>
-
-  <!-- Navbar Container -->
-  <div id="navbar-container"></div>
+  <!-- Navbar 2.0 -->
+  <nav id="navbar-2-0">
+    <div class="logo">Vixvvo</div>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#features-heading">Features</a></li>
+      <li><a href="pricing.html">Pricing</a></li>
+      <li><a href="#blog">Blog</a></li>
+      <li><a href="../index.html#about-vixvvo3d-heading">About Us</a></li>
+      <li><a href="../index.html#faq-category-heading">FAQs</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="btn-get-started">Get Started</button>
+  </nav>
   
   <!-- Page Content -->
   <div class="page-container">
     <div class="page-header">
-      <h1 class="page-title">Choose Your <span class="highlight">Plan</span></h1>
-      <p class="page-subtitle">Unlock premium features and support our development with flexible pricing that scales with your needs</p>
+      <h1 class="page-title">Pricing</h1>
+      <p class="page-subtitle">Enjoy seamless transactions, top-tier security, and exclusive features designed for individuals and businesses.</p>
     </div>
     
     <!-- Billing Toggle -->
     <div class="billing-toggle">
       <div class="billing-toggle-buttons">
+        <button class="billing-toggle-btn active" data-period="annual">
+          Yearly
+          <span class="save-badge-inline">Save up to 25%</span>
+        </button>
         <button class="billing-toggle-btn" data-period="monthly">Monthly</button>
-        <button class="billing-toggle-btn active" data-period="annual">Annual</button>
       </div>
-      <span class="save-badge">Save 25% with Annual</span>
     </div>
     
     <!-- Pricing Grid -->
     <div class="pricing-grid">
       <div class="pricing-card" data-tier="free">
-        <div class="plan-badge">Free</div>
-        <h3>Free</h3>
-        <div class="price">
-          <span class="amount" data-monthly="0" data-annual="0">$0</span>
-          <span class="period">/forever</span>
+        <div>
+          <div class="plan-badge">Free</div>
+          <h3>Free</h3>
+          <div class="price">
+            <span class="amount" data-monthly="0" data-annual="0">$0</span>
+            <span class="period">/forever</span>
+          </div>
         </div>
         <ul class="features-list">
           <li data-icon="✓">Full calculator access</li>
@@ -764,15 +947,17 @@
           <li data-icon="✗">Community support only</li>
           <li data-icon="✗">Standard features</li>
         </ul>
-        <button class="btn btn-outline" onclick="window.location.href='../index.html'">Get Started</button>
+        <button class="btn btn-outline">Get Started</button>
       </div>
       
       <div class="pricing-card" data-tier="starter">
-        <div class="plan-badge">Tier 1</div>
-        <h3>Starter</h3>
-        <div class="price">
-          <span class="amount" data-monthly="3" data-annual="2.25">$3</span>
-          <span class="period">/month</span>
+        <div>
+          <div class="plan-badge">Tier 1</div>
+          <h3>Starter</h3>
+          <div class="price">
+            <span class="amount" data-monthly="3" data-annual="2.25">$3</span>
+            <span class="period">/month</span>
+          </div>
         </div>
         <ul class="features-list">
           <li data-icon="✓">Everything in Free</li>
@@ -788,11 +973,13 @@
       </div>
       
       <div class="pricing-card featured" data-tier="scaling">
-        <div class="plan-badge popular">Most Popular</div>
-        <h3>Scaling</h3>
-        <div class="price">
-          <span class="amount" data-monthly="10" data-annual="7.50">$10</span>
-          <span class="period">/month</span>
+        <div>
+          <div class="plan-badge popular">Most Popular</div>
+          <h3>Scaling</h3>
+          <div class="price">
+            <span class="amount" data-monthly="10" data-annual="7.50">$10</span>
+            <span class="period">/month</span>
+          </div>
         </div>
         <ul class="features-list">
           <li data-icon="✓">Everything in Starter</li>
@@ -808,11 +995,13 @@
       </div>
       
       <div class="pricing-card" data-tier="business">
-        <div class="plan-badge">Premium</div>
-        <h3>Business</h3>
-        <div class="price">
-          <span class="amount" data-monthly="25" data-annual="18.75">$25</span>
-          <span class="period">/month</span>
+        <div>
+          <div class="plan-badge">Premium</div>
+          <h3>Business</h3>
+          <div class="price">
+            <span class="amount" data-monthly="25" data-annual="18.75">$25</span>
+            <span class="period">/month</span>
+          </div>
         </div>
         <ul class="features-list">
           <li data-icon="✓">Everything in Scaling</li>
@@ -828,45 +1017,76 @@
       </div>
     </div>
 
-    <!-- FAQ Section -->
-    <div class="faq-section">
-      <h2 class="faq-title">Frequently Asked Questions</h2>
+    <!-- Compare Plans Section -->
+    <div class="compare-section">
+      <h2 class="compare-title">Compare<br>Plans & Features</h2>
+      <p class="compare-description">Here are Vixvvo features that could boost your daily work into the best<br>possibility.</p>
       
-      <div class="faq-item">
-        <div class="faq-question">❓ How does the Patreon integration work?</div>
-        <div class="faq-answer">Once you subscribe on Patreon, simply link your Patreon account in your profile settings. Your membership tier will automatically sync and unlock all the features for your tier!</div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">💳 Can I change my plan anytime?</div>
-        <div class="faq-answer">Yes! You can upgrade, downgrade, or cancel your Patreon subscription anytime. Your access level will update automatically on our website.</div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">🔄 What happens if I cancel?</div>
-        <div class="faq-answer">If you cancel your Patreon subscription, you'll retain access until the end of your billing period, then your account will revert to the Free tier.</div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">💼 Do you offer team plans?</div>
-        <div class="faq-answer">The Business tier is perfect for teams! Contact us for custom enterprise solutions with dedicated support and custom integrations.</div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">🆓 Is the free tier really free forever?</div>
-        <div class="faq-answer">Absolutely! The Free tier will always be available with core features. No credit card required, no time limits.</div>
-      </div>
+      <!-- Comparison Table -->
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Free</th>
+            <th>Starter</th>
+            <th>Scaling</th>
+            <th>Business</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Full calculator access</td>
+            <td><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Save calculations</td>
+            <td><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Basic printer management</td>
+            <td><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Priority support</td>
+            <td><span class="cross-icon">✕</span></td>
+            <td><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Advanced analytics</td>
+            <td><span class="cross-icon">✕</span></td>
+            <td><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>Custom branding</td>
+            <td><span class="cross-icon">✕</span></td>
+            <td><span class="cross-icon">✕</span></td>
+            <td><span class="check-icon">✓</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+          <tr>
+            <td>API access</td>
+            <td><span class="cross-icon">✕</span></td>
+            <td><span class="cross-icon">✕</span></td>
+            <td><span class="cross-icon">✕</span></td>
+            <td><span class="check-icon">✓</span></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <!-- CTA Section -->
-    <div class="cta-section">
-      <h2 class="cta-title">🎉 Ready to Get Started?</h2>
-      <p class="cta-text">Join thousands of makers using Vixvvo to streamline their 3D printing workflow</p>
-      <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
-        <button class="btn btn-primary" onclick="window.location.href='../index.html'">Start for Free</button>
-        <button class="btn btn-outline" onclick="window.location.href='patreon-link.html'">Manage Membership</button>
-      </div>
-    </div>
   </div>
 
   <!-- Overlay -->
@@ -1225,6 +1445,108 @@
         }, 30);
       }
     });
+
+    // FAQ Accordion Functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.faq-item').forEach(item => {
+        item.addEventListener('click', function() {
+          document.querySelectorAll('.faq-item').forEach(otherItem => {
+            if (otherItem !== this) {
+              otherItem.classList.remove('open');
+              otherItem.classList.add('closed');
+            }
+          });
+          this.classList.toggle('open');
+          this.classList.toggle('closed');
+        });
+      });
+    });
+  </script>
+
+  <!-- ========================================
+       AUTH MODALS SYSTEM
+       ======================================== -->
+  <script src="../js/auth.js"></script>
+  
+  <!-- Load Auth Modals and Initialize -->
+  <script>
+    // Load modals first, then load modal handler
+    fetch('../components/auth-modals.html')
+      .then(response => response.text())
+      .then(html => {
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        document.body.appendChild(div);
+        
+        // Now load the modal handler after modals are in DOM
+        return new Promise((resolve) => {
+          const script = document.createElement('script');
+          script.src = '../js/modal-handler.js';
+          script.onload = resolve;
+          document.body.appendChild(script);
+        });
+      })
+      .then(() => {
+        console.log('Modals loaded and ready');
+        // Initialize button handlers after everything is ready
+        initializeGetStartedButtons();
+      })
+      .catch(error => console.error('Error loading auth modals:', error));
+
+    // Get Started Button Handlers
+    function initializeGetStartedButtons() {
+      // Get all "Get Started" buttons
+      const navGetStartedBtn = document.querySelector('#navbar-2-0 .btn-get-started');
+      const freeGetStartedBtn = document.querySelector('[data-tier="free"] .btn');
+      
+      // Handle navbar Get Started button
+      if (navGetStartedBtn) {
+        navGetStartedBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const user = window.vixvvoAuth ? window.vixvvoAuth.getCurrentUser() : null;
+          
+          if (user) {
+            // User is logged in - go to dashboard
+            window.location.href = '../pages/dashboard.html';
+          } else {
+            // User is logged out - open signup modal
+            window.openSignupModal();
+          }
+        });
+      }
+      
+      // Handle Free tier Get Started button
+      if (freeGetStartedBtn) {
+        freeGetStartedBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const user = window.vixvvoAuth ? window.vixvvoAuth.getCurrentUser() : null;
+          
+          if (user) {
+            // User is logged in - go to dashboard
+            window.location.href = '../pages/dashboard.html';
+          } else {
+            // User is logged out - open signup modal
+            window.openSignupModal();
+          }
+        });
+      }
+      
+      // Handle paid tier buttons - open signup modal if logged out
+      const paidTierButtons = document.querySelectorAll('[data-tier="starter"] .btn, [data-tier="scaling"] .btn, [data-tier="business"] .btn');
+      
+      paidTierButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          const user = window.vixvvoAuth ? window.vixvvoAuth.getCurrentUser() : null;
+          
+          if (!user) {
+            // User is logged out - open signup modal instead of going to Patreon
+            e.preventDefault();
+            window.openSignupModal();
+          }
+          // If logged in, let the default Patreon URL work
+        });
+      });
+    }
   </script>
 </body>
 </html>
