@@ -2819,6 +2819,19 @@
     }
   }
 
+  // Update the default currency display for zero values
+  function updateCurrencyDisplay() {
+    const zeroCurrency = formatMoney(0);
+    document.getElementById('printerCost').textContent = zeroCurrency;
+    document.getElementById('filamentCost').textContent = zeroCurrency;
+    document.getElementById('electricityCost').textContent = zeroCurrency;
+    document.getElementById('laborCost').textContent = zeroCurrency;
+    document.getElementById('subtotal').textContent = zeroCurrency;
+    document.getElementById('markupAmount').textContent = zeroCurrency;
+    document.getElementById('failureCostDisplay').textContent = zeroCurrency;
+    document.getElementById('totalCost').textContent = zeroCurrency;
+  }
+
   // Convert all prices to the current currency
   function updateAllPrices() {
     console.log('Updating all prices with currency:', currentCurrency);
@@ -2832,6 +2845,9 @@
       renderUserPrintersList();
       renderUserFilamentsList();
     }
+    
+    // Update the currency display for zero values
+    updateCurrencyDisplay();
     
     calculateCost();
   }
@@ -5882,6 +5898,9 @@
       });
       
       console.log('App initialization complete');
+      
+      // Update currency display for initial zeros
+      updateCurrencyDisplay();
       
       // Hide loading overlay with fade effect
       if (loadingOverlay) {

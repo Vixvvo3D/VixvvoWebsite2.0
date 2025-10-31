@@ -24,7 +24,13 @@ const printTimeDuplicate = $('#printTimeDuplicate');
 /* Helpers */
 const $ = (s, r=document)=>r.querySelector(s);
 const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
-function money(n){ return `$${(Math.round(n*100)/100).toFixed(2)}`; }
+function money(n){ 
+  // Use formatCurrency if available, otherwise fallback to USD
+  if (typeof formatCurrency === 'function' && window.currentCurrency) {
+    return formatCurrency(n, window.currentCurrency);
+  }
+  return `$${(Math.round(n*100)/100).toFixed(2)}`; 
+}
 
 /* Tabs */
 $$('.tab').forEach(b=>{
@@ -81,15 +87,23 @@ function refreshPrintersUI(){
     const isAdmin = !!auth.currentUser;
     arr.forEach(p=>{
       const tr = document.createElement('tr');
+      const costUSD = Number(p.costPerHour||0);
+      const costDisplay = (typeof formatCurrency === 'function' && window.currentCurrency) 
+        ? formatCurrency(costUSD, window.currentCurrency)
+        : `$${costUSD.toFixed(3)}`;
       tr.innerHTML = `
         <td>${p.name}</td>
-        <td>$${Number(p.costPerHour||0).toFixed(3)}</td>
+        <td>${costDisplay}</td>
         <td>${isAdmin?`<button class="btn soft" data-del="${p.name}">Delete</button>`:''}</td>`;
       tbody.appendChild(tr);
     });
     selPrinter.innerHTML='';
     arr.forEach(p=>{
-      const opt = new Option(`${p.name} ($${Number(p.costPerHour).toFixed(3)}/h)`, p.name);
+      const costUSD = Number(p.costPerHour);
+      const costDisplay = (typeof formatCurrency === 'function' && window.currentCurrency) 
+        ? formatCurrency(costUSD, window.currentCurrency)
+        : `$${costUSD.toFixed(3)}`;
+      const opt = new Option(`${p.name} (${costDisplay}/h)`, p.name);
       selPrinter.add(opt);
     });
     if(isAdmin){
@@ -113,18 +127,24 @@ function refreshFilamentsUI(){
     const isAdmin = !!auth.currentUser;
     arr.forEach(f=>{
       const tr = document.createElement('tr');
-      const perKg = (Number(f.costPerG||0)*1000).toFixed(2);
+      const perKgUSD = Number(f.costPerG||0)*1000;
+      const costDisplay = (typeof formatCurrency === 'function' && window.currentCurrency) 
+        ? formatCurrency(perKgUSD, window.currentCurrency)
+        : `$${perKgUSD.toFixed(2)}`;
       tr.innerHTML = `
         <td>${f.type}</td>
         <td>${f.brand}</td>
-        <td>$${perKg}</td>
+        <td>${costDisplay}</td>
         <td>${isAdmin?`<button class="btn soft" data-del="${f.type}">Delete</button>`:''}</td>`;
       tbody.appendChild(tr);
     });
     selFilament.innerHTML='';
     arr.forEach(f=>{
-      const perKg = (Number(f.costPerG)*1000).toFixed(2);
-      selFilament.add(new Option(`${f.type} (${f.brand}) ($${perKg}/kg)`, f.type));
+      const perKgUSD = Number(f.costPerG)*1000;
+      const costDisplay = (typeof formatCurrency === 'function' && window.currentCurrency) 
+        ? formatCurrency(perKgUSD, window.currentCurrency)
+        : `$${perKgUSD.toFixed(2)}`;
+      selFilament.add(new Option(`${f.type} (${f.brand}) (${costDisplay}/kg)`, f.type));
     });
     if(isAdmin){
       $$('#filamentTable [data-del]').forEach(btn=>{
@@ -432,6 +452,12 @@ document.addEventListener('DOMContentLoaded', () => {
     setupHistoryToggle();
 });
 
+// Function to refresh calculator UI when currency changes
+function refreshCalculatorCurrency() {
+  refreshPrintersUI();
+  refreshFilamentsUI();
+}
+
 // Make functions globally available
 window.appendNumber = appendNumber;
 window.setOperator = setOperator;
@@ -440,4 +466,5 @@ window.percentage = percentage;
 window.clearAll = clearAll;
 window.deleteLast = deleteLast;
 window.clearHistory = clearHistory;
+window.refreshCalculatorCurrency = refreshCalculatorCurrency;
 window.goHome = () => window.location.href = '../index.html';

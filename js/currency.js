@@ -139,3 +139,11 @@ function formatCurrency(amountUSD, displayCurrency) {
   // For unique symbols, just show symbol
   return `${symbol}${amount}`;
 }
+
+// Export functions to window object for global access
+window.convertFromUSD = convertFromUSD;
+window.convertToUSD = convertToUSD;
+window.convertCurrency = convertCurrency;
+window.getCurrencySymbol = getCurrencySymbol;
+window.getCurrencyLabel = getCurrencyLabel;
+window.formatCurrency = formatCurrency;

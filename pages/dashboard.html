@@ -20,6 +20,7 @@
 <!-- Load shared styles -->
 <link rel="stylesheet" href="../css/shared-styles.css">
 <link rel="stylesheet" href="../css/dashboard.css">
+<link rel="stylesheet" href="../css/notification-modals.css">
 
 <!-- Load shared navbar components -->
 <script src="../js/navbar-helper.js" defer></script>
@@ -103,6 +104,46 @@
             <button class="header-icon-btn" title="Search">
               <img src="../images/Icons/MagnifyingGlass.svg" alt="Search">
             </button>
+            
+            <!-- Currency Selector -->
+            <div class="currency-selector-wrapper">
+              <select id="currencySelector" class="currency-selector" title="Select Currency">
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="JPY">JPY (¥)</option>
+                <option value="CNY">CNY (¥)</option>
+                <option value="CAD">CAD ($)</option>
+                <option value="AUD">AUD ($)</option>
+                <option value="CHF">CHF (Fr)</option>
+                <option value="INR">INR (₹)</option>
+                <option value="MXN">MXN ($)</option>
+                <option value="BRL">BRL (R$)</option>
+                <option value="ZAR">ZAR (R)</option>
+                <option value="KRW">KRW (₩)</option>
+                <option value="SGD">SGD ($)</option>
+                <option value="NZD">NZD ($)</option>
+                <option value="SEK">SEK (kr)</option>
+                <option value="NOK">NOK (kr)</option>
+                <option value="DKK">DKK (kr)</option>
+                <option value="PLN">PLN (zł)</option>
+                <option value="THB">THB (฿)</option>
+                <option value="IDR">IDR (Rp)</option>
+                <option value="HUF">HUF (Ft)</option>
+                <option value="CZK">CZK (Kč)</option>
+                <option value="ILS">ILS (₪)</option>
+                <option value="CLP">CLP ($)</option>
+                <option value="PHP">PHP (₱)</option>
+                <option value="AED">AED (د.إ)</option>
+                <option value="SAR">SAR (﷼)</option>
+                <option value="MYR">MYR (RM)</option>
+                <option value="RON">RON (lei)</option>
+              </select>
+              <button id="saveCurrencyBtn" class="header-icon-btn" title="Save Currency Preference" style="margin-left: 8px;">
+                <img src="../images/Icons/Check.svg" alt="Save">
+              </button>
+            </div>
+            
             <button class="header-icon-btn" title="Notifications">
               <img src="../images/Icons/Bell.svg" alt="Notifications">
             </button>
@@ -320,7 +361,7 @@
                           <input type="number" id="printTimeDuplicate" placeholder="0" min="0" step="0.01" readonly>
                         </div>
                         <div class="form-group">
-                          <label>Electricity Cost ($/kWh)</label>
+                          <label>Electricity Cost (<span data-currency-label>USD ($)</span>/kWh)</label>
                           <input type="number" id="elec" placeholder="0.12" min="0" step="0.01" value="0.12">
                         </div>
                       </div>
@@ -347,7 +388,7 @@
                         <input type="number" id="additionalWork" placeholder="0" min="0" step="0.1" value="0">
                       </div>
                       <div class="form-group">
-                        <label>Labor Rate ($/h)</label>
+                        <label>Labor Rate (<span data-currency-label>USD ($)</span>/h)</label>
                         <input type="number" id="postProcessingRate" placeholder="20" min="0" step="0.5" value="20">
                       </div>
                     </div>
@@ -379,7 +420,7 @@
                         </div>
                       </div>
                       <div class="form-group">
-                        <label>Labor Rate ($/h)</label>
+                        <label>Labor Rate (<span data-currency-label>USD ($)</span>/h)</label>
                         <input type="number" id="preparationRate" placeholder="20" min="0" step="0.5" value="20">
                       </div>
                     </div>
@@ -499,7 +540,10 @@
               <!-- Printers Tab -->
               <div id="printersTab" class="calc-tab-content">
                 <div class="calc-card">
-                  <h3>Printers Library</h3>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="margin: 0;">Printers Library</h3>
+                    <button id="btnAddGlobalPrinter" class="btn-calc btn-small" style="display: none;">+ Add Global Printer</button>
+                  </div>
                   <p style="color: #9ca3af; font-size: 14px; margin-bottom: 20px;">
                     Browse available printer presets with their depreciation costs.
                   </p>
@@ -517,7 +561,10 @@
               <!-- Filaments Tab -->
               <div id="filamentsTab" class="calc-tab-content">
                 <div class="calc-card">
-                  <h3>Filaments Library</h3>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 style="margin: 0;">Filaments Library</h3>
+                    <button id="btnAddGlobalFilament" class="btn-calc btn-small" style="display: none;">+ Add Global Filament</button>
+                  </div>
                   <p style="color: #9ca3af; font-size: 14px; margin-bottom: 20px;">
                     Browse available filament presets with pricing information.
                   </p>
@@ -765,6 +812,193 @@
               <div class="modal-buttons">
                 <button id="saveFilament" class="btn btn-primary">Save Filament</button>
                 <button id="closeFilament" class="btn btn-ghost">Cancel</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edit Global Printer Modal (Admin Only) -->
+          <div id="editGlobalPrinterModal" style="display: none;">
+            <div class="modal-card">
+              <button class="modal-close" id="closeEditGlobalPrinterX">×</button>
+              
+              <h3 id="editGlobalPrinterTitle">Edit Global Printer</h3>
+              <p class="modal-subtitle">Edit this printer preset (admin only).</p>
+              
+              <input type="hidden" id="editGlobalPrinterOriginalName">
+              
+              <label>Printer Name</label>
+              <input id="editGlobalPrinterName" type="text" placeholder="e.g., i3 MK3">
+              
+              <label>Brand</label>
+              <input id="editGlobalPrinterBrand" type="text" placeholder="e.g., Prusa">
+              
+              <label>Printer Price ($)</label>
+              <input id="editGlobalPrinterPrice" type="number" placeholder="e.g., 999" min="0" step="0.01">
+              
+              <label>Expected Lifespan (hours)</label>
+              <input id="editGlobalPrinterLifespan" type="number" placeholder="e.g., 5000" min="1" step="1">
+              
+              <div class="modal-hint">
+                Depreciation: Price ÷ Lifespan = <span id="editGlobalPrinterDepreciation">-</span>/hr
+              </div>
+              
+              <div id="editGlobalPrinterErr" class="err" style="display: none;"></div>
+              
+              <div class="modal-buttons">
+                <button id="saveEditGlobalPrinter" class="btn btn-primary">Save Changes</button>
+                <button id="closeEditGlobalPrinter" class="btn btn-ghost">Cancel</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edit Global Filament Modal (Admin Only) -->
+          <div id="editGlobalFilamentModal" style="display: none;">
+            <div class="modal-card">
+              <button class="modal-close" id="closeEditGlobalFilamentX">×</button>
+              
+              <h3 id="editGlobalFilamentTitle">Edit Global Filament</h3>
+              <p class="modal-subtitle">Edit this filament preset (admin only).</p>
+              
+              <input type="hidden" id="editGlobalFilamentOriginalType">
+              
+              <label>Filament Type</label>
+              <input id="editGlobalFilamentType" type="text" placeholder="e.g., PLA">
+              
+              <label>Brand</label>
+              <input id="editGlobalFilamentBrand" type="text" placeholder="e.g., Hatchbox">
+              
+              <label>Spool Weight (g)</label>
+              <input id="editGlobalFilamentWeight" type="number" placeholder="1000" min="1" step="1">
+              
+              <label>Cost Per Spool ($)</label>
+              <input id="editGlobalFilamentCost" type="number" placeholder="20.00" min="0" step="0.01">
+              
+              <div class="modal-hint">
+                Cost per gram: <span id="editGlobalFilamentCostPerG">-</span>
+              </div>
+              
+              <div id="editGlobalFilamentErr" class="err" style="display: none;"></div>
+              
+              <div class="modal-buttons">
+                <button id="saveEditGlobalFilament" class="btn btn-primary">Save Changes</button>
+                <button id="closeEditGlobalFilament" class="btn btn-ghost">Cancel</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add Global Printer Modal (Admin Only) -->
+          <div id="addGlobalPrinterModal" style="display: none;">
+            <div class="modal-card">
+              <button class="modal-close" id="closeAddGlobalPrinterX">×</button>
+              
+              <h3>Add Global Printer</h3>
+              <p class="modal-subtitle">Add a new printer preset to the global library (admin only).</p>
+              
+              <label>Printer Name</label>
+              <input id="addGlobalPrinterName" type="text" placeholder="e.g., i3 MK3">
+              
+              <label>Brand</label>
+              <input id="addGlobalPrinterBrand" type="text" placeholder="e.g., Prusa">
+              
+              <label>Printer Price ($)</label>
+              <input id="addGlobalPrinterPrice" type="number" placeholder="e.g., 999" min="0" step="0.01">
+              
+              <label>Expected Lifespan (hours)</label>
+              <input id="addGlobalPrinterLifespan" type="number" placeholder="e.g., 5000" min="1" step="1" value="5000">
+              
+              <div class="modal-hint">
+                Depreciation: <span id="addGlobalPrinterDepreciation">-</span>/hr
+              </div>
+              
+              <div id="addGlobalPrinterErr" class="err" style="display: none;"></div>
+              
+              <div class="modal-buttons">
+                <button id="saveAddGlobalPrinter" class="btn btn-primary">Add Printer</button>
+                <button id="closeAddGlobalPrinter" class="btn btn-ghost">Cancel</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Add Global Filament Modal (Admin Only) -->
+          <div id="addGlobalFilamentModal" style="display: none;">
+            <div class="modal-card">
+              <button class="modal-close" id="closeAddGlobalFilamentX">×</button>
+              
+              <h3>Add Global Filament</h3>
+              <p class="modal-subtitle">Add a new filament preset to the global library (admin only).</p>
+              
+              <label>Filament Type</label>
+              <input id="addGlobalFilamentType" type="text" placeholder="e.g., PLA">
+              
+              <label>Brand</label>
+              <input id="addGlobalFilamentBrand" type="text" placeholder="e.g., Hatchbox">
+              
+              <label>Spool Weight (g)</label>
+              <input id="addGlobalFilamentWeight" type="number" placeholder="1000" min="1" step="1" value="1000">
+              
+              <label>Cost Per Spool ($)</label>
+              <input id="addGlobalFilamentCost" type="number" placeholder="20.00" min="0" step="0.01">
+              
+              <div class="modal-hint">
+                Cost per gram: <span id="addGlobalFilamentCostPerG">-</span>
+              </div>
+              
+              <div id="addGlobalFilamentErr" class="err" style="display: none;"></div>
+              
+              <div class="modal-buttons">
+                <button id="saveAddGlobalFilament" class="btn btn-primary">Add Filament</button>
+                <button id="closeAddGlobalFilament" class="btn btn-ghost">Cancel</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notification Modal -->
+          <div id="adminNotificationModal" class="modal-overlay" style="display: none;">
+            <div class="modal-card" style="max-width: 500px;">
+              <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                <div id="adminNotificationIcon" class="notification-icon">
+                  <!-- Icon will be set dynamically -->
+                </div>
+                <h3 id="adminNotificationTitle" style="margin: 0; flex: 1;">Notification</h3>
+              </div>
+              <p id="adminNotificationMessage" style="color: #9ca3af; margin-bottom: 24px; line-height: 1.6;"></p>
+              <div class="modal-buttons">
+                <button id="adminNotificationOk" class="btn btn-primary" style="width: 100%;">OK</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confirmation Modal -->
+          <div id="adminConfirmModal" class="modal-overlay" style="display: none;">
+            <div class="modal-card" style="max-width: 500px;">
+              <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                <div class="notification-icon warning-icon">
+                  <img src="../images/Icons/Warning.svg" width="48" height="48" style="filter: brightness(0) saturate(100%) invert(71%) sepia(87%) saturate(1495%) hue-rotate(358deg) brightness(97%) contrast(96%);">
+                </div>
+                <h3 id="adminConfirmTitle" style="margin: 0; flex: 1;">Confirm Action</h3>
+              </div>
+              <p id="adminConfirmMessage" style="color: #9ca3af; margin-bottom: 24px; line-height: 1.6;"></p>
+              <div class="modal-buttons" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <button id="adminConfirmCancel" class="btn btn-ghost" style="width: 100%;">Cancel</button>
+                <button id="adminConfirmOk" class="btn btn-primary" style="width: 100%; background: #ef4444; border-color: #ef4444;">Confirm</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Prompt Modal -->
+          <div id="adminPromptModal" class="modal-overlay" style="display: none;">
+            <div class="modal-card" style="max-width: 500px;">
+              <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                <div class="notification-icon input-icon">
+                  <img src="../images/Icons/PencilSimple.svg" width="48" height="48" style="filter: brightness(0) saturate(100%) invert(43%) sepia(63%) saturate(1752%) hue-rotate(236deg) brightness(93%) contrast(92%);">
+                </div>
+                <h3 id="adminPromptTitle" style="margin: 0; flex: 1;">Enter Value</h3>
+              </div>
+              <p id="adminPromptMessage" style="color: #9ca3af; margin-bottom: 16px; line-height: 1.6;"></p>
+              <input id="adminPromptInput" type="text" placeholder="Enter value..." style="width: 100%; margin-bottom: 20px;">
+              <div class="modal-buttons" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <button id="adminPromptCancel" class="btn btn-ghost">Cancel</button>
+                <button id="adminPromptOk" class="btn btn-primary">OK</button>
               </div>
             </div>
           </div>
@@ -1510,6 +1744,172 @@
     document.addEventListener('DOMContentLoaded', initializeDashboard);
 
     // ===============================================
+    // CURRENCY SELECTOR FUNCTIONALITY
+    // ===============================================
+    
+    // Load user's currency preference from Firebase
+    async function loadUserCurrency() {
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        window.currentCurrency = 'USD';
+        return;
+      }
+      
+      try {
+        const snapshot = await firebase.database().ref(`users/${user.uid}/preferences/currency`).once('value');
+        const savedCurrency = snapshot.val();
+        
+        if (savedCurrency) {
+          window.currentCurrency = savedCurrency;
+          console.log('Loaded currency from Firebase:', savedCurrency);
+        } else {
+          window.currentCurrency = 'USD';
+        }
+      } catch (error) {
+        console.error('Error loading currency preference:', error);
+        window.currentCurrency = 'USD';
+      }
+    }
+    
+    // Save user's currency preference to Firebase
+    async function saveUserCurrency(currency) {
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        console.warn('No user logged in, cannot save currency preference');
+        return false;
+      }
+      
+      try {
+        const ref = firebase.database().ref(`users/${user.uid}/preferences/currency`);
+        console.log('Attempting to save currency to:', `users/${user.uid}/preferences/currency`);
+        console.log('Currency value:', currency);
+        
+        await ref.set(currency);
+        
+        console.log('✅ Currency preference saved to Firebase:', currency);
+        
+        // Verify it was saved
+        const verification = await ref.once('value');
+        console.log('Verification - saved value:', verification.val());
+        
+        return true;
+      } catch (error) {
+        console.error('❌ Error saving currency preference:', error);
+        alert('Failed to save currency: ' + error.message);
+        return false;
+      }
+    }
+    
+    // Initialize currency selector
+    async function initializeCurrencySelector() {
+      const currencySelector = document.getElementById('currencySelector');
+      const saveCurrencyBtn = document.getElementById('saveCurrencyBtn');
+      
+      if (!currencySelector) {
+        console.warn('Currency selector not found in DOM');
+        return;
+      }
+      
+      console.log('Initializing currency selector...');
+      
+      // Load saved currency from Firebase
+      await loadUserCurrency();
+      currencySelector.value = window.currentCurrency || 'USD';
+      
+      // Update labels on initial load
+      updateAllPriceDisplays();
+      
+      // Listen for currency changes - AUTO-SAVE and update live
+      currencySelector.addEventListener('change', async function() {
+        const newCurrency = this.value;
+        const oldCurrency = window.currentCurrency;
+        window.currentCurrency = newCurrency;
+        
+        console.log('Currency changed from', oldCurrency, 'to', newCurrency);
+        
+        // Save to Firebase immediately (auto-save)
+        const saved = await saveUserCurrency(newCurrency);
+        
+        if (saved) {
+          // Update all displays live
+          updateAllPriceDisplays();
+          
+          // Re-calculate if there's existing calculation results
+          const printerSelect = document.getElementById('printerSelect');
+          const filamentSelect = document.getElementById('filamentSelect');
+          const totalCostElement = document.getElementById('totalCost');
+          
+          // If user has selected printer/filament and there are results, recalculate
+          if (printerSelect?.value && filamentSelect?.value && totalCostElement) {
+            // Check if calculation has been run (totalCost is not the default $0.00)
+            const currentTotal = totalCostElement.textContent;
+            if (currentTotal !== '$0.00' && currentTotal !== 'USD ($0.00)') {
+              calculateCost();
+            }
+          }
+          
+          console.log('✅ Currency updated and saved:', newCurrency);
+        } else {
+          // Revert if save failed
+          console.error('❌ Failed to save currency, reverting to:', oldCurrency);
+          window.currentCurrency = oldCurrency;
+          currencySelector.value = oldCurrency;
+        }
+      });
+      
+      // Hide save button since we're auto-saving now
+      if (saveCurrencyBtn) {
+        saveCurrencyBtn.style.display = 'none';
+      }
+    }
+    
+    // Update all price displays when currency changes
+    function updateAllPriceDisplays() {
+      // Update currency labels in calculator form
+      const currencyLabels = document.querySelectorAll('[data-currency-label]');
+      currencyLabels.forEach(label => {
+        label.textContent = getCurrencyLabel(window.currentCurrency);
+      });
+      
+      // Refresh printer and filament lists with new currency
+      if (typeof renderPrintersList === 'function') {
+        renderPrintersList();
+      }
+      if (typeof renderFilamentsList === 'function') {
+        renderFilamentsList();
+      }
+      
+      // Refresh dropdowns (these already display updated prices in the options)
+      if (typeof renderPrinterSelect === 'function') {
+        renderPrinterSelect();
+      }
+      if (typeof renderFilamentSelect === 'function') {
+        renderFilamentSelect();
+      }
+      
+      // Update price info boxes (selected printer/filament costs)
+      if (typeof updatePriceInfo === 'function') {
+        updatePriceInfo();
+      }
+      
+      // Refresh calculator UI if the external function exists
+      if (typeof window.refreshCalculatorCurrency === 'function') {
+        window.refreshCalculatorCurrency();
+      }
+    }
+    
+    // Initialize currency selector on page load (after auth state is known)
+    firebase.auth().onAuthStateChanged((user) => {
+      console.log('Auth state changed. User:', user ? user.uid : 'null');
+      if (user) {
+        console.log('User is logged in, initializing currency selector...');
+        initializeCurrencySelector();
+      } else {
+        console.log('No user logged in, skipping currency selector initialization');
+      }
+    });
+
+    // ===============================================
     // CALCULATOR FUNCTIONALITY
     // ===============================================
     
@@ -1538,7 +1938,18 @@
     let userFilamentsRef = null;
 
     // Helper functions
-    function money(n) { return `$${(Math.round(n * 100) / 100).toFixed(2)}`; }
+    function money(n) {
+      // Use formatCurrency if available (from currency.js)
+      if (typeof window.formatCurrency === 'function' && window.currentCurrency) {
+        return window.formatCurrency(n, window.currentCurrency);
+      }
+      
+      // Fallback if formatCurrency is not loaded yet
+      const currency = window.currentCurrency || 'USD';
+      const symbol = getCurrencySymbol(currency);
+      const amount = (Math.round(n * 100) / 100).toFixed(2);
+      return `${currency} ${symbol}${amount}`;
+    }
 
     // Tab switching for calculator
     function switchCalcTab(tabName) {
@@ -1958,13 +2369,13 @@
               <div style="font-weight: 600; margin-bottom: 8px; font-size: 15px;">${printer.brand} ${printer.name}</div>
               <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                 <div style="font-size: 13px; color: #6b7280;">
-                  <span style="color: #9ca3af;">Price:</span> $${printer.price.toFixed(2)}
+                  <span style="color: #9ca3af;">Price:</span> ${money(printer.price)}
                 </div>
                 <div style="font-size: 13px; color: #6b7280;">
                   <span style="color: #9ca3af;">Lifespan:</span> ${printer.lifespan.toLocaleString()} hrs
                 </div>
                 <div style="font-size: 13px; color: #6b7280;">
-                  <span style="color: #9ca3af;">Depreciation:</span> $${(printer.price / printer.lifespan).toFixed(4)}/hr
+                  <span style="color: #9ca3af;">Depreciation:</span> ${money(printer.price / printer.lifespan)}/hr
                 </div>
               </div>
             </div>
@@ -2695,6 +3106,7 @@
       list.innerHTML = '';
       
       const printerCount = Object.keys(printersData).length;
+      const isAdmin = currentUserTier === 'admin';
       
       if (printerCount === 0) {
         list.innerHTML = `
@@ -2732,6 +3144,16 @@
         printers.forEach(printer => {
           const item = document.createElement('div');
           item.className = 'list-item';
+          
+          // Admin action buttons
+          const adminButtons = isAdmin ? `
+            <div class="btn-actions" style="display: flex; gap: 8px;">
+              <button class="btn-calc-ghost btn-small" onclick="editGlobalPrinter('${printer.name}')">Edit</button>
+              <button class="btn-calc-ghost btn-small" onclick="duplicateGlobalPrinter('${printer.name}')">Duplicate</button>
+              <button class="btn-delete btn-small" onclick="deleteGlobalPrinter('${printer.name}')">Delete</button>
+            </div>
+          ` : '';
+          
           item.innerHTML = `
             <div class="item-info">
               <div class="item-name">${printer.name}</div>
@@ -2739,6 +3161,7 @@
                 Price: ${money(printer.price)} | Lifespan: ${printer.lifespan.toLocaleString()} hrs | Depreciation: ${money(printer.costPerHour)}/hr
               </div>
             </div>
+            ${adminButtons}
           `;
           brandSection.appendChild(item);
         });
@@ -2755,6 +3178,7 @@
       list.innerHTML = '';
       
       const filamentCount = Object.keys(filamentsData).length;
+      const isAdmin = currentUserTier === 'admin';
       
       if (filamentCount === 0) {
         list.innerHTML = `
@@ -2793,6 +3217,16 @@
           const item = document.createElement('div');
           item.className = 'list-item';
           const perKg = filament.costPerG * 1000;
+          
+          // Admin action buttons
+          const adminButtons = isAdmin ? `
+            <div class="btn-actions" style="display: flex; gap: 8px;">
+              <button class="btn-calc-ghost btn-small" onclick="editGlobalFilament('${filament.type.replace(/'/g, "\\'")}')">Edit</button>
+              <button class="btn-calc-ghost btn-small" onclick="duplicateGlobalFilament('${filament.type.replace(/'/g, "\\'")}')">Duplicate</button>
+              <button class="btn-delete btn-small" onclick="deleteGlobalFilament('${filament.type.replace(/'/g, "\\'")}')">Delete</button>
+            </div>
+          ` : '';
+          
           item.innerHTML = `
             <div class="item-info">
               <div class="item-name">${filament.type}</div>
@@ -2800,6 +3234,7 @@
                 Spool: ${money(filament.spoolCost)} (${filament.spoolWeight}g) | Per kg: ${money(perKg)} | Per g: ${money(filament.costPerG)}
               </div>
             </div>
+            ${adminButtons}
           `;
           brandSection.appendChild(item);
         });
@@ -2873,6 +3308,687 @@
       }
     }
 
+    // ===============================================
+    // NOTIFICATION MODAL FUNCTIONS (Available for all users)
+    // Replacements for alert/confirm/prompt with custom styling
+    // ===============================================
+    
+    // Show notification modal (replaces alert)
+    // type: 'success', 'error', 'warning', 'info'
+    function showNotification(message, title = 'Notification', type = 'info') {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('adminNotificationModal');
+        const titleEl = document.getElementById('adminNotificationTitle');
+        const messageEl = document.getElementById('adminNotificationMessage');
+        const iconEl = document.getElementById('adminNotificationIcon');
+        const okBtn = document.getElementById('adminNotificationOk');
+        
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        
+        // Set icon SVG and color based on type
+        let iconSVG = '';
+        let iconColor = '';
+        
+        switch(type) {
+          case 'success':
+            iconColor = '#10b981';
+            iconSVG = '<img src="../images/Icons/CheckCircle.svg" width="48" height="48" style="filter: brightness(0) saturate(100%) invert(66%) sepia(28%) saturate(2050%) hue-rotate(101deg) brightness(95%) contrast(86%);">';
+            break;
+          case 'error':
+            iconColor = '#ef4444';
+            iconSVG = '<img src="../images/Icons/XCircle.svg" width="48" height="48" style="filter: brightness(0) saturate(100%) invert(38%) sepia(72%) saturate(2826%) hue-rotate(340deg) brightness(100%) contrast(89%);">';
+            break;
+          case 'warning':
+            iconColor = '#f59e0b';
+            iconSVG = '<img src="../images/Icons/Warning.svg" width="48" height="48" style="filter: brightness(0) saturate(100%) invert(71%) sepia(87%) saturate(1495%) hue-rotate(358deg) brightness(97%) contrast(96%);">';
+            break;
+          default: // info
+            iconColor = '#8b5cf6';
+            iconSVG = '<img src="../images/Icons/Info.svg" width="48" height="48" style="filter: brightness(0) saturate(100%) invert(43%) sepia(63%) saturate(1752%) hue-rotate(236deg) brightness(93%) contrast(92%);">';
+        }
+        
+        iconEl.innerHTML = iconSVG;
+        iconEl.style.color = iconColor;
+        
+        modal.style.display = 'grid';
+        
+        const handleClose = () => {
+          modal.style.display = 'none';
+          okBtn.removeEventListener('click', handleClose);
+          resolve(true);
+        };
+        
+        okBtn.addEventListener('click', handleClose);
+      });
+    }
+    
+    // Show confirmation modal (replaces confirm)
+    function showConfirm(message, title = 'Confirm Action') {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('adminConfirmModal');
+        const titleEl = document.getElementById('adminConfirmTitle');
+        const messageEl = document.getElementById('adminConfirmMessage');
+        const cancelBtn = document.getElementById('adminConfirmCancel');
+        const okBtn = document.getElementById('adminConfirmOk');
+        
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        modal.style.display = 'grid';
+        
+        const handleCancel = () => {
+          modal.style.display = 'none';
+          cleanup();
+          resolve(false);
+        };
+        
+        const handleOk = () => {
+          modal.style.display = 'none';
+          cleanup();
+          resolve(true);
+        };
+        
+        const cleanup = () => {
+          cancelBtn.removeEventListener('click', handleCancel);
+          okBtn.removeEventListener('click', handleOk);
+        };
+        
+        cancelBtn.addEventListener('click', handleCancel);
+        okBtn.addEventListener('click', handleOk);
+      });
+    }
+    
+    // Show prompt modal (replaces prompt)
+    function showPrompt(message, defaultValue = '', title = 'Enter Value') {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('adminPromptModal');
+        const titleEl = document.getElementById('adminPromptTitle');
+        const messageEl = document.getElementById('adminPromptMessage');
+        const inputEl = document.getElementById('adminPromptInput');
+        const cancelBtn = document.getElementById('adminPromptCancel');
+        const okBtn = document.getElementById('adminPromptOk');
+        
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        inputEl.value = defaultValue;
+        modal.style.display = 'grid';
+        
+        // Focus input
+        setTimeout(() => inputEl.focus(), 100);
+        
+        const handleCancel = () => {
+          modal.style.display = 'none';
+          cleanup();
+          resolve(null);
+        };
+        
+        const handleOk = () => {
+          const value = inputEl.value.trim();
+          modal.style.display = 'none';
+          cleanup();
+          resolve(value || null);
+        };
+        
+        const handleKeyPress = (e) => {
+          if (e.key === 'Enter') handleOk();
+          if (e.key === 'Escape') handleCancel();
+        };
+        
+        const cleanup = () => {
+          cancelBtn.removeEventListener('click', handleCancel);
+          okBtn.removeEventListener('click', handleOk);
+          inputEl.removeEventListener('keypress', handleKeyPress);
+        };
+        
+        cancelBtn.addEventListener('click', handleCancel);
+        okBtn.addEventListener('click', handleOk);
+        inputEl.addEventListener('keypress', handleKeyPress);
+      });
+    }
+
+    // ===============================================
+    // ADMIN FUNCTIONS FOR GLOBAL PRINTERS & FILAMENTS
+    // ===============================================
+    
+    // Edit Global Printer (Admin Only)
+    window.editGlobalPrinter = async function(printerName) {
+      console.log('editGlobalPrinter called with:', printerName);
+      console.log('Current user tier:', currentUserTier);
+      console.log('Available printers:', Object.keys(printersData));
+      
+      if (currentUserTier !== 'admin') {
+        await showNotification('You need admin access to edit global printers.', 'Access Denied', '🔒');
+        return;
+      }
+      
+      const printer = printersData[printerName];
+      if (!printer) {
+        console.error('Printer not found:', printerName);
+        await showNotification('Printer not found in the database.', 'Error', '❌');
+        return;
+      }
+      
+      console.log('Opening edit modal for printer:', printer);
+      
+      // Populate modal
+      document.getElementById('editGlobalPrinterOriginalName').value = printerName;
+      document.getElementById('editGlobalPrinterName').value = printer.name;
+      document.getElementById('editGlobalPrinterBrand').value = printer.brand || '';
+      document.getElementById('editGlobalPrinterPrice').value = printer.price;
+      document.getElementById('editGlobalPrinterLifespan').value = printer.lifespan;
+      
+      // Update depreciation display
+      updateGlobalPrinterDepreciation();
+      
+      // Show modal
+      const modal = document.getElementById('editGlobalPrinterModal');
+      console.log('Modal element:', modal);
+      if (modal) {
+        modal.style.display = 'grid';
+        console.log('Modal should now be visible');
+      } else {
+        console.error('Modal element not found!');
+      }
+    };
+    
+    // Delete Global Printer (Admin Only)
+    window.deleteGlobalPrinter = async function(printerName) {
+      if (currentUserTier !== 'admin') {
+        await showNotification('You need admin access to delete global printers.', 'Access Denied', '🔒');
+        return;
+      }
+      
+      const confirmed = await showConfirm(
+        `Delete global printer "${printerName}"? This will affect all users and cannot be undone.`,
+        'Delete Printer?'
+      );
+      
+      if (!confirmed) return;
+      
+      // Find and delete from Firebase
+      printersRef.orderByChild('name').equalTo(printerName).once('value', snapshot => {
+        snapshot.forEach(child => {
+          child.ref.remove()
+            .then(async () => {
+              await showNotification(`Printer "${printerName}" has been deleted successfully.`, 'Success', '✅');
+              renderPrintersList();
+            })
+            .catch(async (error) => {
+              await showNotification(`Error deleting printer: ${error.message}`, 'Error', '❌');
+            });
+        });
+      });
+    };
+    
+    // Duplicate Global Printer (Admin Only)
+    window.duplicateGlobalPrinter = async function(printerName) {
+      if (currentUserTier !== 'admin') {
+        await showNotification('You need admin access to duplicate global printers.', 'Access Denied', '🔒');
+        return;
+      }
+      
+      const printer = printersData[printerName];
+      if (!printer) {
+        await showNotification('Printer not found in the database.', 'Error', '❌');
+        return;
+      }
+      
+      const newName = await showPrompt(
+        'Enter name for the duplicated printer:',
+        printer.name + ' (Copy)',
+        'Duplicate Printer'
+      );
+      
+      if (!newName) return;
+      
+      // Create duplicate with new name
+      const newPrinter = {
+        name: newName,
+        brand: printer.brand,
+        price: printer.price,
+        lifespan: printer.lifespan,
+        costPerHour: printer.costPerHour
+      };
+      
+      printersRef.push(newPrinter)
+        .then(async () => {
+          await showNotification(`Printer "${newName}" has been duplicated successfully.`, 'Success', '✅');
+          renderPrintersList();
+        })
+        .catch(async (error) => {
+          await showNotification(`Error duplicating printer: ${error.message}`, 'Error', '❌');
+        });
+    };
+    
+    // Edit Global Filament (Admin Only)
+    window.editGlobalFilament = async function(filamentType) {
+      console.log('editGlobalFilament called with:', filamentType);
+      console.log('Current user tier:', currentUserTier);
+      console.log('Available filaments:', Object.keys(filamentsData));
+      
+      if (currentUserTier !== 'admin') {
+        await showNotification('You need admin access to edit global filaments.', 'Access Denied', '🔒');
+        return;
+      }
+      
+      const filament = filamentsData[filamentType];
+      if (!filament) {
+        console.error('Filament not found:', filamentType);
+        await showNotification('Filament not found in the database.', 'Error', '❌');
+        return;
+      }
+      
+      console.log('Opening edit modal for filament:', filament);
+      
+      // Populate modal
+      document.getElementById('editGlobalFilamentOriginalType').value = filamentType;
+      document.getElementById('editGlobalFilamentType').value = filament.type;
+      document.getElementById('editGlobalFilamentBrand').value = filament.brand || '';
+      document.getElementById('editGlobalFilamentWeight').value = filament.spoolWeight;
+      document.getElementById('editGlobalFilamentCost').value = filament.spoolCost;
+      
+      // Update cost per gram display
+      updateGlobalFilamentCostPerG();
+      
+      // Show modal
+      const modal = document.getElementById('editGlobalFilamentModal');
+      console.log('Modal element:', modal);
+      if (modal) {
+        modal.style.display = 'grid';
+        console.log('Modal should now be visible');
+      } else {
+        console.error('Modal element not found!');
+      }
+    };
+    
+    // Delete Global Filament (Admin Only)
+    window.deleteGlobalFilament = async function(filamentType) {
+      if (currentUserTier !== 'admin') {
+        await showNotification('You need admin access to delete global filaments.', 'Access Denied', '🔒');
+        return;
+      }
+      
+      const confirmed = await showConfirm(
+        `Delete global filament "${filamentType}"? This will affect all users and cannot be undone.`,
+        'Delete Filament?'
+      );
+      
+      if (!confirmed) return;
+      
+      // Find and delete from Firebase
+      filamentsRef.orderByChild('type').equalTo(filamentType).once('value', snapshot => {
+        snapshot.forEach(child => {
+          child.ref.remove()
+            .then(async () => {
+              await showNotification(`Filament "${filamentType}" has been deleted successfully.`, 'Success', '✅');
+              renderFilamentsList();
+            })
+            .catch(async (error) => {
+              await showNotification(`Error deleting filament: ${error.message}`, 'Error', '❌');
+            });
+        });
+      });
+    };
+    
+    // Duplicate Global Filament (Admin Only)
+    window.duplicateGlobalFilament = async function(filamentType) {
+      if (currentUserTier !== 'admin') {
+        await showNotification('You need admin access to duplicate global filaments.', 'Access Denied', '🔒');
+        return;
+      }
+      
+      const filament = filamentsData[filamentType];
+      if (!filament) {
+        await showNotification('Filament not found in the database.', 'Error', '❌');
+        return;
+      }
+      
+      const newType = await showPrompt(
+        'Enter type for the duplicated filament:',
+        filament.type + ' (Copy)',
+        'Duplicate Filament'
+      );
+      
+      if (!newType) return;
+      
+      // Create duplicate with new type
+      const newFilament = {
+        type: newType,
+        brand: filament.brand,
+        spoolWeight: filament.spoolWeight,
+        spoolCost: filament.spoolCost,
+        costPerG: filament.costPerG
+      };
+      
+      filamentsRef.push(newFilament)
+        .then(async () => {
+          await showNotification(`Filament "${newType}" has been duplicated successfully.`, 'Success', '✅');
+          renderFilamentsList();
+        })
+        .catch(async (error) => {
+          await showNotification(`Error duplicating filament: ${error.message}`, 'Error', '❌');
+        });
+    };
+    
+    // Update depreciation display for global printer editing
+    function updateGlobalPrinterDepreciation() {
+      const price = parseFloat(document.getElementById('editGlobalPrinterPrice').value) || 0;
+      const lifespan = parseFloat(document.getElementById('editGlobalPrinterLifespan').value) || 1;
+      const depreciation = price / lifespan;
+      document.getElementById('editGlobalPrinterDepreciation').textContent = money(depreciation);
+    }
+    
+    // Update cost per gram display for global filament editing
+    function updateGlobalFilamentCostPerG() {
+      const cost = parseFloat(document.getElementById('editGlobalFilamentCost').value) || 0;
+      const weight = parseFloat(document.getElementById('editGlobalFilamentWeight').value) || 1;
+      const costPerG = cost / weight;
+      document.getElementById('editGlobalFilamentCostPerG').textContent = money(costPerG);
+    }
+    
+    // Update depreciation display for adding global printer
+    function updateAddGlobalPrinterDepreciation() {
+      const price = parseFloat(document.getElementById('addGlobalPrinterPrice').value) || 0;
+      const lifespan = parseFloat(document.getElementById('addGlobalPrinterLifespan').value) || 1;
+      const depreciation = price / lifespan;
+      document.getElementById('addGlobalPrinterDepreciation').textContent = money(depreciation);
+    }
+    
+    // Update cost per gram display for adding global filament
+    function updateAddGlobalFilamentCostPerG() {
+      const cost = parseFloat(document.getElementById('addGlobalFilamentCost').value) || 0;
+      const weight = parseFloat(document.getElementById('addGlobalFilamentWeight').value) || 1;
+      const costPerG = cost / weight;
+      document.getElementById('addGlobalFilamentCostPerG').textContent = money(costPerG);
+    }
+    
+    // Show/hide admin buttons based on user tier
+    function updateAdminButtonsVisibility() {
+      const btnAddGlobalPrinter = document.getElementById('btnAddGlobalPrinter');
+      const btnAddGlobalFilament = document.getElementById('btnAddGlobalFilament');
+      
+      if (currentUserTier === 'admin') {
+        if (btnAddGlobalPrinter) btnAddGlobalPrinter.style.display = 'inline-block';
+        if (btnAddGlobalFilament) btnAddGlobalFilament.style.display = 'inline-block';
+      } else {
+        if (btnAddGlobalPrinter) btnAddGlobalPrinter.style.display = 'none';
+        if (btnAddGlobalFilament) btnAddGlobalFilament.style.display = 'none';
+      }
+    }
+    
+    // Setup modal event listeners for global editing
+    document.addEventListener('DOMContentLoaded', function() {
+      // Global Printer Modal
+      const editGlobalPrinterModal = document.getElementById('editGlobalPrinterModal');
+      const closeEditGlobalPrinterX = document.getElementById('closeEditGlobalPrinterX');
+      const closeEditGlobalPrinter = document.getElementById('closeEditGlobalPrinter');
+      const saveEditGlobalPrinter = document.getElementById('saveEditGlobalPrinter');
+      
+      if (closeEditGlobalPrinterX) {
+        closeEditGlobalPrinterX.addEventListener('click', () => {
+          editGlobalPrinterModal.style.display = 'none';
+        });
+      }
+      
+      if (closeEditGlobalPrinter) {
+        closeEditGlobalPrinter.addEventListener('click', () => {
+          editGlobalPrinterModal.style.display = 'none';
+        });
+      }
+      
+      if (saveEditGlobalPrinter) {
+        saveEditGlobalPrinter.addEventListener('click', async () => {
+          const originalName = document.getElementById('editGlobalPrinterOriginalName').value;
+          const newName = document.getElementById('editGlobalPrinterName').value.trim();
+          const brand = document.getElementById('editGlobalPrinterBrand').value.trim();
+          const price = parseFloat(document.getElementById('editGlobalPrinterPrice').value);
+          const lifespan = parseFloat(document.getElementById('editGlobalPrinterLifespan').value);
+          
+          if (!newName || !brand || !price || !lifespan) {
+            await showNotification('Please fill in all fields.', 'Missing Information', 'ℹ️');
+            return;
+          }
+          
+          const updatedPrinter = {
+            name: newName,
+            brand: brand,
+            price: price,
+            lifespan: lifespan,
+            costPerHour: price / lifespan
+          };
+          
+          // Find and update in Firebase
+          printersRef.orderByChild('name').equalTo(originalName).once('value', snapshot => {
+            snapshot.forEach(child => {
+              child.ref.update(updatedPrinter)
+                .then(async () => {
+                  await showNotification(`Printer "${newName}" has been updated successfully.`, 'Success', '✅');
+                  editGlobalPrinterModal.style.display = 'none';
+                  renderPrintersList();
+                })
+                .catch(async (error) => {
+                  await showNotification(`Error updating printer: ${error.message}`, 'Error', '❌');
+                });
+            });
+          });
+        });
+      }
+      
+      // Update depreciation on input change
+      const priceInput = document.getElementById('editGlobalPrinterPrice');
+      const lifespanInput = document.getElementById('editGlobalPrinterLifespan');
+      if (priceInput) priceInput.addEventListener('input', updateGlobalPrinterDepreciation);
+      if (lifespanInput) lifespanInput.addEventListener('input', updateGlobalPrinterDepreciation);
+      
+      // Global Filament Modal
+      const editGlobalFilamentModal = document.getElementById('editGlobalFilamentModal');
+      const closeEditGlobalFilamentX = document.getElementById('closeEditGlobalFilamentX');
+      const closeEditGlobalFilament = document.getElementById('closeEditGlobalFilament');
+      const saveEditGlobalFilament = document.getElementById('saveEditGlobalFilament');
+      
+      if (closeEditGlobalFilamentX) {
+        closeEditGlobalFilamentX.addEventListener('click', () => {
+          editGlobalFilamentModal.style.display = 'none';
+        });
+      }
+      
+      if (closeEditGlobalFilament) {
+        closeEditGlobalFilament.addEventListener('click', () => {
+          editGlobalFilamentModal.style.display = 'none';
+        });
+      }
+      
+      if (saveEditGlobalFilament) {
+        saveEditGlobalFilament.addEventListener('click', async () => {
+          const originalType = document.getElementById('editGlobalFilamentOriginalType').value;
+          const newType = document.getElementById('editGlobalFilamentType').value.trim();
+          const brand = document.getElementById('editGlobalFilamentBrand').value.trim();
+          const weight = parseFloat(document.getElementById('editGlobalFilamentWeight').value);
+          const cost = parseFloat(document.getElementById('editGlobalFilamentCost').value);
+          
+          if (!newType || !brand || !weight || !cost) {
+            await showNotification('Please fill in all fields.', 'Missing Information', 'ℹ️');
+            return;
+          }
+          
+          const updatedFilament = {
+            type: newType,
+            brand: brand,
+            spoolWeight: weight,
+            spoolCost: cost,
+            costPerG: cost / weight
+          };
+          
+          // Find and update in Firebase
+          filamentsRef.orderByChild('type').equalTo(originalType).once('value', snapshot => {
+            snapshot.forEach(child => {
+              child.ref.update(updatedFilament)
+                .then(async () => {
+                  await showNotification(`Filament "${newType}" has been updated successfully.`, 'Success', '✅');
+                  editGlobalFilamentModal.style.display = 'none';
+                  renderFilamentsList();
+                })
+                .catch(async (error) => {
+                  await showNotification(`Error updating filament: ${error.message}`, 'Error', '❌');
+                });
+            });
+          });
+        });
+      }
+      
+      // Update cost per gram on input change
+      const costInput = document.getElementById('editGlobalFilamentCost');
+      const weightInput = document.getElementById('editGlobalFilamentWeight');
+      if (costInput) costInput.addEventListener('input', updateGlobalFilamentCostPerG);
+      if (weightInput) weightInput.addEventListener('input', updateGlobalFilamentCostPerG);
+      
+      // Add Global Printer Modal
+      const addGlobalPrinterModal = document.getElementById('addGlobalPrinterModal');
+      const btnAddGlobalPrinter = document.getElementById('btnAddGlobalPrinter');
+      const closeAddGlobalPrinterX = document.getElementById('closeAddGlobalPrinterX');
+      const closeAddGlobalPrinter = document.getElementById('closeAddGlobalPrinter');
+      const saveAddGlobalPrinter = document.getElementById('saveAddGlobalPrinter');
+      
+      if (btnAddGlobalPrinter) {
+        btnAddGlobalPrinter.addEventListener('click', async () => {
+          if (currentUserTier !== 'admin') {
+            await showNotification('You need admin access to add global printers.', 'Access Denied', '🔒');
+            return;
+          }
+          // Clear form
+          document.getElementById('addGlobalPrinterName').value = '';
+          document.getElementById('addGlobalPrinterBrand').value = '';
+          document.getElementById('addGlobalPrinterPrice').value = '';
+          document.getElementById('addGlobalPrinterLifespan').value = '5000';
+          document.getElementById('addGlobalPrinterDepreciation').textContent = '-';
+          addGlobalPrinterModal.style.display = 'grid';
+        });
+      }
+      
+      if (closeAddGlobalPrinterX) {
+        closeAddGlobalPrinterX.addEventListener('click', () => {
+          addGlobalPrinterModal.style.display = 'none';
+        });
+      }
+      
+      if (closeAddGlobalPrinter) {
+        closeAddGlobalPrinter.addEventListener('click', () => {
+          addGlobalPrinterModal.style.display = 'none';
+        });
+      }
+      
+      if (saveAddGlobalPrinter) {
+        saveAddGlobalPrinter.addEventListener('click', async () => {
+          const name = document.getElementById('addGlobalPrinterName').value.trim();
+          const brand = document.getElementById('addGlobalPrinterBrand').value.trim();
+          const price = parseFloat(document.getElementById('addGlobalPrinterPrice').value);
+          const lifespan = parseFloat(document.getElementById('addGlobalPrinterLifespan').value);
+          
+          if (!name || !brand || !price || !lifespan) {
+            await showNotification('Please fill in all fields.', 'Missing Information', 'ℹ️');
+            return;
+          }
+          
+          const newPrinter = {
+            name: name,
+            brand: brand,
+            price: price,
+            lifespan: lifespan,
+            costPerHour: price / lifespan
+          };
+          
+          printersRef.push(newPrinter)
+            .then(async () => {
+              await showNotification(`Global printer "${name}" has been added successfully.`, 'Success', '✅');
+              addGlobalPrinterModal.style.display = 'none';
+              renderPrintersList();
+            })
+            .catch(async (error) => {
+              await showNotification(`Error adding printer: ${error.message}`, 'Error', '❌');
+            });
+        });
+      }
+      
+      // Update depreciation on input change for add modal
+      const addPriceInput = document.getElementById('addGlobalPrinterPrice');
+      const addLifespanInput = document.getElementById('addGlobalPrinterLifespan');
+      if (addPriceInput) addPriceInput.addEventListener('input', updateAddGlobalPrinterDepreciation);
+      if (addLifespanInput) addLifespanInput.addEventListener('input', updateAddGlobalPrinterDepreciation);
+      
+      // Add Global Filament Modal
+      const addGlobalFilamentModal = document.getElementById('addGlobalFilamentModal');
+      const btnAddGlobalFilament = document.getElementById('btnAddGlobalFilament');
+      const closeAddGlobalFilamentX = document.getElementById('closeAddGlobalFilamentX');
+      const closeAddGlobalFilament = document.getElementById('closeAddGlobalFilament');
+      const saveAddGlobalFilament = document.getElementById('saveAddGlobalFilament');
+      
+      if (btnAddGlobalFilament) {
+        btnAddGlobalFilament.addEventListener('click', async () => {
+          if (currentUserTier !== 'admin') {
+            await showNotification('You need admin access to add global filaments.', 'Access Denied', '🔒');
+            return;
+          }
+          // Clear form
+          document.getElementById('addGlobalFilamentType').value = '';
+          document.getElementById('addGlobalFilamentBrand').value = '';
+          document.getElementById('addGlobalFilamentWeight').value = '1000';
+          document.getElementById('addGlobalFilamentCost').value = '';
+          document.getElementById('addGlobalFilamentCostPerG').textContent = '-';
+          addGlobalFilamentModal.style.display = 'grid';
+        });
+      }
+      
+      if (closeAddGlobalFilamentX) {
+        closeAddGlobalFilamentX.addEventListener('click', () => {
+          addGlobalFilamentModal.style.display = 'none';
+        });
+      }
+      
+      if (closeAddGlobalFilament) {
+        closeAddGlobalFilament.addEventListener('click', () => {
+          addGlobalFilamentModal.style.display = 'none';
+        });
+      }
+      
+      if (saveAddGlobalFilament) {
+        saveAddGlobalFilament.addEventListener('click', async () => {
+          const type = document.getElementById('addGlobalFilamentType').value.trim();
+          const brand = document.getElementById('addGlobalFilamentBrand').value.trim();
+          const weight = parseFloat(document.getElementById('addGlobalFilamentWeight').value);
+          const cost = parseFloat(document.getElementById('addGlobalFilamentCost').value);
+          
+          if (!type || !brand || !weight || !cost) {
+            await showNotification('Please fill in all fields.', 'Missing Information', 'ℹ️');
+            return;
+          }
+          
+          const newFilament = {
+            type: type,
+            brand: brand,
+            spoolWeight: weight,
+            spoolCost: cost,
+            costPerG: cost / weight
+          };
+          
+          filamentsRef.push(newFilament)
+            .then(async () => {
+              await showNotification(`Global filament "${type}" has been added successfully.`, 'Success', '✅');
+              addGlobalFilamentModal.style.display = 'none';
+              renderFilamentsList();
+            })
+            .catch(async (error) => {
+              await showNotification(`Error adding filament: ${error.message}`, 'Error', '❌');
+            });
+        });
+      }
+      
+      // Update cost per gram on input change for add modal
+      const addCostInput = document.getElementById('addGlobalFilamentCost');
+      const addWeightInput = document.getElementById('addGlobalFilamentWeight');
+      if (addCostInput) addCostInput.addEventListener('input', updateAddGlobalFilamentCostPerG);
+      if (addWeightInput) addWeightInput.addEventListener('input', updateAddGlobalFilamentCostPerG);
+    });
+
     // Check if user can perform calculation (tier limit)
     async function checkCalculationLimit() {
       const user = firebase.auth().currentUser;
@@ -2894,6 +4010,9 @@
         if (role === 'admin') {
           currentUserTier = 'admin';
         }
+        
+        // Update admin button visibility
+        updateAdminButtonsVisibility();
 
         // Get current month's calculation count
         const now = new Date();
@@ -3048,10 +4167,15 @@
       const failureRate = (parseFloat(document.getElementById('failureRate').value) || 0) / 100;
       const includePrinterDepreciation = document.getElementById('includePrinterDepreciation').checked;
 
-      // Calculate costs
-      const costPrinter = includePrinterDepreciation ? (printer.costPerHour * pt) : 0;
+      // Convert printer and filament costs from USD to selected currency
+      const userCurrency = window.currentCurrency || 'USD';
+      const printerCostInCurrency = userCurrency === 'USD' ? printer.costPerHour : convertFromUSD(printer.costPerHour, userCurrency);
+      const filamentCostInCurrency = userCurrency === 'USD' ? filament.costPerG : convertFromUSD(filament.costPerG, userCurrency);
+
+      // Calculate costs (all in user's selected currency)
+      const costPrinter = includePrinterDepreciation ? (printerCostInCurrency * pt) : 0;
       const costElectric = pt * electricityUsagePerHour * electricityPrice;
-      const costFilament = filament.costPerG * weight * filamentMarkup;
+      const costFilament = filamentCostInCurrency * weight * filamentMarkup;
       const costPostProcessing = postProcessingTime * postProcessingRate;
       const costPreparation = preparationTime * preparationRate;
       const costLabor = costPostProcessing + costPreparation;
@@ -3071,7 +4195,7 @@
       // Update UI
       document.getElementById('printerCost').textContent = money(costPrinter);
       document.getElementById('filamentCost').textContent = money(costFilament);
-      document.getElementById('filamentDetails').textContent = `${weight.toFixed(0)} g @ ${money(filament.costPerG)}/g × ${filamentMarkup.toFixed(2)}`;
+      document.getElementById('filamentDetails').textContent = `${weight.toFixed(0)} g @ ${money(filamentCostInCurrency)}/g × ${filamentMarkup.toFixed(2)}`;
       document.getElementById('electricityCost').textContent = money(costElectric);
       document.getElementById('electricityDetails').textContent = `${electricityUsagePerHour} kWh/h`;
       
@@ -3089,7 +4213,15 @@
       const hasLabor = (postProcessingRate > 0 && postProcessingTime > 0) || (preparationRate > 0 && preparationTime > 0);
       document.getElementById('handTimeNote').textContent = hasLabor ? `Total labor: ${totalHandTime.toFixed(2)} hours` : `Hand time: ${totalHandTime.toFixed(2)} hours (set labor rates to bill)`;
 
-      // Save calculation to history
+      // Save calculation to history (ALWAYS store in USD for consistency)
+      const currentCurrency = window.currentCurrency || 'USD';
+      
+      // Convert all costs back to USD before saving
+      const toUSD = (amount) => {
+        if (currentCurrency === 'USD') return amount;
+        return convertToUSD(amount, currentCurrency);
+      };
+      
       const calculationData = {
         printer: printer.name,
         printerBrand: printer.brand,
@@ -3097,23 +4229,24 @@
         filamentBrand: filament.brand,
         printTime: pt,
         weight: weight,
-        totalCost: finalPrice,
+        totalCost: toUSD(finalPrice), // Store in USD
+        calculatedInCurrency: currentCurrency, // Track what currency was used during calculation
         breakdown: {
-          printerCost: costPrinter,
-          filamentCost: costFilament,
-          electricityCost: costElectric,
-          laborCost: costLabor,
-          subtotal: subtotal,
-          markup: markupApplied,
-          failureAdjustment: failureAdjustment
+          printerCost: toUSD(costPrinter),
+          filamentCost: toUSD(costFilament),
+          electricityCost: toUSD(costElectric),
+          laborCost: toUSD(costLabor),
+          subtotal: toUSD(subtotal),
+          markup: toUSD(markupApplied),
+          failureAdjustment: toUSD(failureAdjustment)
         },
         parameters: {
-          electricityPrice,
+          electricityPrice: toUSD(electricityPrice),
           filamentMarkup,
           generalMarkup: generalMarkup * 100,
           failureRate: failureRate * 100,
-          postProcessingRate,
-          preparationRate,
+          postProcessingRate: toUSD(postProcessingRate),
+          preparationRate: toUSD(preparationRate),
           includePrinterDepreciation
         }
       };
@@ -3238,6 +4371,16 @@
           infoDiv.innerHTML = `<span style="color: #6b7280;">Login to track your calculations and access tier benefits</span>`;
         }
       }
+      
+      // Restore the last active tab after currency change reload
+      const savedTab = localStorage.getItem('activeCalculatorTab');
+      if (savedTab) {
+        localStorage.removeItem('activeCalculatorTab'); // Clear it after using
+        // Valid tab names: 'calculator', 'printers', 'filaments', 'userPresets'
+        if (['calculator', 'printers', 'filaments', 'userPresets'].includes(savedTab)) {
+          switchCalcTab(savedTab);
+        }
+      }
     }
 
     // Update calculation limits when user logs in/out
@@ -3274,6 +4417,52 @@
     // ==================== ORDERS FUNCTIONALITY ====================
     
     // Currency helper functions (wrappers for currency.js)
+    function getCurrencySymbol(currencyCode) {
+      const currencySymbols = {
+        'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥', 'CNY': '¥',
+        'CAD': '$', 'AUD': '$', 'CHF': 'Fr', 'INR': '₹', 'MXN': '$',
+        'BRL': 'R$', 'ZAR': 'R', 'KRW': '₩', 'SGD': '$', 'NZD': '$',
+        'SEK': 'kr', 'NOK': 'kr', 'DKK': 'kr', 'PLN': 'zł', 'THB': '฿',
+        'IDR': 'Rp', 'HUF': 'Ft', 'CZK': 'Kč', 'ILS': '₪', 'CLP': '$',
+        'PHP': '₱', 'AED': 'د.إ', 'SAR': '﷼', 'MYR': 'RM', 'RON': 'lei'
+      };
+      return currencySymbols[currencyCode] || '$';
+    }
+
+    function getCurrencyLabel(currencyCode) {
+      const currency = currencyCode || window.currentCurrency || 'USD';
+      const symbol = getCurrencySymbol(currency);
+      
+      // Consistent format for all currencies: "CAD ($)" or "EUR (€)"
+      return `${currency} (${symbol})`;
+    }
+
+    function convertToUSD(amount, sourceCurrency) {
+      const exchangeRates = {
+        'USD': 1.00, 'EUR': 0.92, 'GBP': 0.79, 'JPY': 149.50, 'CNY': 7.24,
+        'CAD': 1.36, 'AUD': 1.53, 'CHF': 0.88, 'INR': 83.12, 'MXN': 17.05,
+        'BRL': 4.98, 'ZAR': 18.35, 'KRW': 1342.50, 'SGD': 1.34, 'NZD': 1.65,
+        'SEK': 10.58, 'NOK': 10.72, 'DKK': 6.85, 'PLN': 3.96, 'THB': 35.48,
+        'IDR': 15420.00, 'HUF': 355.20, 'CZK': 22.95, 'ILS': 3.75, 'CLP': 945.50,
+        'PHP': 56.25, 'AED': 3.67, 'SAR': 3.75, 'MYR': 4.68, 'RON': 4.56
+      };
+      const rate = exchangeRates[sourceCurrency] || 1;
+      return amount / rate;
+    }
+
+    function convertFromUSD(amountUSD, targetCurrency) {
+      const exchangeRates = {
+        'USD': 1.00, 'EUR': 0.92, 'GBP': 0.79, 'JPY': 149.50, 'CNY': 7.24,
+        'CAD': 1.36, 'AUD': 1.53, 'CHF': 0.88, 'INR': 83.12, 'MXN': 17.05,
+        'BRL': 4.98, 'ZAR': 18.35, 'KRW': 1342.50, 'SGD': 1.34, 'NZD': 1.65,
+        'SEK': 10.58, 'NOK': 10.72, 'DKK': 6.85, 'PLN': 3.96, 'THB': 35.48,
+        'IDR': 15420.00, 'HUF': 355.20, 'CZK': 22.95, 'ILS': 3.75, 'CLP': 945.50,
+        'PHP': 56.25, 'AED': 3.67, 'SAR': 3.75, 'MYR': 4.68, 'RON': 4.56
+      };
+      const rate = exchangeRates[targetCurrency] || 1;
+      return amountUSD * rate;
+    }
+
     function getCurrencySymbolLocal() {
       return getCurrencySymbol(window.currentCurrency || 'USD');
     }
