@@ -11,7 +11,19 @@
       ".indexOn": ["membership/patreon/patronId"],
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
-        ".write": "auth != null && auth.uid == $uid"
+        ".write": "auth != null && auth.uid == $uid",
+        "printers": {
+          ".read": "auth != null && auth.uid == $uid",
+          ".write": false
+        },
+        "filaments": {
+          ".read": "auth != null && auth.uid == $uid",
+          ".write": false
+        },
+        "presets": {
+          ".read": "auth != null && auth.uid == $uid",
+          ".write": false
+        }
       }
     },
     "printers": {
@@ -29,25 +41,31 @@
     "userPrinters": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
-        ".write": "auth != null && auth.uid == $uid"
+        ".write": false
       }
     },
     "userFilaments": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
-        ".write": "auth != null && auth.uid == $uid"
+        ".write": false
       }
     },
     "userColors": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
-        ".write": "auth != null && auth.uid == $uid"
+        ".write": false
       }
     },
     "orders": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
-        ".write": "auth != null && auth.uid == $uid"
+        ".write": false
+      }
+    },
+    "orders_archive": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": false
       }
     },
     "models": {

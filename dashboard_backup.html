@@ -1492,24 +1492,6 @@
   </div>
 
   <script>
-    // Suppress ONLY classifier.js errors (from GitHub Copilot extension)
-    // This will NOT suppress errors from your actual code
-    window.addEventListener('error', function(e) {
-      const errorMsg = e.message || '';
-      const errorFile = e.filename || '';
-      const errorStack = (e.error && e.error.stack) || '';
-      
-      // Check if this is the classifier.js uuid error
-      if ((errorFile.includes('classifier.js') || errorStack.includes('classifier.js')) && 
-          errorMsg.includes('uuid')) {
-        console.warn('[Suppressed] External extension error from classifier.js');
-        e.stopPropagation();
-        e.preventDefault();
-        return true;
-      }
-      // Let all other errors through normally
-    }, true);
-
     // Use existing Firebase instance from auth.js
     // auth and db are already declared in the global scope by auth.js
     
@@ -2603,28 +2585,30 @@
       }
       
       const printerData = { brand, name, price, lifespan };
+      const userPrintersRef = firebase.database().ref(`users/${firebase.auth().currentUser.uid}/printers`);
       
-      // Use Cloud Function for secure printer preset saving
-      const savePrinterPresetFunc = firebase.functions().httpsCallable('savePrinterPreset');
-      const wasEditing = editingUserPrinterId !== null;
-      savePrinterPresetFunc({ 
-        printerData: printerData,
-        presetId: editingUserPrinterId 
-      })
-        .then((result) => {
-          if (result.data.success) {
+      if (editingUserPrinterId) {
+        userPrintersRef.child(editingUserPrinterId).update(printerData)
+          .then(() => {
             editingUserPrinterId = null;
             hideModal(printerModal);
-            alert(`"${brand} ${name}" has been ${wasEditing ? 'updated in' : 'added to'} your library!`);
-          } else {
-            printerErr.textContent = result.data.message || 'Error saving printer';
+            alert(`"${brand} ${name}" has been updated in your library.`);
+          })
+          .catch((error) => {
+            printerErr.textContent = 'Error updating printer: ' + error.message;
             printerErr.style.display = 'block';
-          }
-        })
-        .catch((error) => {
-          printerErr.textContent = 'Error saving printer: ' + error.message;
-          printerErr.style.display = 'block';
-        });
+          });
+      } else {
+        userPrintersRef.push(printerData)
+          .then(() => {
+            hideModal(printerModal);
+            alert(`"${brand} ${name}" has been added to your library!`);
+          })
+          .catch((error) => {
+            printerErr.textContent = 'Error saving printer: ' + error.message;
+            printerErr.style.display = 'block';
+          });
+      }
     }
 
     // Save user filament
@@ -2647,28 +2631,30 @@
       }
       
       const filamentData = { brand, type, spoolWeight, spoolCost };
+      const userFilamentsRef = firebase.database().ref(`users/${firebase.auth().currentUser.uid}/filaments`);
       
-      // Use Cloud Function for secure filament preset saving
-      const saveFilamentPresetFunc = firebase.functions().httpsCallable('saveFilamentPreset');
-      const wasEditing = editingUserFilamentId !== null;
-      saveFilamentPresetFunc({ 
-        filamentData: filamentData,
-        presetId: editingUserFilamentId 
-      })
-        .then((result) => {
-          if (result.data.success) {
+      if (editingUserFilamentId) {
+        userFilamentsRef.child(editingUserFilamentId).update(filamentData)
+          .then(() => {
             editingUserFilamentId = null;
             hideModal(filamentModal);
-            alert(`"${brand} - ${type}" has been ${wasEditing ? 'updated in' : 'added to'} your library!`);
-          } else {
-            filamentErr.textContent = result.data.message || 'Error saving filament';
+            alert(`"${brand} - ${type}" has been updated in your library.`);
+          })
+          .catch((error) => {
+            filamentErr.textContent = 'Error updating filament: ' + error.message;
             filamentErr.style.display = 'block';
-          }
-        })
-        .catch((error) => {
-          filamentErr.textContent = 'Error saving filament: ' + error.message;
-          filamentErr.style.display = 'block';
-        });
+          });
+      } else {
+        userFilamentsRef.push(filamentData)
+          .then(() => {
+            hideModal(filamentModal);
+            alert(`"${brand} - ${type}" has been added to your library!`);
+          })
+          .catch((error) => {
+            filamentErr.textContent = 'Error saving filament: ' + error.message;
+            filamentErr.style.display = 'block';
+          });
+      }
     }
 
     // Batch add printers functionality
@@ -5061,19 +5047,6 @@
       // Populate color picker
       setTimeout(() => {
         populateColorPicker();
-        
-        // Setup search filter
-        const searchInput = document.getElementById('colorSearchInput');
-        if (searchInput) {
-          searchInput.value = ''; // Clear search
-          // Remove old event listeners by cloning
-          const newSearchInput = searchInput.cloneNode(true);
-          searchInput.parentNode.replaceChild(newSearchInput, searchInput);
-          // Add new event listener
-          newSearchInput.addEventListener('input', (e) => {
-            populateColorPicker(e.target.value);
-          });
-        }
       }, 100);
       
       if (modal) {
@@ -5127,7 +5100,7 @@
     }
 
     // Populate color picker
-    function populateColorPicker(searchTerm = '') {
+    function populateColorPicker() {
       const grid = document.getElementById('colorSelectionGrid');
       if (!grid) return;
       
@@ -5136,57 +5109,38 @@
         ...Object.entries(userColorsData).map(([id, color]) => ({ ...color, id, source: 'user' }))
       ];
       
-      // Filter colors by search term
-      const filteredColors = searchTerm 
-        ? allColors.filter(color => color.name.toLowerCase().includes(searchTerm.toLowerCase().trim()))
-        : allColors;
-      
-      if (filteredColors.length === 0) {
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No colors found</p>';
+      if (allColors.length === 0) {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No colors available</p>';
         return;
       }
       
-      grid.innerHTML = filteredColors.map(color => {
-        const isSelected = selectedColors.some(c => c.hex === color.hex);
-        const selectedClass = isSelected ? ' selected' : '';
-        return `
-          <div class="color-option${selectedClass}" 
-               style="background-color: ${color.hex}; border-color: ${isSelected ? 'var(--purple)' : color.hex};" 
-               onclick="selectColor('${color.id}', '${color.name}', '${color.hex}')"
-               title="${color.name}">
-            <span class="color-option-label" style="color: ${getContrastColor(color.hex)};">
-              ${color.name.substring(0, 12)}
-            </span>
-          </div>
-        `;
-      }).join('');
+      grid.innerHTML = allColors.map(color => `
+        <div class="color-option" 
+             style="background-color: ${color.hex}; border-color: ${color.hex};" 
+             onclick="selectColor('${color.id}', '${color.name}', '${color.hex}')"
+             title="${color.name}">
+          <span class="color-option-label" style="color: ${getContrastColor(color.hex)};">
+            ${color.name.substring(0, 12)}
+          </span>
+        </div>
+      `).join('');
     }
 
     // Select color for order
     function selectColor(id, name, hex) {
-      // Check if already selected - if so, deselect
-      const existingIndex = selectedColors.findIndex(c => c.hex === hex);
-      if (existingIndex > -1) {
-        selectedColors.splice(existingIndex, 1);
-        updateSelectedColorsPreview();
-        updateColorHiddenInputs();
-        // Re-render with current search term
-        const searchInput = document.getElementById('colorSearchInput');
-        populateColorPicker(searchInput ? searchInput.value : '');
+      if (selectedColors.length >= 4) {
+        alert('Maximum 4 colors allowed');
         return;
       }
       
-      if (selectedColors.length >= 4) {
-        alert('Maximum 4 colors allowed');
+      if (selectedColors.some(c => c.hex === hex)) {
+        alert('Color already selected');
         return;
       }
       
       selectedColors.push({ id, name, hex });
       updateSelectedColorsPreview();
       updateColorHiddenInputs();
-      // Re-render with current search term
-      const searchInput = document.getElementById('colorSearchInput');
-      populateColorPicker(searchInput ? searchInput.value : '');
     }
 
     function updateSelectedColorsPreview() {
@@ -5205,9 +5159,6 @@
       selectedColors.splice(index, 1);
       updateSelectedColorsPreview();
       updateColorHiddenInputs();
-      // Re-render with current search term
-      const searchInput = document.getElementById('colorSearchInput');
-      populateColorPicker(searchInput ? searchInput.value : '');
     }
 
     function updateColorHiddenInputs() {
@@ -5240,6 +5191,7 @@
         }
         
         const orderData = {
+          date: Date.now(),
           orderTitle: document.getElementById('orderTitle').value.trim(),
           clientName: document.getElementById('clientName').value.trim(),
           clientEmail: document.getElementById('clientEmail').value.trim(),
@@ -5265,16 +5217,10 @@
         };
         
         try {
-          // Use Cloud Function for secure order creation
-          const createOrder = firebase.functions().httpsCallable('createOrder');
-          const result = await createOrder(orderData);
-          
-          if (result.data.success) {
-            alert('Order created successfully!');
-            closeNewOrderModal();
-          } else {
-            alert('Error creating order: ' + result.data.message);
-          }
+          const orderRef = firebase.database().ref(`orders/${currentUser.uid}`).push();
+          await orderRef.set(orderData);
+          alert('Order created successfully!');
+          closeNewOrderModal();
         } catch (error) {
           alert('Error creating order: ' + error.message);
         }
@@ -5294,41 +5240,34 @@
     }
 
     // Duplicate order
-    async function duplicateOrder(orderId) {
+    function duplicateOrder(orderId) {
       if (!confirm('Create a duplicate of this order?')) return;
       
-      try {
-        // Use Cloud Function for secure order duplication
-        const duplicateOrderFunc = firebase.functions().httpsCallable('duplicateOrder');
-        const result = await duplicateOrderFunc({ orderId: orderId });
-        
-        if (result.data.success) {
-          alert('Order duplicated successfully!');
-        } else {
-          alert('Error: ' + result.data.message);
-        }
-      } catch (error) {
-        alert('Error: ' + error.message);
-      }
+      const order = ordersData.find(o => o.id === orderId);
+      if (!order) return;
+      
+      const duplicatedOrder = {
+        ...order,
+        date: Date.now(),
+        orderStatus: 'pending',
+        paymentStatus: 'unpaid',
+        amountPaid: 0
+      };
+      
+      delete duplicatedOrder.id;
+      
+      firebase.database().ref(`orders/${currentUser.uid}`).push().set(duplicatedOrder)
+        .then(() => alert('Order duplicated successfully!'))
+        .catch(error => alert('Error: ' + error.message));
     }
 
     // Delete order
-    async function deleteOrder(orderId) {
+    function deleteOrder(orderId) {
       if (!confirm('Delete this order? This cannot be undone!')) return;
       
-      try {
-        // Use Cloud Function for secure order deletion
-        const deleteOrderFunc = firebase.functions().httpsCallable('deleteOrder');
-        const result = await deleteOrderFunc({ orderId: orderId });
-        
-        if (result.data.success) {
-          alert('Order deleted');
-        } else {
-          alert('Error: ' + result.data.message);
-        }
-      } catch (error) {
-        alert('Error: ' + error.message);
-      }
+      firebase.database().ref(`orders/${currentUser.uid}/${orderId}`).remove()
+        .then(() => alert('Order deleted'))
+        .catch(error => alert('Error: ' + error.message));
     }
 
   </script>

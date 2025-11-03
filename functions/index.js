@@ -812,3 +812,597 @@ exports.unlinkPatreonAccount = onCall(
       }
     },
 );
+
+// ============================================================================
+// ORDER MANAGEMENT FUNCTIONS
+// ============================================================================
+
+/**
+ * Create a new order with server-side validation
+ */
+exports.createOrder = onCall(
+    {cors: true},
+    async (request) => {
+      try {
+        // Verify user is authenticated
+        if (!request.auth) {
+          throw new HttpsError(
+              "unauthenticated",
+              "User must be authenticated to create orders",
+          );
+        }
+
+        const userId = request.auth.uid;
+        const orderData = request.data;
+
+        // Validate required fields
+        if (!orderData.orderTitle || !orderData.clientName) {
+          throw new HttpsError(
+              "invalid-argument",
+              "Order title and client name are required",
+          );
+        }
+
+        // Validate email format if provided
+        if (orderData.clientEmail) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(orderData.clientEmail)) {
+            throw new HttpsError(
+                "invalid-argument",
+                "Invalid email format",
+            );
+          }
+        }
+
+        // Validate numeric fields
+        const quantity = parseInt(orderData.quantity) || 1;
+        const total = parseFloat(orderData.total) || 0;
+        const amountPaid = parseFloat(orderData.amountPaid) || 0;
+
+        if (quantity < 1) {
+          throw new HttpsError(
+              "invalid-argument",
+              "Quantity must be at least 1",
+          );
+        }
+
+        if (total < 0 || amountPaid < 0) {
+          throw new HttpsError(
+              "invalid-argument",
+              "Amounts cannot be negative",
+          );
+        }
+
+        if (amountPaid > total) {
+          throw new HttpsError(
+              "invalid-argument",
+              "Amount paid cannot exceed total",
+          );
+        }
+
+        // Sanitize and structure the order
+        const sanitizedOrder = {
+          date: admin.database.ServerValue.TIMESTAMP,
+          createdAt: admin.database.ServerValue.TIMESTAMP,
+          orderTitle: String(orderData.orderTitle).trim().substring(0, 200),
+          clientName: String(orderData.clientName).trim().substring(0, 100),
+          clientEmail: orderData.clientEmail ?
+            String(orderData.clientEmail).trim().substring(0, 100) : "",
+          clientPhone: orderData.clientPhone ?
+            String(orderData.clientPhone).trim().substring(0, 50) : "",
+          clientStreet: orderData.clientStreet ?
+            String(orderData.clientStreet).trim().substring(0, 200) : "",
+          clientCity: orderData.clientCity ?
+            String(orderData.clientCity).trim().substring(0, 100) : "",
+          clientState: orderData.clientState ?
+            String(orderData.clientState).trim().substring(0, 100) : "",
+          clientPostalCode: orderData.clientPostalCode ?
+            String(orderData.clientPostalCode).trim().substring(0, 20) : "",
+          clientCountry: orderData.clientCountry ?
+            String(orderData.clientCountry).trim().substring(0, 100) : "",
+          messagingApp: orderData.messagingApp || "",
+          productName: orderData.productName ?
+            String(orderData.productName).trim().substring(0, 200) : "",
+          quantity: quantity,
+          colors: Array.isArray(orderData.colors) ?
+            orderData.colors.slice(0, 10).map((c) => String(c).trim()) : [],
+          material: orderData.material || "",
+          finish: orderData.finish || "",
+          scale: orderData.scale || "",
+          extraNotes: orderData.extraNotes ?
+            String(orderData.extraNotes).trim().substring(0, 1000) : "",
+          total: total,
+          amountPaid: amountPaid,
+          paymentMethod: orderData.paymentMethod || "",
+          paymentStatus: orderData.paymentStatus || "unpaid",
+          orderStatus: orderData.orderStatus || "pending",
+          userId: userId,
+        };
+
+        // Save to database
+        const orderRef = admin.database().ref(`orders/${userId}`).push();
+        await orderRef.set(sanitizedOrder);
+
+        console.log(`Order created: ${orderRef.key} for user ${userId}`);
+
+        return {
+          success: true,
+          orderId: orderRef.key,
+          message: "Order created successfully",
+        };
+      } catch (error) {
+        console.error("Error creating order:", error);
+        if (error instanceof HttpsError) {
+          throw error;
+        }
+        throw new HttpsError(
+            "internal",
+            "Failed to create order: " + error.message,
+        );
+      }
+    },
+);
+
+/**
+ * Update an existing order
+ */
+exports.updateOrder = onCall(
+    {cors: true},
+    async (request) => {
+      try {
+        if (!request.auth) {
+          throw new HttpsError(
+              "unauthenticated",
+              "User must be authenticated",
+          );
+        }
+
+        const userId = request.auth.uid;
+        const {orderId, updates} = request.data;
+
+        if (!orderId) {
+          throw new HttpsError(
+              "invalid-argument",
+              "Order ID is required",
+          );
+        }
+
+        // Verify order exists and belongs to user
+        const orderRef = admin.database().ref(`orders/${userId}/${orderId}`);
+        const snapshot = await orderRef.once("value");
+
+        if (!snapshot.exists()) {
+          throw new HttpsError(
+              "not-found",
+              "Order not found or access denied",
+          );
+        }
+
+        // Validate updates
+        const sanitizedUpdates = {};
+
+        if (updates.orderStatus) {
+          sanitizedUpdates.orderStatus = updates.orderStatus;
+        }
+        if (updates.paymentStatus) {
+          sanitizedUpdates.paymentStatus = updates.paymentStatus;
+        }
+        if (updates.amountPaid !== undefined) {
+          const amountPaid = parseFloat(updates.amountPaid);
+          if (amountPaid < 0) {
+            throw new HttpsError(
+                "invalid-argument",
+                "Amount paid cannot be negative",
+            );
+          }
+          sanitizedUpdates.amountPaid = amountPaid;
+        }
+        if (updates.extraNotes !== undefined) {
+          sanitizedUpdates.extraNotes =
+            String(updates.extraNotes).trim().substring(0, 1000);
+        }
+
+        sanitizedUpdates.updatedAt = admin.database.ServerValue.TIMESTAMP;
+
+        await orderRef.update(sanitizedUpdates);
+
+        console.log(`Order updated: ${orderId} for user ${userId}`);
+
+        return {
+          success: true,
+          message: "Order updated successfully",
+        };
+      } catch (error) {
+        console.error("Error updating order:", error);
+        if (error instanceof HttpsError) {
+          throw error;
+        }
+        throw new HttpsError(
+            "internal",
+            "Failed to update order: " + error.message,
+        );
+      }
+    },
+);
+
+/**
+ * Delete an order (soft delete - moves to archive)
+ */
+exports.deleteOrder = onCall(
+    {cors: true},
+    async (request) => {
+      try {
+        if (!request.auth) {
+          throw new HttpsError(
+              "unauthenticated",
+              "User must be authenticated",
+          );
+        }
+
+        const userId = request.auth.uid;
+        const {orderId} = request.data;
+
+        if (!orderId) {
+          throw new HttpsError(
+              "invalid-argument",
+              "Order ID is required",
+          );
+        }
+
+        // Verify order exists and belongs to user
+        const orderRef = admin.database().ref(`orders/${userId}/${orderId}`);
+        const snapshot = await orderRef.once("value");
+
+        if (!snapshot.exists()) {
+          throw new HttpsError(
+              "not-found",
+              "Order not found or access denied",
+          );
+        }
+
+        const orderData = snapshot.val();
+
+        // Archive the order before deletion
+        const archiveRef = admin.database()
+            .ref(`orders_archive/${userId}/${orderId}`);
+        await archiveRef.set({
+          ...orderData,
+          deletedAt: admin.database.ServerValue.TIMESTAMP,
+          deletedBy: userId,
+        });
+
+        // Remove from active orders
+        await orderRef.remove();
+
+        console.log(`Order deleted and archived: ${orderId} by user ${userId}`);
+
+        return {
+          success: true,
+          message: "Order deleted successfully",
+        };
+      } catch (error) {
+        console.error("Error deleting order:", error);
+        if (error instanceof HttpsError) {
+          throw error;
+        }
+        throw new HttpsError(
+            "internal",
+            "Failed to delete order: " + error.message,
+        );
+      }
+    },
+);
+
+/**
+ * Duplicate an existing order
+ */
+exports.duplicateOrder = onCall(
+    {cors: true},
+    async (request) => {
+      try {
+        if (!request.auth) {
+          throw new HttpsError(
+              "unauthenticated",
+              "User must be authenticated",
+          );
+        }
+
+        const userId = request.auth.uid;
+        const {orderId} = request.data;
+
+        if (!orderId) {
+          throw new HttpsError(
+              "invalid-argument",
+              "Order ID is required",
+          );
+        }
+
+        // Get the original order
+        const originalOrderRef =
+          admin.database().ref(`orders/${userId}/${orderId}`);
+        const snapshot = await originalOrderRef.once("value");
+
+        if (!snapshot.exists()) {
+          throw new HttpsError(
+              "not-found",
+              "Order not found or access denied",
+          );
+        }
+
+        const originalOrder = snapshot.val();
+
+        // Create duplicated order with reset fields
+        const duplicatedOrder = {
+          ...originalOrder,
+          date: admin.database.ServerValue.TIMESTAMP,
+          createdAt: admin.database.ServerValue.TIMESTAMP,
+          orderStatus: "pending",
+          paymentStatus: "unpaid",
+          amountPaid: 0,
+          duplicatedFrom: orderId,
+        };
+
+        // Save the duplicate
+        const newOrderRef = admin.database().ref(`orders/${userId}`).push();
+        await newOrderRef.set(duplicatedOrder);
+
+        console.log(`Order duplicated: ${orderId} -> ${newOrderRef.key}`);
+
+        return {
+          success: true,
+          orderId: newOrderRef.key,
+          message: "Order duplicated successfully",
+        };
+      } catch (error) {
+        console.error("Error duplicating order:", error);
+        if (error instanceof HttpsError) {
+          throw error;
+        }
+        throw new HttpsError(
+            "internal",
+            "Failed to duplicate order: " + error.message,
+        );
+      }
+    },
+);
+
+// ============================================================================
+// PRESET MANAGEMENT FUNCTIONS
+// ============================================================================
+
+/**
+ * Save printer preset
+ */
+exports.savePrinterPreset = onCall(
+    {cors: true},
+    async (request) => {
+      try {
+        if (!request.auth) {
+          throw new HttpsError(
+              "unauthenticated",
+              "User must be authenticated",
+          );
+        }
+
+        const userId = request.auth.uid;
+        const {printerData, presetId} = request.data;
+
+        if (!printerData || !printerData.name) {
+          throw new HttpsError(
+              "invalid-argument",
+              "Printer name is required",
+          );
+        }
+
+        // Check preset limit (max 50 printers per user)
+        if (!presetId) {
+          const existingPresetsRef =
+            admin.database().ref(`users/${userId}/printers`);
+          const snapshot = await existingPresetsRef.once("value");
+          const count = snapshot.numChildren();
+
+          if (count >= 50) {
+            throw new HttpsError(
+                "resource-exhausted",
+                "Maximum printer limit reached (50)",
+            );
+          }
+        }
+
+        // Sanitize printer data
+        const sanitizedPrinter = {
+          name: String(printerData.name).trim().substring(0, 100),
+          brand: printerData.brand ?
+            String(printerData.brand).trim().substring(0, 100) : "",
+          model: printerData.model ?
+            String(printerData.model).trim().substring(0, 100) : "",
+          buildVolume: printerData.buildVolume || "",
+          nozzleSize: printerData.nozzleSize || "",
+          maxTemp: printerData.maxTemp || "",
+          bedTemp: printerData.bedTemp || "",
+          printSpeed: printerData.printSpeed || "",
+          createdAt: admin.database.ServerValue.TIMESTAMP,
+        };
+
+        const userPrintersRef =
+          admin.database().ref(`users/${userId}/printers`);
+
+        if (presetId) {
+          // Update existing
+          await userPrintersRef.child(presetId).update(sanitizedPrinter);
+          console.log(`Printer preset updated: ${presetId} for user ${userId}`);
+        } else {
+          // Create new
+          const newPresetRef = await userPrintersRef.push(sanitizedPrinter);
+          console.log(`Printer preset created: ${newPresetRef.key}`);
+        }
+
+        return {
+          success: true,
+          message: presetId ?
+            "Printer updated successfully" :
+            "Printer added successfully",
+        };
+      } catch (error) {
+        console.error("Error saving printer preset:", error);
+        if (error instanceof HttpsError) {
+          throw error;
+        }
+        throw new HttpsError(
+            "internal",
+            "Failed to save printer preset: " + error.message,
+        );
+      }
+    },
+);
+
+/**
+ * Save filament preset
+ */
+exports.saveFilamentPreset = onCall(
+    {cors: true},
+    async (request) => {
+      try {
+        if (!request.auth) {
+          throw new HttpsError(
+              "unauthenticated",
+              "User must be authenticated",
+          );
+        }
+
+        const userId = request.auth.uid;
+        const {filamentData, presetId} = request.data;
+
+        if (!filamentData || !filamentData.name) {
+          throw new HttpsError(
+              "invalid-argument",
+              "Filament name is required",
+          );
+        }
+
+        // Check preset limit (max 50 filaments per user)
+        if (!presetId) {
+          const existingPresetsRef =
+            admin.database().ref(`users/${userId}/filaments`);
+          const snapshot = await existingPresetsRef.once("value");
+          const count = snapshot.numChildren();
+
+          if (count >= 50) {
+            throw new HttpsError(
+                "resource-exhausted",
+                "Maximum filament limit reached (50)",
+            );
+          }
+        }
+
+        // Sanitize filament data
+        const sanitizedFilament = {
+          name: String(filamentData.name).trim().substring(0, 100),
+          brand: filamentData.brand ?
+            String(filamentData.brand).trim().substring(0, 100) : "",
+          material: filamentData.material || "",
+          color: filamentData.color ?
+            String(filamentData.color).trim().substring(0, 50) : "",
+          diameter: filamentData.diameter || "",
+          weight: filamentData.weight || "",
+          pricePerKg: filamentData.pricePerKg ?
+            parseFloat(filamentData.pricePerKg) : 0,
+          printTemp: filamentData.printTemp || "",
+          bedTemp: filamentData.bedTemp || "",
+          createdAt: admin.database.ServerValue.TIMESTAMP,
+        };
+
+        const userFilamentsRef =
+          admin.database().ref(`users/${userId}/filaments`);
+
+        if (presetId) {
+          // Update existing
+          await userFilamentsRef.child(presetId).update(sanitizedFilament);
+          console.log(`Filament preset updated: ${presetId}`);
+        } else {
+          // Create new
+          const newPresetRef = await userFilamentsRef.push(sanitizedFilament);
+          console.log(`Filament preset created: ${newPresetRef.key}`);
+        }
+
+        return {
+          success: true,
+          message: presetId ?
+            "Filament updated successfully" :
+            "Filament added successfully",
+        };
+      } catch (error) {
+        console.error("Error saving filament preset:", error);
+        if (error instanceof HttpsError) {
+          throw error;
+        }
+        throw new HttpsError(
+            "internal",
+            "Failed to save filament preset: " + error.message,
+        );
+      }
+    },
+);
+
+/**
+ * Delete a preset (printer or filament)
+ */
+exports.deletePreset = onCall(
+    {cors: true},
+    async (request) => {
+      try {
+        if (!request.auth) {
+          throw new HttpsError(
+              "unauthenticated",
+              "User must be authenticated",
+          );
+        }
+
+        const userId = request.auth.uid;
+        const {presetId, presetType} = request.data;
+
+        if (!presetId || !presetType) {
+          throw new HttpsError(
+              "invalid-argument",
+              "Preset ID and type are required",
+          );
+        }
+
+        if (!["printers", "filaments", "presets"].includes(presetType)) {
+          throw new HttpsError(
+              "invalid-argument",
+              "Invalid preset type",
+          );
+        }
+
+        const presetRef =
+          admin.database().ref(`users/${userId}/${presetType}/${presetId}`);
+        const snapshot = await presetRef.once("value");
+
+        if (!snapshot.exists()) {
+          throw new HttpsError(
+              "not-found",
+              "Preset not found",
+          );
+        }
+
+        await presetRef.remove();
+
+        console.log(`Preset deleted: ${presetType}/${presetId}`);
+
+        return {
+          success: true,
+          message: "Preset deleted successfully",
+        };
+      } catch (error) {
+        console.error("Error deleting preset:", error);
+        if (error instanceof HttpsError) {
+          throw error;
+        }
+        throw new HttpsError(
+            "internal",
+            "Failed to delete preset: " + error.message,
+        );
+      }
+    },
+);
