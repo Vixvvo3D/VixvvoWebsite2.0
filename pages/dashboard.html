@@ -57,15 +57,15 @@
         </a>
       </li>
       <li>
-        <a href="#" class="nav-link" data-page="upload-model">
-          <span class="sidebar-icon"><img src="../images/Icons/Upload.svg" alt="Upload"></span>
-          <span>Upload Model</span>
-        </a>
-      </li>
-      <li>
         <a href="#" class="nav-link" data-page="orders">
           <span class="sidebar-icon"><img src="../images/Icons/ShoppingCart.svg" alt="Orders"></span>
           <span>Orders</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="nav-link" data-page="upload-model">
+          <span class="sidebar-icon"><img src="../images/Icons/Upload.svg" alt="Upload"></span>
+          <span>Upload Model</span>
         </a>
       </li>
       <li>
@@ -4171,9 +4171,14 @@
 
       const totalHandTime = postProcessingTime + preparationTime;
 
-      // Labor rates
-      const postProcessingRate = parseFloat(document.getElementById('postProcessingRate').value) || 0;
-      const preparationRate = parseFloat(document.getElementById('preparationRate').value) || 0;
+      // Labor rates (convert from user's currency to USD for calculation)
+      const postProcessingRateInput = parseFloat(document.getElementById('postProcessingRate').value) || 0;
+      const preparationRateInput = parseFloat(document.getElementById('preparationRate').value) || 0;
+      const postProcessingRate = convertToUSD(postProcessingRateInput, window.currentCurrency || 'USD');
+      const preparationRate = convertToUSD(preparationRateInput, window.currentCurrency || 'USD');
+
+      // Electricity price (convert from user's currency to USD)
+      const electricityPriceUSD = convertToUSD(electricityPrice, window.currentCurrency || 'USD');
 
       // Markups
       const filamentMarkup = parseFloat(document.getElementById('filamentMarkup').value) || 1;
@@ -4181,15 +4186,14 @@
       const failureRate = (parseFloat(document.getElementById('failureRate').value) || 0) / 100;
       const includePrinterDepreciation = document.getElementById('includePrinterDepreciation').checked;
 
-      // Convert printer and filament costs from USD to selected currency
-      const userCurrency = window.currentCurrency || 'USD';
-      const printerCostInCurrency = userCurrency === 'USD' ? printer.costPerHour : convertFromUSD(printer.costPerHour, userCurrency);
-      const filamentCostInCurrency = userCurrency === 'USD' ? filament.costPerG : convertFromUSD(filament.costPerG, userCurrency);
+      // Printer and filament costs are already in USD from Firebase
+      const printerCostPerHourUSD = printer.costPerHour;
+      const filamentCostPerGUSD = filament.costPerG;
 
-      // Calculate costs (all in user's selected currency)
-      const costPrinter = includePrinterDepreciation ? (printerCostInCurrency * pt) : 0;
-      const costElectric = pt * electricityUsagePerHour * electricityPrice;
-      const costFilament = filamentCostInCurrency * weight * filamentMarkup;
+      // Calculate costs (all in USD)
+      const costPrinter = includePrinterDepreciation ? (printerCostPerHourUSD * pt) : 0;
+      const costElectric = pt * electricityUsagePerHour * electricityPriceUSD;
+      const costFilament = filamentCostPerGUSD * weight * filamentMarkup;
       const costPostProcessing = postProcessingTime * postProcessingRate;
       const costPreparation = preparationTime * preparationRate;
       const costLabor = costPostProcessing + costPreparation;
@@ -4206,16 +4210,18 @@
       const markupApplied = subtotalWithMarkup - subtotalBeforeLabor;
       const failureAdjustment = priceAfterFailureRate - subtotalWithMarkup;
 
-      // Update UI
+      // Update UI (money() function converts from USD to current currency)
       document.getElementById('printerCost').textContent = money(costPrinter);
       document.getElementById('filamentCost').textContent = money(costFilament);
-      document.getElementById('filamentDetails').textContent = `${weight.toFixed(0)} g @ ${money(filamentCostInCurrency)}/g × ${filamentMarkup.toFixed(2)}`;
+      document.getElementById('filamentDetails').textContent = `${weight.toFixed(0)} g @ ${money(filamentCostPerGUSD)}/g × ${filamentMarkup.toFixed(2)}`;
       document.getElementById('electricityCost').textContent = money(costElectric);
       document.getElementById('electricityDetails').textContent = `${electricityUsagePerHour} kWh/h`;
       
       document.getElementById('laborCost').textContent = money(costLabor);
-      const postProcText = postProcessingTime > 0 ? `Post-Proc: ${postProcessingTime.toFixed(2)}h @ $${postProcessingRate.toFixed(2)}/h` : '';
-      const prepText = preparationTime > 0 ? `Prep: ${preparationTime.toFixed(2)}h @ $${preparationRate.toFixed(2)}/h` : '';
+      // Display the rates in user's current currency (the input values they entered)
+      const currencySymbol = getCurrencySymbol(window.currentCurrency || 'USD');
+      const postProcText = postProcessingTime > 0 ? `Post-Proc: ${postProcessingTime.toFixed(2)}h @ ${currencySymbol}${postProcessingRateInput.toFixed(2)}/h` : '';
+      const prepText = preparationTime > 0 ? `Prep: ${preparationTime.toFixed(2)}h @ ${currencySymbol}${preparationRateInput.toFixed(2)}/h` : '';
       const separator = postProcText && prepText ? ' | ' : '';
       document.getElementById('laborDetails').textContent = postProcText + separator + prepText || 'No labor time';
       
@@ -4227,14 +4233,8 @@
       const hasLabor = (postProcessingRate > 0 && postProcessingTime > 0) || (preparationRate > 0 && preparationTime > 0);
       document.getElementById('handTimeNote').textContent = hasLabor ? `Total labor: ${totalHandTime.toFixed(2)} hours` : `Hand time: ${totalHandTime.toFixed(2)} hours (set labor rates to bill)`;
 
-      // Save calculation to history (ALWAYS store in USD for consistency)
+      // Save calculation to history (costs are already in USD)
       const currentCurrency = window.currentCurrency || 'USD';
-      
-      // Convert all costs back to USD before saving
-      const toUSD = (amount) => {
-        if (currentCurrency === 'USD') return amount;
-        return convertToUSD(amount, currentCurrency);
-      };
       
       const calculationData = {
         printer: printer.name,
@@ -4243,24 +4243,24 @@
         filamentBrand: filament.brand,
         printTime: pt,
         weight: weight,
-        totalCost: toUSD(finalPrice), // Store in USD
-        calculatedInCurrency: currentCurrency, // Track what currency was used during calculation
+        totalCost: finalPrice, // Already in USD
+        calculatedInCurrency: currentCurrency, // Track what currency was displayed during calculation
         breakdown: {
-          printerCost: toUSD(costPrinter),
-          filamentCost: toUSD(costFilament),
-          electricityCost: toUSD(costElectric),
-          laborCost: toUSD(costLabor),
-          subtotal: toUSD(subtotal),
-          markup: toUSD(markupApplied),
-          failureAdjustment: toUSD(failureAdjustment)
+          printerCost: costPrinter,
+          filamentCost: costFilament,
+          electricityCost: costElectric,
+          laborCost: costLabor,
+          subtotal: subtotal,
+          markup: markupApplied,
+          failureAdjustment: failureAdjustment
         },
         parameters: {
-          electricityPrice: toUSD(electricityPrice),
+          electricityPrice: electricityPriceUSD,
           filamentMarkup,
           generalMarkup: generalMarkup * 100,
           failureRate: failureRate * 100,
-          postProcessingRate: toUSD(postProcessingRate),
-          preparationRate: toUSD(preparationRate),
+          postProcessingRate: postProcessingRate,
+          preparationRate: preparationRate,
           includePrinterDepreciation
         }
       };

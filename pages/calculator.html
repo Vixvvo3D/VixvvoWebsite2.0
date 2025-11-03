@@ -3803,17 +3803,21 @@
   function saveGlobalPrinter() {
     const name = document.getElementById('printerName').value.trim();
     const brand = document.getElementById('printerBrand').value.trim();
-    const price = parseFloat(document.getElementById('printerPrice').value);
+    const priceInCurrentCurrency = parseFloat(document.getElementById('printerPrice').value);
     const lifespan = parseInt(document.getElementById('printerLifespan').value);
     
-    if (!name || !brand || !price || price < 0 || !lifespan || lifespan < 1) {
+    if (!name || !brand || !priceInCurrentCurrency || priceInCurrentCurrency < 0 || !lifespan || lifespan < 1) {
       document.getElementById('printerErr').textContent = 'Please fill all fields correctly.';
       return;
     }
     
+    // Convert price from current currency to USD for storage
+    const priceInUSD = convertToUSD(priceInCurrentCurrency);
+    console.log(`Converting printer price: ${priceInCurrentCurrency} ${currentCurrency} → ${priceInUSD} USD`);
+    
     if (editingPrinterId) {
       // Update existing printer
-      printersRef.child(editingPrinterId).update({ name, brand, price, lifespan })
+      printersRef.child(editingPrinterId).update({ name, brand, price: priceInUSD, lifespan })
         .then(() => {
           editingPrinterId = null;
           hideModal(printerModal);
@@ -3825,7 +3829,7 @@
         });
     } else {
       // Add new printer
-      printersRef.push({ name, brand, price, lifespan })
+      printersRef.push({ name, brand, price: priceInUSD, lifespan })
         .then(() => {
           hideModal(printerModal);
           document.getElementById('printerErr').textContent = '';
@@ -3941,7 +3945,12 @@
     document.getElementById('printerName').readOnly = false;
     document.getElementById('printerBrand').value = printer.brand;
     document.getElementById('printerBrand').readOnly = false;
-    document.getElementById('printerPrice').value = printer.price;
+    
+    // Convert price from USD to current currency for display
+    const priceInUSD = printer.price;
+    const priceInCurrentCurrency = convertCurrency(priceInUSD);
+    document.getElementById('printerPrice').value = priceInCurrentCurrency.toFixed(2);
+    
     document.getElementById('printerLifespan').value = printer.lifespan;
     document.getElementById('printerQuickAdd').value = '';
     document.getElementById('printerErr').textContent = '';
@@ -4747,16 +4756,20 @@
     const type = document.getElementById('filamentType').value.trim();
     const brand = document.getElementById('filamentBrand').value.trim();
     const spoolWeight = parseInt(document.getElementById('filamentSpoolWeight').value);
-    const spoolCost = parseFloat(document.getElementById('filamentCostSpool').value);
+    const spoolCostInCurrentCurrency = parseFloat(document.getElementById('filamentCostSpool').value);
     
-    if (!type || !brand || !spoolWeight || spoolWeight < 1 || !spoolCost || spoolCost < 0) {
+    if (!type || !brand || !spoolWeight || spoolWeight < 1 || !spoolCostInCurrentCurrency || spoolCostInCurrentCurrency < 0) {
       document.getElementById('filamentErr').textContent = 'Please fill all fields correctly.';
       return;
     }
     
+    // Convert spool cost from current currency to USD for storage
+    const spoolCostInUSD = convertToUSD(spoolCostInCurrentCurrency);
+    console.log(`Converting filament cost: ${spoolCostInCurrentCurrency} ${currentCurrency} → ${spoolCostInUSD} USD`);
+    
     if (editingFilamentId) {
       // Update existing filament
-      filamentsRef.child(editingFilamentId).update({ type, brand, spoolWeight, spoolCost })
+      filamentsRef.child(editingFilamentId).update({ type, brand, spoolWeight, spoolCost: spoolCostInUSD })
         .then(() => {
           editingFilamentId = null;
           hideModal(filamentModal);
@@ -4768,7 +4781,7 @@
         });
     } else {
       // Add new filament
-      filamentsRef.push({ type, brand, spoolWeight, spoolCost })
+      filamentsRef.push({ type, brand, spoolWeight, spoolCost: spoolCostInUSD })
         .then(() => {
           hideModal(filamentModal);
           document.getElementById('filamentErr').textContent = '';
@@ -4885,7 +4898,12 @@
     document.getElementById('filamentBrand').value = filament.brand;
     document.getElementById('filamentBrand').readOnly = false;
     document.getElementById('filamentSpoolWeight').value = filament.spoolWeight;
-    document.getElementById('filamentCostSpool').value = filament.spoolCost;
+    
+    // Convert spool cost from USD to current currency for display
+    const spoolCostInUSD = filament.spoolCost;
+    const spoolCostInCurrentCurrency = convertCurrency(spoolCostInUSD);
+    document.getElementById('filamentCostSpool').value = spoolCostInCurrentCurrency.toFixed(2);
+    
     document.getElementById('filamentQuickAdd').value = '';
     document.getElementById('filamentErr').textContent = '';
     
@@ -5479,7 +5497,7 @@
     // Get all values
     const pt = parseFloat(document.getElementById('printTime').value) || 0;
     const weight = parseFloat(document.getElementById('weight').value) || 0;
-    const electricityPrice = parseFloat(document.getElementById('elec').value) || 0.12;
+    const electricityPriceInput = parseFloat(document.getElementById('elec').value) || 0.12;
     const electricityUsagePerHour = 0.1; // kWh/h
 
     // Post-processing (minutes to hours)
@@ -5502,6 +5520,9 @@
     const preparationRateInput = parseFloat(document.getElementById('preparationRate').value) || 0;
     const postProcessingRate = convertToUSD(postProcessingRateInput);
     const preparationRate = convertToUSD(preparationRateInput);
+    
+    // Electricity price should also be converted to USD for consistent calculation
+    const electricityPrice = convertToUSD(electricityPriceInput);
 
     // Markups
     const filamentMarkup = parseFloat(document.getElementById('filamentMarkup').value) || 1;
@@ -5521,6 +5542,16 @@
     const costPreparation = preparationTime * preparationRate;
     const costLabor = costPostProcessing + costPreparation;
     
+    // Debug logging
+    console.log('=== CALCULATION DEBUG ===');
+    console.log('Current Currency:', currentCurrency);
+    console.log('Electricity Price Input:', electricityPriceInput, currentCurrency);
+    console.log('Electricity Price USD:', electricityPrice, 'USD');
+    console.log('Cost Printer (USD):', costPrinter);
+    console.log('Cost Electric (USD):', costElectric);
+    console.log('Cost Filament (USD):', costFilament);
+    console.log('Cost Labor (USD):', costLabor);
+    
     // Subtotal WITHOUT labor (labor is added after markup/failure rate)
     const subtotalBeforeLabor = costPrinter + costFilament + costElectric;
     const subtotalWithMarkup = subtotalBeforeLabor * (1 + generalMarkup);
@@ -5528,6 +5559,11 @@
     
     // Add labor AFTER markup and failure rate
     const finalPrice = priceAfterFailureRate + costLabor;
+    
+    console.log('Subtotal (USD):', subtotalBeforeLabor);
+    console.log('Final Price (USD):', finalPrice);
+    console.log('Final Price Converted:', convertCurrency(finalPrice), currentCurrency);
+    console.log('========================');
     
     const subtotal = subtotalBeforeLabor; // Display subtotal without labor
     const markupApplied = subtotalWithMarkup - subtotalBeforeLabor;
