@@ -11,6 +11,26 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-functions-compat.js"></script>
 
+<!-- Initialize Firebase -->
+<script>
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyCYhe3cD0b1sYErXMlYmXpH6mxHcXB6mNY",
+    authDomain: "testvix-8e5b4.firebaseapp.com",
+    databaseURL: "https://testvix-8e5b4-default-rtdb.firebaseio.com",
+    projectId: "testvix-8e5b4",
+    storageBucket: "testvix-8e5b4.firebasestorage.app",
+    messagingSenderId: "1015945949026",
+    appId: "1:1015945949026:web:8e11f8e7f0e0aff6c4fa9d"
+  };
+
+  // Initialize Firebase
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+    console.log('Firebase initialized successfully');
+  }
+</script>
+
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/shared-styles.css">
@@ -2145,7 +2165,13 @@
     // Suppress ONLY classifier.js errors (from GitHub Copilot extension)
     // This will NOT suppress errors from your actual code
     window.addEventListener('error', function(e) {
-      if (e.filename && e.filename.includes('classifier.js') && e.message && e.message.includes('uuid')) {
+      const errorMsg = e.message || '';
+      const errorFile = e.filename || '';
+      const errorStack = (e.error && e.error.stack) || '';
+      
+      // Check if this is the classifier.js uuid error
+      if ((errorFile.includes('classifier.js') || errorStack.includes('classifier.js')) && 
+          errorMsg.includes('uuid')) {
         console.warn('[Suppressed] External extension error from classifier.js');
         e.stopPropagation();
         e.preventDefault();
@@ -2154,7 +2180,8 @@
       // Let all other errors through normally
     }, true);
 
-    // Firebase and currentUser are initialized by auth.js (loaded in head)
+    // Global current user variable
+    let currentUser = null;
     
     // Filament data storage
     let filamentsData = {};
@@ -2184,23 +2211,25 @@
         });
       });
 
-      // Initialize user avatar
+      // Initialize user avatar and set currentUser
       const userAvatar = document.getElementById('user-avatar');
-      firebase.auth().onAuthStateChanged((user) => {
+      firebase.auth().onAuthStateChanged(async (user) => {
+        // Set global currentUser variable
+        currentUser = user;
+        
         if (user && userAvatar) {
           // Get first letter of email or display name
           const initial = user.displayName 
             ? user.displayName.charAt(0).toUpperCase()
             : user.email.charAt(0).toUpperCase();
           userAvatar.textContent = initial;
-        }
-      });
-      
-      // Add a listener to auth state changes to load orders, filaments, and colors
-      firebase.auth().onAuthStateChanged(async (user) => {
-        // Load currency first if user is logged in
-        if (user) {
+          
+          console.log('Orders: Auth state changed: Logged in as', user.email);
+          
+          // Load currency first if user is logged in
           await loadSavedCurrency(user);
+        } else {
+          console.log('Orders: Auth state changed: Logged out');
         }
         // Then load orders with correct currency
         loadOrders();
@@ -3615,38 +3644,6 @@
       ordersContent.innerHTML = tableHTML;
     }
 
-    // Update order status from table dropdown
-    function updateOrderStatus(orderId, newStatus) {
-      if (!currentUser) return;
-      
-      const orderRef = firebase.database().ref('orders/' + currentUser.uid + '/' + orderId);
-      
-      orderRef.update({ status: newStatus })
-        .then(() => {
-          showNotification(`Status changed to ${newStatus}!`, 'success');
-          loadOrders(); // Refresh the table to re-sort
-        })
-        .catch((error) => {
-          showNotification('Error updating status: ' + error.message, 'error');
-        });
-    }
-
-    // Update payment status from table dropdown
-    function updatePaymentStatus(orderId, newPaymentStatus) {
-      if (!currentUser) return;
-      
-      const orderRef = firebase.database().ref('orders/' + currentUser.uid + '/' + orderId);
-      
-      orderRef.update({ paymentStatus: newPaymentStatus })
-        .then(() => {
-          showNotification(`Payment status changed to ${newPaymentStatus.replace('-', ' ')}!`, 'success');
-          loadOrders(); // Refresh the table
-        })
-        .catch((error) => {
-          showNotification('Error updating payment status: ' + error.message, 'error');
-        });
-    }
-
     // Generate alphanumeric order ID (letters and numbers only)
     async function generateUniqueOrderId() {
       if (!currentUser) return null;
@@ -5017,5 +5014,8 @@
       hideLoadingOverlay();
     }, 5000);
   </script>
+
+  <!-- Orders management functionality -->
+  <script src="../js/orders.js" defer></script>
 </body>
 </html>
