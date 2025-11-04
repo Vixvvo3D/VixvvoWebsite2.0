@@ -5,6 +5,7 @@
   const modal = document.getElementById('modal');
   const signupModal = document.getElementById('signupModal');
   const verificationModal = document.getElementById('verificationModal');
+  const resetPasswordModal = document.getElementById('resetPasswordModal');
   
   if (!modal || !signupModal) {
     // Modals might not be loaded yet if loaded dynamically
@@ -22,10 +23,18 @@
     clearSignupForm();
   };
 
+  window.openResetPasswordModal = function() {
+    if (resetPasswordModal) {
+      resetPasswordModal.style.display = 'grid';
+      clearResetPasswordForm();
+    }
+  };
+
   window.closeAllModals = function() {
     modal.style.display = 'none';
     signupModal.style.display = 'none';
     if (verificationModal) verificationModal.style.display = 'none';
+    if (resetPasswordModal) resetPasswordModal.style.display = 'none';
   };
 
   // Clear form functions
@@ -51,6 +60,21 @@
     }
   }
 
+  function clearResetPasswordForm() {
+    const resetEmail = document.getElementById('resetEmail');
+    if (resetEmail) resetEmail.value = '';
+    const resetErr = document.getElementById('resetErr');
+    if (resetErr) {
+      resetErr.textContent = '';
+      resetErr.style.display = 'none';
+    }
+    const resetSuccess = document.getElementById('resetSuccess');
+    if (resetSuccess) {
+      resetSuccess.textContent = '';
+      resetSuccess.style.display = 'none';
+    }
+  }
+
   // Close buttons
   document.getElementById('doClose').addEventListener('click', function(e) {
     e.preventDefault();
@@ -61,6 +85,15 @@
     e.preventDefault();
     closeAllModals();
   });
+
+  // Reset password modal close button
+  const doResetClose = document.getElementById('doResetClose');
+  if (doResetClose) {
+    doResetClose.addEventListener('click', function(e) {
+      e.preventDefault();
+      closeAllModals();
+    });
+  }
 
   // Switch between login and signup
   document.getElementById('signUpLink').addEventListener('click', function(e) {
@@ -76,6 +109,30 @@
     modal.style.display = 'grid';
     clearLoginForm();
   });
+
+  // Forgot password link
+  const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+  if (forgotPasswordLink) {
+    forgotPasswordLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      modal.style.display = 'none';
+      if (resetPasswordModal) {
+        resetPasswordModal.style.display = 'grid';
+        clearResetPasswordForm();
+      }
+    });
+  }
+
+  // Back to login from reset password
+  const backToLoginFromReset = document.getElementById('backToLoginFromReset');
+  if (backToLoginFromReset) {
+    backToLoginFromReset.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (resetPasswordModal) resetPasswordModal.style.display = 'none';
+      modal.style.display = 'grid';
+      clearLoginForm();
+    });
+  }
 
   // Click outside modal to close
   modal.addEventListener('click', function(e) {
@@ -93,6 +150,14 @@
   if (verificationModal) {
     verificationModal.addEventListener('click', function(e) {
       if (e.target.id === 'verificationModal') {
+        closeAllModals();
+      }
+    });
+  }
+
+  if (resetPasswordModal) {
+    resetPasswordModal.addEventListener('click', function(e) {
+      if (e.target.id === 'resetPasswordModal') {
         closeAllModals();
       }
     });
@@ -236,12 +301,64 @@
     }
   });
 
+  // Reset password form submission
+  const resetPasswordForm = document.getElementById('resetPasswordForm');
+  if (resetPasswordForm) {
+    resetPasswordForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('resetEmail').value.trim();
+      const resetErr = document.getElementById('resetErr');
+      const resetSuccess = document.getElementById('resetSuccess');
+      const resetBtn = document.getElementById('doResetPassword');
+      
+      if (!email) {
+        resetErr.textContent = 'Please enter your email address';
+        resetErr.style.display = 'block';
+        resetSuccess.style.display = 'none';
+        return;
+      }
+      
+      // Disable button during request
+      resetBtn.disabled = true;
+      resetBtn.textContent = 'Sending...';
+      resetErr.style.display = 'none';
+      resetSuccess.style.display = 'none';
+      
+      try {
+        const result = await window.vixvvoAuth.resetPassword(email);
+        
+        if (result.success) {
+          resetSuccess.textContent = result.message;
+          resetSuccess.style.display = 'block';
+          document.getElementById('resetEmail').value = '';
+          
+          // Close modal after 3 seconds
+          setTimeout(() => {
+            closeAllModals();
+          }, 3000);
+        } else {
+          resetErr.textContent = result.error;
+          resetErr.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Reset password error:', error);
+        resetErr.textContent = 'An error occurred. Please try again.';
+        resetErr.style.display = 'block';
+      } finally {
+        resetBtn.disabled = false;
+        resetBtn.textContent = 'Send Reset Link';
+      }
+    });
+  }
+
   // Verification code handling
   if (verificationModal) {
     const codeInputs = ['code1', 'code2', 'code3', 'code4', 'code5', 'code6'];
     
     codeInputs.forEach((id, index) => {
       const input = document.getElementById(id);
+      if (!input) return; // Skip if element doesn't exist
       
       input.addEventListener('input', function(e) {
         // Only allow numbers
@@ -249,20 +366,24 @@
         
         // Auto-focus next input
         if (this.value.length === 1 && index < codeInputs.length - 1) {
-          document.getElementById(codeInputs[index + 1]).focus();
+          const nextInput = document.getElementById(codeInputs[index + 1]);
+          if (nextInput) nextInput.focus();
         }
       });
       
       input.addEventListener('keydown', function(e) {
         // Handle backspace
         if (e.key === 'Backspace' && !this.value && index > 0) {
-          document.getElementById(codeInputs[index - 1]).focus();
+          const prevInput = document.getElementById(codeInputs[index - 1]);
+          if (prevInput) prevInput.focus();
         }
       });
     });
     
     // Verify button
-    document.getElementById('doVerify').addEventListener('click', async function() {
+    const doVerifyBtn = document.getElementById('doVerify');
+    if (doVerifyBtn) {
+      doVerifyBtn.addEventListener('click', async function() {
       const code = codeInputs.map(id => document.getElementById(id).value).join('');
       const verifyErr = document.getElementById('verifyErr');
       const verifyBtn = this;
@@ -310,10 +431,13 @@
         verifyBtn.disabled = false;
         verifyBtn.textContent = 'Verify & Create Account';
       }
-    });
+      });
+    }
     
     // Resend code
-    document.getElementById('resendCode').addEventListener('click', async function() {
+    const resendCodeBtn = document.getElementById('resendCode');
+    if (resendCodeBtn) {
+      resendCodeBtn.addEventListener('click', async function() {
       const btn = this;
       btn.disabled = true;
       btn.textContent = 'Sending...';
@@ -342,16 +466,24 @@
           btn.disabled = false;
         }, 3000);
       }
-    });
+      });
+    }
     
     // Back to signup
-    document.getElementById('backToSignup').addEventListener('click', function(e) {
-      e.preventDefault();
-      verificationModal.style.display = 'none';
-      signupModal.style.display = 'grid';
-      // Clear code inputs
-      codeInputs.forEach(id => document.getElementById(id).value = '');
-    });
+    const backToSignupBtn = document.getElementById('backToSignup');
+    if (backToSignupBtn && verificationModal) {
+      backToSignupBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        verificationModal.style.display = 'none';
+        signupModal.style.display = 'grid';
+        // Clear code inputs
+        const codeInputs = ['code1', 'code2', 'code3', 'code4', 'code5', 'code6'];
+        codeInputs.forEach(id => {
+          const input = document.getElementById(id);
+          if (input) input.value = '';
+        });
+      });
+    }
   }
 
   // Verification timer

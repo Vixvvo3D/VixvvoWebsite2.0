@@ -2318,7 +2318,7 @@
 
   <!-- Login Modal -->
   <div id="overlay" style="display: none;"></div>
-  <div id="modal" style="background: rgba(0,0,0,.7);">
+  <div id="modal" style="position: fixed; inset: 0; z-index: 300; place-items: center; background: rgba(0,0,0,.7); display: none;">
     <div class="modal-card">
       <h3>Login</h3>
       <label>Email</label>
@@ -2343,7 +2343,7 @@
   </div>
 
   <!-- Sign Up Modal -->
-  <div id="signupModal" style="display: none; background: rgba(0,0,0,.7);">
+  <div id="signupModal" style="position: fixed; inset: 0; z-index: 300; place-items: center; background: rgba(0,0,0,.7); display: none;">
     <div class="modal-card">
       <h3>Sign Up</h3>
       <label>Username</label>
@@ -2372,7 +2372,7 @@
   </div>
 
   <!-- Email Verification Modal -->
-  <div id="verificationModal" style="display: none; position: fixed; inset: 0; z-index: 300; place-items: center; background: rgba(0,0,0,.7);">
+  <div id="verificationModal" style="position: fixed; inset: 0; z-index: 300; place-items: center; background: rgba(0,0,0,.7); display: none;">
     <div class="modal-card" style="max-width: 500px;">
       <h3>Verify Your Email</h3>
       <p style="color: var(--text-muted); margin-bottom: 24px;">
@@ -2401,6 +2401,27 @@
       
       <div style="text-align: center; margin-top: 16px;">
         <a href="#" id="backToSignup" style="color: var(--purple); text-decoration: none; font-size: 14px;">← Back to Sign Up</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset Password Modal -->
+  <div id="resetPasswordModal" style="position: fixed; inset: 0; z-index: 300; place-items: center; background: rgba(0,0,0,.7); display: none;">
+    <div class="modal-card">
+      <h3>Reset Password</h3>
+      <p style="color: var(--text-muted); margin-bottom: 24px;">
+        Enter your email address and we'll send you a link to reset your password.
+      </p>
+      <label>Email</label>
+      <input id="resetEmail" type="email" placeholder="your@email.com">
+      <div id="resetErr" class="err" style="display: none;"></div>
+      <div id="resetSuccess" style="display: none; color: #51cf66; font-size: 13px; margin: 12px 0; padding: 10px; background: rgba(81, 207, 102, 0.1); border-radius: 8px; border-left: 3px solid #51cf66;"></div>
+      <div class="modal-buttons">
+        <button id="doResetPassword" class="btn btn-primary">Send Reset Link</button>
+        <button id="doResetClose" class="btn btn-ghost">Cancel</button>
+      </div>
+      <div style="text-align: center; margin-top: 16px;">
+        <a href="#" id="backToLoginFromReset" style="color: var(--purple); text-decoration: none; font-size: 14px;">← Back to Login</a>
       </div>
     </div>
   </div>
@@ -2454,8 +2475,8 @@
             // User is logged in - go to dashboard
             window.location.href = 'pages/dashboard.html';
           } else {
-            // User is logged out - open signup modal
-            signupModal.style.display = 'grid';
+            // User is logged out - go to pricing page
+            window.location.href = 'pages/pricing.html';
           }
         });
       }
@@ -2571,34 +2592,90 @@
     }
   };
 
-  /* Forgot Password */
+  /* Forgot Password - Reset Password Modal Handlers */
+  const resetPasswordModal = document.getElementById('resetPasswordModal');
+  
+  // Open reset password modal
   document.getElementById('forgotPasswordLink').onclick = (e) => {
     e.preventDefault();
-    const email = document.getElementById('loginEmail').value.trim();
+    modal.style.display = 'none';
+    resetPasswordModal.style.display = 'grid';
+    document.getElementById('resetEmail').value = '';
+    document.getElementById('resetErr').textContent = '';
+    document.getElementById('resetErr').style.display = 'none';
+    document.getElementById('resetSuccess').textContent = '';
+    document.getElementById('resetSuccess').style.display = 'none';
+  };
+
+  // Back to login from reset password
+  document.getElementById('backToLoginFromReset').onclick = (e) => {
+    e.preventDefault();
+    resetPasswordModal.style.display = 'none';
+    modal.style.display = 'grid';
+  };
+
+  // Close reset password modal
+  document.getElementById('doResetClose').onclick = (e) => {
+    e.preventDefault();
+    resetPasswordModal.style.display = 'none';
+  };
+
+  // Click outside reset password modal to close
+  resetPasswordModal.onclick = (e) => {
+    if (e.target.id === 'resetPasswordModal') {
+      resetPasswordModal.style.display = 'none';
+    }
+  };
+
+  // Send password reset email - Fixed with preventDefault
+  document.getElementById('doResetPassword').onclick = async (e) => {
+    e.preventDefault(); // CRITICAL: Prevent default button behavior
+    
+    const email = document.getElementById('resetEmail').value.trim();
+    const resetErr = document.getElementById('resetErr');
+    const resetSuccess = document.getElementById('resetSuccess');
+    const resetBtn = document.getElementById('doResetPassword');
     
     if (!email) {
-      document.getElementById('loginErr').textContent = 'Please enter your email address first.';
+      resetErr.textContent = 'Please enter your email address.';
+      resetErr.style.display = 'block';
+      resetSuccess.style.display = 'none';
       return;
     }
 
-    showConfirm(`Send password reset email to ${email}?`, '', 'Reset Password').then((confirmed) => {
-      if (confirmed) {
-        auth.sendPasswordResetEmail(email)
-          .then(() => {
-            showNotification('Password reset email sent! Check your inbox.', '', 'Email Sent');
-            document.getElementById('loginErr').textContent = '';
-          })
-          .catch((error) => {
-            if (error.code === 'auth/user-not-found') {
-              document.getElementById('loginErr').textContent = 'No account found with this email.';
-            } else if (error.code === 'auth/invalid-email') {
-              document.getElementById('loginErr').textContent = 'Invalid email address.';
-            } else {
-              document.getElementById('loginErr').textContent = 'Error: ' + error.message;
-            }
-          });
+    // Disable button during request
+    resetBtn.disabled = true;
+    resetBtn.textContent = 'Sending...';
+    resetErr.style.display = 'none';
+    resetSuccess.style.display = 'none';
+
+    try {
+      await auth.sendPasswordResetEmail(email);
+      resetSuccess.textContent = 'Password reset email sent! Check your inbox for instructions.';
+      resetSuccess.style.display = 'block';
+      document.getElementById('resetEmail').value = '';
+      
+      // Close modal after 3 seconds
+      setTimeout(() => {
+        resetPasswordModal.style.display = 'none';
+      }, 3000);
+    } catch (error) {
+      let message = 'Failed to send reset email. Please try again.';
+      
+      if (error.code === 'auth/user-not-found') {
+        message = 'No account found with this email address.';
+      } else if (error.code === 'auth/invalid-email') {
+        message = 'Invalid email address.';
+      } else if (error.code === 'auth/too-many-requests') {
+        message = 'Too many requests. Please try again later.';
       }
-    });
+      
+      resetErr.textContent = message;
+      resetErr.style.display = 'block';
+    } finally {
+      resetBtn.disabled = false;
+      resetBtn.textContent = 'Send Reset Link';
+    }
   };
 
   // Store signup data temporarily

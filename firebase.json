@@ -7,12 +7,38 @@
   },
   "hosting": {
     "public": ".",
+    "cleanUrls": true,
+    "trailingSlash": false,
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
     "rewrites": [
+      {
+        "source": "/dashboard",
+        "destination": "/dashboard.html"
+      },
+      {
+        "source": "/app",
+        "destination": "/dashboard.html"
+      },
+      {
+        "source": "/calculator",
+        "destination": "/pages/calculator.html"
+      },
+      {
+        "source": "/orders",
+        "destination": "/pages/orders.html"
+      },
+      {
+        "source": "/settings",
+        "destination": "/pages/settings.html"
+      },
+      {
+        "source": "/upload",
+        "destination": "/pages/upload-model.html"
+      },
       {
         "source": "**",
         "destination": "/index.html"

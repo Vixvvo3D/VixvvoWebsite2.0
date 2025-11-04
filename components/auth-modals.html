@@ -136,3 +136,30 @@
     </div>
   </div>
 </div>
+
+<!-- Password Reset Modal -->
+<div id="resetPasswordModal" style="display: none;">
+  <div class="modal-card">
+    <img src="../images/Transparent Vixvvo Logo 2.0.png" alt="Vixvvo" class="modal-logo">
+    <h3>Reset Password</h3>
+    <p class="modal-subtitle">Enter your email address and we'll send you a link to reset your password.</p>
+    
+    <form id="resetPasswordForm">
+      <label for="resetEmail">Email</label>
+      <input id="resetEmail" type="email" placeholder="Your email address" autocomplete="email" required>
+      
+      <div id="resetErr" class="err" style="display: none;"></div>
+      <div id="resetSuccess" class="success" style="display: none;"></div>
+      
+      <div class="modal-buttons">
+        <button type="submit" id="doResetPassword" class="btn btn-primary">Send Reset Link</button>
+        <button type="button" id="doResetClose" class="btn btn-ghost">Cancel</button>
+      </div>
+    </form>
+
+    <div class="modal-footer-text">
+      <a href="#" id="backToLoginFromReset">← Back to Login</a>
+    </div>
+  </div>
+</div>
+

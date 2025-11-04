@@ -67,3 +67,9 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# Archive folder (optional - comment out if you want to version backups)
+# archive/
+
+# macOS files
+.DS_Store

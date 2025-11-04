@@ -83,14 +83,35 @@ async function login(email, password) {
     
     return { success: true };
   } catch (error) {
-    let message = 'Login failed. Please try again.';
+    console.log('Login error code:', error.code);
+    console.log('Login error message:', error.message);
+    console.log('Full error object:', error);
     
-    if (error.code === 'auth/user-not-found') {
-      message = 'No account found with this email.';
+    let message = 'Invalid email or password. Please try again.';
+    
+    // Handle all Firebase auth error codes
+    if (error.code === 'auth/invalid-login-credentials') {
+      message = 'Invalid email or password. Please check your credentials.';
+    } else if (error.code === 'auth/user-not-found') {
+      message = 'No account found with this email address.';
     } else if (error.code === 'auth/wrong-password') {
-      message = 'Incorrect password.';
+      message = 'Incorrect password. Please try again.';
     } else if (error.code === 'auth/invalid-email') {
-      message = 'Invalid email address.';
+      message = 'Please enter a valid email address.';
+    } else if (error.code === 'auth/invalid-credential') {
+      message = 'Invalid email or password. Please check your credentials.';
+    } else if (error.code === 'auth/user-disabled') {
+      message = 'This account has been disabled. Please contact support.';
+    } else if (error.code === 'auth/too-many-requests') {
+      message = 'Too many failed login attempts. Please try again later.';
+    } else if (error.code === 'auth/network-request-failed') {
+      message = 'Network error. Please check your internet connection.';
+    } else if (error.code === 'auth/operation-not-allowed') {
+      message = 'Email/password sign-in is not enabled. Please contact support.';
+    } else if (error.code === 'auth/missing-password') {
+      message = 'Please enter your password.';
+    } else if (error.message && (error.message.includes('password') || error.message.includes('credential'))) {
+      message = 'Invalid email or password. Please check your credentials.';
     }
     
     return { success: false, error: message };
@@ -161,14 +182,22 @@ async function signup(email, password) {
     
     return { success: true };
   } catch (error) {
+    console.log('Signup error code:', error.code);
+    console.log('Signup error message:', error.message);
+    
     let message = 'Signup failed. Please try again.';
     
+    // Handle all Firebase auth error codes for signup
     if (error.code === 'auth/email-already-in-use') {
-      message = 'Email already registered. Please login.';
+      message = 'This email is already registered. Please login instead.';
     } else if (error.code === 'auth/invalid-email') {
-      message = 'Invalid email address.';
+      message = 'Invalid email address format.';
     } else if (error.code === 'auth/weak-password') {
-      message = 'Password is too weak (min 6 characters).';
+      message = 'Password must be at least 6 characters long.';
+    } else if (error.code === 'auth/operation-not-allowed') {
+      message = 'Email/password sign-up is not enabled. Please contact support.';
+    } else if (error.code === 'auth/network-request-failed') {
+      message = 'Network error. Please check your internet connection.';
     }
     
     return { success: false, error: message };
@@ -189,6 +218,35 @@ async function logout() {
   }
 }
 
+// Password reset function
+async function resetPassword(email) {
+  try {
+    await auth.sendPasswordResetEmail(email);
+    return { 
+      success: true, 
+      message: 'Password reset email sent! Check your inbox for instructions.' 
+    };
+  } catch (error) {
+    console.log('Password reset error code:', error.code);
+    console.log('Password reset error message:', error.message);
+    
+    let message = 'Failed to send reset email. Please try again.';
+    
+    // Handle all Firebase auth error codes for password reset
+    if (error.code === 'auth/user-not-found') {
+      message = 'No account found with this email address.';
+    } else if (error.code === 'auth/invalid-email') {
+      message = 'Invalid email address format.';
+    } else if (error.code === 'auth/too-many-requests') {
+      message = 'Too many reset attempts. Please try again later.';
+    } else if (error.code === 'auth/network-request-failed') {
+      message = 'Network error. Please check your internet connection.';
+    }
+    
+    return { success: false, error: message };
+  }
+}
+
 // Export for use in other scripts
 window.vixvvoAuth = {
   auth,
@@ -198,6 +256,7 @@ window.vixvvoAuth = {
   logout,
   sendVerificationCode,
   verifyEmailCode,
+  resetPassword,
   getCurrentUser: () => currentUser,
   isAdmin: () => isUserAdmin
 };
