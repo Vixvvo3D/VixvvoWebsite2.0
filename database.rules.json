@@ -53,13 +53,13 @@
     "userColors": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
-        ".write": false
+        ".write": "auth != null && auth.uid == $uid"
       }
     },
     "orders": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
-        ".write": false
+        ".write": "auth != null && auth.uid == $uid"
       }
     },
     "orders_archive": {

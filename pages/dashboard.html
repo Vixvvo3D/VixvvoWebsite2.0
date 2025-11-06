@@ -9,6 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-functions-compat.js"></script>
 
 <!-- Initialize Firebase and Google Maps - must load immediately after Firebase SDKs -->
@@ -21,6 +22,7 @@
 <link rel="stylesheet" href="../css/shared-styles.css">
 <link rel="stylesheet" href="../css/dashboard.css">
 <link rel="stylesheet" href="../css/notification-modals.css">
+<link rel="stylesheet" href="../css/upload-model.css">
 
 <!-- Load shared navbar components -->
 <script src="../js/navbar-helper.js" defer></script>
@@ -29,6 +31,7 @@
 <script src="../js/navbar-auth.js" defer></script>
 <script src="../js/auth.js" defer></script>
 <script src="../js/currency.js" defer></script>
+<script src="../js/orders.js" defer></script>
 
 <!-- Google Places API for Address Autocomplete -->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDN2UpD_xHvxrQ2LQjDHIlLmuRi8e4wAQQ&loading=async&libraries=places&callback=initGoogleMaps" async defer></script>
@@ -229,17 +232,7 @@
                   <p>Check order status</p>
                 </div>
               </div>
-              <button class="action-btn" onclick="window.location.href='orders.html'">View</button>
-            </li>
-            <li class="action-item">
-              <div class="action-info">
-                <div class="action-avatar"><img src="../images/Icons/Toolbox.svg" alt="Tools"></div>
-                <div class="action-details">
-                  <h4>More Tools</h4>
-                  <p>Explore all features</p>
-                </div>
-              </div>
-              <button class="action-btn" onclick="window.location.href='more-tools.html'">Explore</button>
+              <button class="action-btn" onclick="switchTab('orders')">View</button>
             </li>
           </ul>
         </div>
@@ -888,26 +881,48 @@
 
           <!-- Add Global Printer Modal (Admin Only) -->
           <div id="addGlobalPrinterModal" style="display: none;">
-            <div class="modal-card">
+            <div class="modal-card modal-wide">
               <button class="modal-close" id="closeAddGlobalPrinterX">×</button>
               
               <h3>Add Global Printer</h3>
               <p class="modal-subtitle">Add a new printer preset to the global library (admin only).</p>
               
-              <label>Printer Name</label>
-              <input id="addGlobalPrinterName" type="text" placeholder="e.g., i3 MK3">
-              
-              <label>Brand</label>
-              <input id="addGlobalPrinterBrand" type="text" placeholder="e.g., Prusa">
-              
-              <label>Printer Price ($)</label>
-              <input id="addGlobalPrinterPrice" type="number" placeholder="e.g., 999" min="0" step="0.01">
-              
-              <label>Expected Lifespan (hours)</label>
-              <input id="addGlobalPrinterLifespan" type="number" placeholder="e.g., 5000" min="1" step="1" value="5000">
-              
-              <div class="modal-hint">
-                Depreciation: <span id="addGlobalPrinterDepreciation">-</span>/hr
+              <div class="modal-two-column">
+                <!-- Left Column: Manual Input -->
+                <div class="modal-column">
+                  <label>Printer Name</label>
+                  <input id="addGlobalPrinterName" type="text" placeholder="e.g., i3 MK3">
+                  
+                  <label>Brand</label>
+                  <input id="addGlobalPrinterBrand" type="text" placeholder="e.g., Prusa">
+                  
+                  <label>Printer Price ($)</label>
+                  <input id="addGlobalPrinterPrice" type="number" placeholder="e.g., 999" min="0" step="0.01">
+                  
+                  <label>Expected Lifespan (hours)</label>
+                  <input id="addGlobalPrinterLifespan" type="number" placeholder="e.g., 5000" min="1" step="1" value="5000">
+                  
+                  <div class="modal-hint">
+                    Depreciation: <span id="addGlobalPrinterDepreciation">-</span>/hr
+                  </div>
+                </div>
+                
+                <!-- Right Column: Batch Add -->
+                <div class="modal-column">
+                  <label>Batch Add (paste multiple)</label>
+                  <textarea id="globalPrinterQuickAdd" 
+                    placeholder='["X-Smart 1", "QIDI", 299, 5000]; ["X-Smart 2", "QIDI", 299, 5000]'
+                    style="flex: 1; min-height: 200px;"></textarea>
+                  
+                  <button id="btnParseGlobalPrinterQuickAdd" class="btn btn-primary" style="width: 100%; margin-top: 8px; margin-bottom: 8px;">
+                    Add All Printers
+                  </button>
+                  
+                  <div class="modal-format-hint">
+                    <strong>Format:</strong> ["Name", "Brand", Price, Lifespan]<br>
+                    <strong>Example:</strong> ["i3 MK3S+", "Prusa", 1099, 5000]; ["Ender 3", "Creality", 259, 3000]
+                  </div>
+                </div>
               </div>
               
               <div id="addGlobalPrinterErr" class="err" style="display: none;"></div>
@@ -921,26 +936,48 @@
 
           <!-- Add Global Filament Modal (Admin Only) -->
           <div id="addGlobalFilamentModal" style="display: none;">
-            <div class="modal-card">
+            <div class="modal-card modal-wide">
               <button class="modal-close" id="closeAddGlobalFilamentX">×</button>
               
               <h3>Add Global Filament</h3>
               <p class="modal-subtitle">Add a new filament preset to the global library (admin only).</p>
               
-              <label>Filament Type</label>
-              <input id="addGlobalFilamentType" type="text" placeholder="e.g., PLA">
-              
-              <label>Brand</label>
-              <input id="addGlobalFilamentBrand" type="text" placeholder="e.g., Hatchbox">
-              
-              <label>Spool Weight (g)</label>
-              <input id="addGlobalFilamentWeight" type="number" placeholder="1000" min="1" step="1" value="1000">
-              
-              <label>Cost Per Spool ($)</label>
-              <input id="addGlobalFilamentCost" type="number" placeholder="20.00" min="0" step="0.01">
-              
-              <div class="modal-hint">
-                Cost per gram: <span id="addGlobalFilamentCostPerG">-</span>
+              <div class="modal-two-column">
+                <!-- Left Column: Manual Input -->
+                <div class="modal-column">
+                  <label>Filament Type</label>
+                  <input id="addGlobalFilamentType" type="text" placeholder="e.g., PLA">
+                  
+                  <label>Brand</label>
+                  <input id="addGlobalFilamentBrand" type="text" placeholder="e.g., Hatchbox">
+                  
+                  <label>Spool Weight (g)</label>
+                  <input id="addGlobalFilamentWeight" type="number" placeholder="1000" min="1" step="1" value="1000">
+                  
+                  <label>Cost Per Spool ($)</label>
+                  <input id="addGlobalFilamentCost" type="number" placeholder="20.00" min="0" step="0.01">
+                  
+                  <div class="modal-hint">
+                    Cost per gram: <span id="addGlobalFilamentCostPerG">-</span>
+                  </div>
+                </div>
+                
+                <!-- Right Column: Batch Add -->
+                <div class="modal-column">
+                  <label>Batch Add (paste multiple)</label>
+                  <textarea id="globalFilamentQuickAdd" 
+                    placeholder='["PLA", "Hatchbox", 1000, 19.99]; ["PETG", "eSUN", 1000, 22.50]'
+                    style="flex: 1; min-height: 200px;"></textarea>
+                  
+                  <button id="btnParseGlobalFilamentQuickAdd" class="btn btn-primary" style="width: 100%; margin-top: 8px; margin-bottom: 8px;">
+                    Add All Filaments
+                  </button>
+                  
+                  <div class="modal-format-hint">
+                    <strong>Format:</strong> ["Type", "Brand", Weight, Cost]<br>
+                    <strong>Example:</strong> ["PLA", "Hatchbox", 1000, 19.99]; ["PETG", "eSUN", 1000, 22.50]
+                  </div>
+                </div>
               </div>
               
               <div id="addGlobalFilamentErr" class="err" style="display: none;"></div>
@@ -1005,15 +1042,51 @@
 
           <!-- UPLOAD MODEL SECTION -->
           <div class="page-section" id="upload-model-section">
-            
+            <div class="calculator-container">
+              <div class="calculator-header">
+                <h2 class="calculator-title">
+                  Model <span class="highlight">Management</span>
+                </h2>
+                <p class="calculator-subtitle">Upload and manage your 3D model inventory</p>
+              </div>
+
+              <!-- Action Bar -->
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="position: relative; flex: 1; max-width: 400px;">
+                  <img src="../images/Icons/MagnifyingGlass.svg" alt="" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; opacity: 0.5; filter: brightness(0) invert(1);">
+                  <input type="text" id="searchModels" placeholder="Search models..." style="width: 100%; padding: 10px 10px 10px 38px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px;">
+                </div>
+                <div style="display: flex; gap: 12px;">
+                  <button type="button" class="btn btn-ghost" id="btnManageSupplies" style="white-space: nowrap;">
+                    <img src="../images/Icons/Package.svg" alt="" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle; filter: brightness(0) invert(1);">
+                    Supplies
+                  </button>
+                  <button type="button" class="btn btn-primary" id="btnShowAddModel" style="white-space: nowrap;">
+                    <img src="../images/Icons/Plus.svg" alt="" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle; filter: brightness(0) invert(1);">
+                    Add Model
+                  </button>
+                </div>
+              </div>
+
+              <!-- Models List -->
+              <div id="modelsList">
+                <!-- Models will be loaded here -->
+              </div>
+            </div>
           </div>
 
           <!-- ORDERS SECTION -->
           <div class="page-section" id="orders-section">
-            <h2 style="margin-bottom: 24px;">Orders Management</h2>
+            <div class="calculator-container">
+              <div class="calculator-header">
+                <h2 class="calculator-title">
+                  Orders <span class="highlight">Management</span>
+                </h2>
+                <p class="calculator-subtitle">Track and manage your customer orders</p>
+              </div>
             
-            <!-- Action Bar -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; flex-wrap: wrap;">
+              <!-- Action Bar -->
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; flex-wrap: wrap;">
               <div style="display: flex; gap: 12px; align-items: center; flex: 1;">
                 <div style="flex: 1; min-width: 250px;">
                   <input type="text" id="ordersSearchInput" placeholder="Search orders..." style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px;">
@@ -1039,9 +1112,10 @@
               </div>
             </div>
 
-            <!-- Orders Content -->
-            <div id="ordersContent">
-              <!-- Orders will be loaded here -->
+              <!-- Orders Content -->
+              <div id="ordersContent">
+                <!-- Orders will be loaded here -->
+              </div>
             </div>
           </div>
 
@@ -1072,6 +1146,62 @@
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- Add Color Modal -->
+  <div id="addColorModal" class="modal-overlay" style="display: none; z-index: 10001;">
+    <div class="modal-card" style="max-width: 1000px; width: 95%;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div>
+          <h3 id="addColorModalTitle" style="color: #ffffff; margin: 0 0 4px 0; font-size: 24px; font-weight: 600;">Add Your Color</h3>
+          <p id="addColorModalSubtitle" style="font-size: 14px; color: #9ca3af; margin: 0;">Add a color to your personal library.</p>
+        </div>
+        <button class="modal-close" onclick="closeAddColorModal()">×</button>
+      </div>
+      
+      <input type="hidden" id="addColorMode" value="user">
+      <input type="hidden" id="editColorId" value="">
+
+      <!-- Two Column Layout -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        
+        <!-- Left Column - Single Color Input -->
+        <div>
+          <div class="form-group">
+            <label for="singleColorName">Color Name</label>
+            <input type="text" id="singleColorName" placeholder="e.g., Sky Blue">
+          </div>
+          <div class="form-group">
+            <label for="singleColorBrand">Brand</label>
+            <input type="text" id="singleColorBrand" placeholder="e.g., Hatchbox">
+          </div>
+          <div class="form-group">
+            <label for="singleColorHex">Hex Code</label>
+            <input type="text" id="singleColorHex" placeholder="#FF5733" pattern="^#[0-9A-Fa-f]{6}$">
+          </div>
+
+          <button class="btn-calc" onclick="saveSingleColor()" style="width: 100%; margin-top: 16px;">Save Color</button>
+          <button class="btn-calc-ghost" onclick="closeAddColorModal()" style="width: 100%; margin-top: 12px;">Cancel</button>
+        </div>
+
+        <!-- Right Column - Batch Add -->
+        <div>
+          <label style="display: block; margin-bottom: 8px; color: rgba(255, 255, 255, 0.7); font-size: 14px; font-weight: 500;">Batch Add (paste multiple)</label>
+          <textarea id="bulkColorInput" rows="10" placeholder='["Red", "Acme", "#FF0000"];
+["Blue", "XYZ", "#0000FF"]' style="width: 100%; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; color: #fff; font-family: 'Courier New', monospace; font-size: 13px; resize: vertical; min-height: 200px;"></textarea>
+          
+          <button class="btn-calc" onclick="saveBulkColors()" style="width: 100%; margin-top: 16px; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);">Add All Colors</button>
+          
+          <div style="margin-top: 16px; padding: 12px; background: rgba(168, 85, 247, 0.1); border-radius: 8px; border: 1px solid rgba(168, 85, 247, 0.2);">
+            <p style="margin: 0 0 8px 0; font-size: 13px; color: rgba(255, 255, 255, 0.6); font-weight: 500;">Format:</p>
+            <code style="display: block; background: rgba(0, 0, 0, 0.3); padding: 8px; border-radius: 4px; font-size: 12px; color: rgba(255, 255, 255, 0.8); font-family: 'Courier New', monospace;">["Name", "Brand", "Hex"];</code>
+            <p style="margin: 8px 0 0 0; font-size: 13px; color: rgba(255, 255, 255, 0.6); font-weight: 500;">Example:</p>
+            <code style="display: block; background: rgba(0, 0, 0, 0.3); padding: 8px; border-radius: 4px; font-size: 12px; color: rgba(255, 255, 255, 0.8); font-family: 'Courier New', monospace;">["Red", "Hatchbox", "#FF0000"];<br>["PETG", "eSUN", "#0000FF"]</code>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
 
   <!-- Color Management Modal -->
@@ -1113,7 +1243,7 @@
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
                 <path d="M3 3l8 8M11 3l-8 8"/>
               </svg>
-              Mass Delete
+              Select & Delete
             </button>
             <button class="btn-calc btn-small" id="btnAddGlobalColor" style="display: none;">+ Add Global Color</button>
           </div>
@@ -1130,10 +1260,12 @@
           <div style="display: flex; gap: 8px;">
             <button class="btn-calc-ghost btn-small" id="btnCancelUserSelection" style="display: none;" onclick="cancelUserSelection()">Cancel</button>
             <button class="btn-calc btn-small" id="btnMassDeleteUserColors" style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);" onclick="massDeleteUserColors()">
-              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
-                <path d="M3 3l8 8M11 3l-8 8"/>
-              </svg>
-              Mass Delete
+              <span>
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+                  <path d="M3 3l8 8M11 3l-8 8"/>
+                </svg>
+                Select & Delete
+              </span>
             </button>
             <button class="btn-calc btn-small" id="btnAddUserColor">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
@@ -1151,90 +1283,47 @@
   </div>
 
   <!-- New Order Modal -->
-  <div id="newOrderModal" class="modal-overlay" style="display: none;">
-    <div class="modal-card" style="max-width: 1600px; width: 95%; max-height: 92vh; overflow-y: auto;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <div>
-          <h3 style="color: #ffffff; margin: 0 0 4px 0; font-size: 24px; font-weight: 600;">Create New Order</h3>
-          <p style="font-size: 14px; color: #9ca3af; margin: 0;">Fill in the order details below</p>
-        </div>
-        <button class="modal-close" onclick="closeNewOrderModal()">×</button>
+  <div id="newOrderModal" style="display: none;">
+    <div class="modal-card modal-dark-theme" style="max-width: 1800px; width: 98%; max-height: 95vh; overflow-y: auto;">
+      <button class="modal-close" onclick="closeNewOrderModal()">×</button>
+      
+      <div class="modal-header-centered">
+        <h3 class="modal-title-large">
+          Create New <span class="gradient-highlight">Order</span>
+        </h3>
+        <p class="modal-subtitle-large">Fill in the order details below</p>
       </div>
 
       <form id="newOrderForm">
-      <!-- Order Information -->
-      <div class="form-section">
-        <div class="section-title">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
-            <rect x="3" y="3" width="10" height="10" rx="1"/>
-            <path d="M6 6h4M6 8h4M6 10h2"/>
-          </svg>
-          Order Information
-        </div>
-        <div class="form-row single">
-          <div class="form-group">
-            <label for="orderTitle">Order Title *</label>
-            <input type="text" id="orderTitle" name="orderTitle" required placeholder="Enter order title">
-          </div>
-        </div>
+      <!-- Order Title Header -->
+      <div style="padding: 24px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a; margin-bottom: 24px;">
+        <label for="orderTitle" style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Order Title *</label>
+        <input type="text" id="orderTitle" name="orderTitle" required placeholder="Enter order title" 
+          style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 16px; font-weight: 600;">
       </div>
 
+      <!-- Three Column Grid Layout -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px;">
+
       <!-- Client Information -->
-      <div class="form-section">
-        <div class="section-title">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
-            <circle cx="8" cy="5" r="2"/>
-            <path d="M3 13c0-2.2 2.2-4 5-4s5 1.8 5 4"/>
-          </svg>
-          Client Information
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="clientName">Client Name *</label>
-            <input type="text" id="clientName" name="clientName" required placeholder="Enter client name" autocomplete="name">
-          </div>
-          <div class="form-group">
-            <label for="clientEmail">Email</label>
-            <input type="email" id="clientEmail" name="clientEmail" placeholder="client@example.com" autocomplete="email">
-          </div>
-          <div class="form-group">
-            <label for="clientPhone">Phone</label>
-            <input type="tel" id="clientPhone" name="clientPhone" placeholder="+1 (555) 123-4567" autocomplete="tel">
-          </div>
-        </div>
-        <div class="form-row single">
-          <div class="form-group">
-            <label for="addressAutocomplete">Address Search</label>
-            <input type="text" id="addressAutocomplete" name="addressAutocomplete" placeholder="Start typing address..." autocomplete="street-address">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="clientStreet">Street Address</label>
-            <input type="text" id="clientStreet" name="clientStreet" placeholder="123 Main St" autocomplete="street-address">
-          </div>
-          <div class="form-group">
-            <label for="clientCity">City</label>
-            <input type="text" id="clientCity" name="clientCity" placeholder="City" autocomplete="address-level2">
-          </div>
-          <div class="form-group">
-            <label for="clientState">State/Province</label>
-            <input type="text" id="clientState" name="clientState" placeholder="State/Province" autocomplete="address-level1">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="clientPostalCode">Postal Code</label>
-            <input type="text" id="clientPostalCode" name="clientPostalCode" placeholder="12345" autocomplete="postal-code">
-          </div>
-          <div class="form-group">
-            <label for="clientCountry">Country</label>
-            <input type="text" id="clientCountry" name="clientCountry" placeholder="Country" autocomplete="country-name">
-          </div>
-          <div class="form-group">
-            <label for="messaging_app">Messaging App / Platform</label>
-            <div class="messaging-apps">
-              <select id="messaging_app" name="messaging_app">
+        <div style="padding: 20px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a;">
+          <h5 style="color: #a855f7; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Client Information</h5>
+          <div style="display: grid; gap: 14px;">
+            <div>
+              <label for="clientName" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Client Name *</label>
+              <input type="text" id="clientName" name="clientName" required placeholder="Enter client name" autocomplete="name" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
+            <div>
+              <label for="clientEmail" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Email</label>
+              <input type="email" id="clientEmail" name="clientEmail" placeholder="client@example.com" autocomplete="email" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
+            <div>
+              <label for="clientPhone" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Phone</label>
+              <input type="tel" id="clientPhone" name="clientPhone" placeholder="+1 (555) 123-4567" autocomplete="tel" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
+            <div>
+              <label for="messaging_app" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Messaging Platform</label>
+              <select id="messaging_app" name="messaging_app" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
                 <option value="">Select messaging app or platform...</option>
                 <optgroup label="Messaging Apps">
                   <option value="WhatsApp">WhatsApp</option>
@@ -1291,173 +1380,161 @@
                 </optgroup>
               </select>
             </div>
+            <div style="padding-top: 8px; border-top: 1px solid rgba(168, 85, 247, 0.2); margin-top: 4px;">
+              <label for="addressAutocomplete" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Address Search</label>
+              <input type="text" id="addressAutocomplete" name="addressAutocomplete" placeholder="Start typing address..." autocomplete="street-address" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
+            <div>
+              <label for="clientStreet" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Street Address</label>
+              <input type="text" id="clientStreet" name="clientStreet" placeholder="123 Main St" autocomplete="street-address" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
+            <div>
+              <label for="clientCity" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">City</label>
+              <input type="text" id="clientCity" name="clientCity" placeholder="City" autocomplete="address-level2" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
+            <div>
+              <label for="clientState" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">State/Province</label>
+              <input type="text" id="clientState" name="clientState" placeholder="State/Province" autocomplete="address-level1" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
+            <div>
+              <label for="clientPostalCode" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Postal Code</label>
+              <input type="text" id="clientPostalCode" name="clientPostalCode" placeholder="12345" autocomplete="postal-code" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
+            <div>
+              <label for="clientCountry" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Country</label>
+              <input type="text" id="clientCountry" name="clientCountry" placeholder="Country" autocomplete="country-name" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
           </div>
         </div>
-      </div>
 
       <!-- Product Information -->
-      <div class="form-section">
-        <div class="section-title">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
-            <rect x="2" y="4" width="12" height="10" rx="1"/>
-            <path d="M4 4V3a1 1 0 011-1h6a1 1 0 011 1v1"/>
-          </svg>
-          Product Information
-        </div>
-        <div class="form-row double">
-          <div class="form-group">
-            <label for="productName">Product Name *</label>
-            <input type="text" id="productName" name="productName" required placeholder="Enter product name">
-          </div>
-          <div class="form-group">
-            <label for="quantity">Quantity *</label>
-            <input type="number" id="quantity" name="quantity" required min="1" value="1" placeholder="1">
-          </div>
-        </div>
-      </div>
-
-      <!-- Customization Options -->
-      <div class="form-section">
-        <div class="section-title">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
-            <circle cx="8" cy="8" r="6"/>
-            <path d="M8 5v6M5 8h6"/>
-          </svg>
-          Customization Options
-        </div>
-        <div class="form-row single">
-          <div class="form-group">
-            <label>Color(s) - Select up to 4 colors</label>
-            <input type="text" id="colorSearchInput" placeholder="Search colors by name..." 
-              style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px; margin-bottom: 12px;">
-            <div id="colorSelectionGrid" class="color-selection-grid">
-              <!-- Colors will be populated here -->
+        <div style="padding: 20px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a;">
+          <h5 style="color: #a855f7; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Product Information</h5>
+          <div style="display: grid; gap: 14px;">
+            <div>
+              <label for="productName" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Product Name *</label>
+              <input type="text" id="productName" name="productName" required placeholder="Enter product name" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
             </div>
-            <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center; padding: 12px; background: rgba(36, 29, 53, 0.3); border-radius: 8px; border: 1px solid #2d2e3a;">
-              <span style="font-size: 12px; color: #9ca3af; font-weight: 500;">Selected:</span>
-              <div id="selectedColorsPreview" style="display: flex; gap: 8px; flex: 1;">
-                <!-- Selected colors will appear here -->
-              </div>
+            <div>
+              <label for="quantity" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Quantity *</label>
+              <input type="number" id="quantity" name="quantity" required min="1" value="1" placeholder="1" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
             </div>
-            <input type="hidden" id="color1" value="">
-            <input type="hidden" id="color2" value="">
-            <input type="hidden" id="color3" value="">
-            <input type="hidden" id="color4" value="">
+            <div>
+              <label for="material" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Material</label>
+              <select id="material" name="material" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                <option value="">Select material</option>
+                <!-- Options will be populated dynamically from Firebase -->
+              </select>
+            </div>
+            <div>
+              <label for="finish" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Finish</label>
+              <select id="finish" name="finish" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                <option value="">Select finish</option>
+                <option value="Matte">Matte</option>
+                <option value="Glossy">Glossy</option>
+                <option value="Textured">Textured</option>
+                <option value="Smooth">Smooth</option>
+              </select>
+            </div>
+            <div>
+              <label for="scale" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Scale (%)</label>
+              <input type="number" id="scale" name="scale" placeholder="100" min="1" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="material">Material</label>
-            <select id="material" name="material">
-              <option value="">Select material</option>
-              <!-- Options will be populated dynamically from Firebase -->
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="finish">Finish</label>
-            <select id="finish" name="finish">
-              <option value="">Select finish</option>
-              <option value="Matte">Matte</option>
-              <option value="Glossy">Glossy</option>
-              <option value="Textured">Textured</option>
-              <option value="Smooth">Smooth</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="scale">Scale (%)</label>
-            <input type="number" id="scale" name="scale" placeholder="100" min="1">
-          </div>
-        </div>
-      </div>
 
       <!-- Payment Information -->
-      <div class="form-section">
-        <div class="section-title">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
-            <rect x="2" y="4" width="12" height="8" rx="1"/>
-            <path d="M2 7h12"/>
-          </svg>
-          Payment Information
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="orderTotal">Total Price</label>
-            <input type="number" id="orderTotal" name="orderTotal" step="0.01" min="0" placeholder="0.00">
-          </div>
-          <div class="form-group">
-            <label for="amountPaid">Amount Paid</label>
-            <input type="number" id="amountPaid" name="amountPaid" step="0.01" min="0" placeholder="0.00">
-          </div>
-          <div class="form-group">
-            <label for="paymentMethod">Payment Method</label>
-            <select id="paymentMethod" name="paymentMethod">
-              <option value="">Not specified</option>
-              <optgroup label="Digital Payments">
-                <option value="PayPal">PayPal</option>
-                <option value="Card">Credit/Debit Card</option>
-                <option value="Wire Transfer">Wire Transfer</option>
-                <option value="Bank Transfer">Bank Transfer</option>
-                <option value="Venmo">Venmo</option>
-                <option value="Zelle">Zelle</option>
-                <option value="Apple Pay">Apple Pay</option>
-                <option value="Google Pay">Google Pay</option>
-                <option value="Stripe">Stripe</option>
-                <option value="Square">Square</option>
-              </optgroup>
-              <optgroup label="Traditional">
-                <option value="Cash">Cash</option>
-                <option value="Cheque">Cheque</option>
-                <option value="Money Order">Money Order</option>
-              </optgroup>
-              <optgroup label="Cryptocurrency">
-                <option value="Bitcoin">Bitcoin</option>
-                <option value="Ethereum">Ethereum</option>
-                <option value="Crypto">Other Cryptocurrency</option>
-              </optgroup>
-              <optgroup label="Other">
-                <option value="Trade/Barter">Trade/Barter</option>
-                <option value="Store Credit">Store Credit</option>
-                <option value="Other">Other</option>
-              </optgroup>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="paymentStatus">Payment Status</label>
-            <select id="paymentStatus" name="paymentStatus">
-              <option value="unpaid">Unpaid</option>
-              <option value="partially">Partially</option>
-              <option value="paid">Paid</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="orderStatus">Order Status</label>
-            <select id="orderStatus" name="orderStatus">
-              <option value="pending">Pending</option>
-              <option value="processing">Processing</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
+        <div style="padding: 20px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a;">
+          <h5 style="color: #a855f7; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Payment Information</h5>
+          <div style="display: grid; gap: 14px;">
+            <div>
+              <label for="orderTotal" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Total Price</label>
+              <input type="number" id="orderTotal" name="orderTotal" step="0.01" min="0" placeholder="0.00" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
+            <div>
+              <label for="amountPaid" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Amount Paid</label>
+              <input type="number" id="amountPaid" name="amountPaid" step="0.01" min="0" placeholder="0.00" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
+            <div style="padding-top: 8px; border-top: 1px solid rgba(168, 85, 247, 0.2);">
+              <label for="paymentMethod" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Payment Method</label>
+              <select id="paymentMethod" name="paymentMethod" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                <option value="">Not specified</option>
+                <optgroup label="Digital Payments">
+                  <option value="PayPal">PayPal</option>
+                  <option value="Card">Credit/Debit Card</option>
+                  <option value="Wire Transfer">Wire Transfer</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="Venmo">Venmo</option>
+                  <option value="Zelle">Zelle</option>
+                  <option value="Apple Pay">Apple Pay</option>
+                  <option value="Google Pay">Google Pay</option>
+                  <option value="Stripe">Stripe</option>
+                  <option value="Square">Square</option>
+                </optgroup>
+                <optgroup label="Traditional">
+                  <option value="Cash">Cash</option>
+                  <option value="Cheque">Cheque</option>
+                  <option value="Money Order">Money Order</option>
+                </optgroup>
+                <optgroup label="Cryptocurrency">
+                  <option value="Bitcoin">Bitcoin</option>
+                  <option value="Ethereum">Ethereum</option>
+                  <option value="Crypto">Other Cryptocurrency</option>
+                </optgroup>
+                <optgroup label="Other">
+                  <option value="Trade/Barter">Trade/Barter</option>
+                  <option value="Store Credit">Store Credit</option>
+                  <option value="Other">Other</option>
+                </optgroup>
+              </select>
+            </div>
+            <div>
+              <label for="paymentStatus" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Payment Status</label>
+              <select id="paymentStatus" name="paymentStatus" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                <option value="unpaid">Unpaid</option>
+                <option value="partially">Partially</option>
+                <option value="paid">Paid</option>
+              </select>
+            </div>
+            <div>
+              <label for="orderStatus" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Order Status</label>
+              <select id="orderStatus" name="orderStatus" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
           </div>
         </div>
+
+      </div> <!-- Close grid -->
+
+      <!-- Color Selection - Full Width -->
+      <div style="padding: 20px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a; margin-bottom: 24px;">
+        <h5 style="color: #a855f7; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Color Selection (Up to 4)</h5>
+        <input type="text" id="colorSearchInput" placeholder="Search colors by name..." 
+          style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px; margin-bottom: 12px;">
+        <div id="colorSelectionGrid" class="color-selection-grid">
+          <!-- Colors will be populated here -->
+        </div>
+        <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center; padding: 12px; background: rgba(36, 29, 53, 0.3); border-radius: 8px; border: 1px solid #2d2e3a;">
+          <span style="font-size: 12px; color: #9ca3af; font-weight: 500;">Selected:</span>
+          <div id="selectedColorsPreview" style="display: flex; gap: 8px; flex: 1;">
+            <!-- Selected colors will appear here -->
+          </div>
+        </div>
+        <input type="hidden" id="color1" value="">
+        <input type="hidden" id="color2" value="">
+        <input type="hidden" id="color3" value="">
+        <input type="hidden" id="color4" value="">
       </div>
 
       <!-- Additional Notes -->
-      <div class="form-section">
-        <div class="section-title">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
-            <path d="M4 3h8a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1z"/>
-            <path d="M6 6h4M6 9h4M6 11h2"/>
-          </svg>
-          Additional Information
-        </div>
-        <div class="form-row single">
-          <div class="form-group">
-            <label for="extraNotes">Extra Notes</label>
-            <textarea id="extraNotes" name="extraNotes" placeholder="Add any special instructions or notes..."></textarea>
-          </div>
-        </div>
+      <div style="padding: 20px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a; margin-bottom: 24px;">
+        <h5 style="color: #a855f7; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Additional Notes</h5>
+        <label for="extraNotes" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Extra Notes</label>
+        <textarea id="extraNotes" name="extraNotes" placeholder="Add any special instructions or notes..." style="width: 100%; min-height: 100px; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px; resize: vertical;"></textarea>
       </div>
 
       <!-- Modal Actions -->
@@ -1475,19 +1552,293 @@
   </div>
 
   <!-- View Order Modal -->
-  <div id="viewOrderModal" class="modal-overlay" style="display: none;">
-    <div class="modal-card" style="max-width: 1400px; width: 95%; max-height: 92vh; overflow-y: auto;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <div>
-          <h3 style="color: #ffffff; margin: 0 0 4px 0; font-size: 24px; font-weight: 600;">Order Details</h3>
-          <p style="font-size: 14px; color: #9ca3af; margin: 0;">View and manage order information</p>
-        </div>
-        <button class="modal-close" onclick="closeViewOrderModal()">×</button>
+  <div id="viewOrderModal" style="display: none;">
+    <div class="modal-card modal-dark-theme" style="max-width: 1800px; width: 98%; max-height: 95vh; overflow-y: auto;">
+      <button class="modal-close" onclick="closeViewOrderModal()">×</button>
+      
+      <div class="modal-header-centered">
+        <h3 class="modal-title-large">
+          Order <span class="gradient-highlight">Details</span>
+        </h3>
+        <p class="modal-subtitle-large">View and manage order information</p>
+        <p id="viewOrderNumberDisplay" class="modal-id-display">Order <span class="id-value">Loading...</span></p>
       </div>
 
       <div id="viewOrderContent">
         <!-- Content will be dynamically loaded -->
       </div>
+    </div>
+  </div>
+
+  <!-- Edit Order Modal -->
+  <div id="editOrderModal" style="display: none;">
+    <div class="modal-card modal-dark-theme" style="max-width: 1800px; width: 98%; max-height: 95vh; overflow-y: auto;">
+      <button class="modal-close" onclick="closeEditOrderModal()">×</button>
+      
+      <div class="modal-header-centered">
+        <h3 class="modal-title-large">
+          Edit <span class="gradient-highlight">Order</span>
+        </h3>
+        <p class="modal-subtitle-large">Update order information</p>
+        <p id="editOrderNumberDisplay" class="modal-id-display">Order <span class="id-value">Loading...</span></p>
+      </div>
+
+      <form id="editOrderForm">
+        <input type="hidden" id="editOrderId">
+        
+        <!-- Order Title Header -->
+        <div style="padding: 24px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a; margin-bottom: 24px;">
+          <label for="editOrderTitle">Order Title *</label>
+          <input type="text" id="editOrderTitle" name="orderTitle" required placeholder="Enter order title" 
+            style="font-size: 16px; font-weight: 600;">
+        </div>
+
+        <!-- Three Column Grid Layout -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px;">
+
+        <!-- Client Information -->
+          <div style="padding: 20px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a;">
+            <h5 style="color: #a855f7; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Client Information</h5>
+            <div style="display: grid; gap: 14px;">
+              <div>
+                <label for="editClientName" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Client Name *</label>
+                <input type="text" id="editClientName" name="clientName" required placeholder="Enter client name" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+              <div>
+                <label for="editClientEmail" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Email</label>
+                <input type="email" id="editClientEmail" name="clientEmail" placeholder="client@example.com" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+              <div>
+                <label for="editClientPhone" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Phone</label>
+                <input type="tel" id="editClientPhone" name="clientPhone" placeholder="+1 (555) 123-4567" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+              <div>
+                <label for="editMessagingApp" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Messaging Platform</label>
+                <select id="editMessagingApp" name="messaging_app" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                <option value="">Select messaging app or platform...</option>
+                <optgroup label="Messaging Apps">
+                  <option value="WhatsApp">WhatsApp</option>
+                  <option value="Facebook Messenger">Facebook Messenger</option>
+                  <option value="Instagram DM">Instagram Direct Message</option>
+                  <option value="Telegram">Telegram</option>
+                  <option value="Discord">Discord</option>
+                  <option value="WeChat">WeChat</option>
+                  <option value="Line">LINE</option>
+                  <option value="Viber">Viber</option>
+                  <option value="Snapchat">Snapchat</option>
+                  <option value="iMessage">iMessage</option>
+                  <option value="SMS">SMS/Text Message</option>
+                  <option value="Signal">Signal</option>
+                  <option value="Kakao Talk">Kakao Talk</option>
+                </optgroup>
+                <optgroup label="E-Commerce Marketplaces">
+                  <option value="Etsy">Etsy</option>
+                  <option value="eBay">eBay</option>
+                  <option value="Amazon">Amazon</option>
+                  <option value="Shopify">Shopify</option>
+                  <option value="Facebook Marketplace">Facebook Marketplace</option>
+                  <option value="Mercari">Mercari</option>
+                  <option value="Poshmark">Poshmark</option>
+                  <option value="Depop">Depop</option>
+                  <option value="Vinted">Vinted</option>
+                  <option value="Craigslist">Craigslist</option>
+                  <option value="OfferUp">OfferUp</option>
+                  <option value="Letgo">Letgo</option>
+                  <option value="AliExpress">AliExpress</option>
+                  <option value="Alibaba">Alibaba</option>
+                  <option value="Walmart Marketplace">Walmart Marketplace</option>
+                  <option value="Target Plus">Target Plus</option>
+                  <option value="Wish">Wish</option>
+                  <option value="Temu">Temu</option>
+                  <option value="Shein">Shein</option>
+                </optgroup>
+                <optgroup label="Social & Professional">
+                  <option value="Twitter DM">Twitter/X Direct Message</option>
+                  <option value="LinkedIn Messages">LinkedIn Messages</option>
+                  <option value="TikTok">TikTok Shop</option>
+                  <option value="Pinterest">Pinterest</option>
+                </optgroup>
+                <optgroup label="Traditional">
+                  <option value="Email">Email</option>
+                  <option value="Phone Call">Phone Call</option>
+                  <option value="In Person">In Person</option>
+                  <option value="Skype">Skype</option>
+                  <option value="Slack">Slack</option>
+                  <option value="Teams">Microsoft Teams</option>
+                </optgroup>
+                <optgroup label="Other">
+                  <option value="Other">Other</option>
+                </optgroup>
+              </select>
+              </div>
+              <div style="padding-top: 8px; border-top: 1px solid rgba(168, 85, 247, 0.2); margin-top: 4px;">
+                <label for="editAddressAutocomplete" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Address Search</label>
+                <input type="text" id="editAddressAutocomplete" name="addressAutocomplete" placeholder="Start typing address..." style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+              <div>
+                <label for="editClientStreet" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Street Address</label>
+                <input type="text" id="editClientStreet" name="clientStreet" placeholder="123 Main St" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+              <div>
+                <label for="editClientCity" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">City</label>
+                <input type="text" id="editClientCity" name="clientCity" placeholder="City" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+              <div>
+                <label for="editClientState" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">State/Province</label>
+                <input type="text" id="editClientState" name="clientState" placeholder="State/Province" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+              <div>
+                <label for="editClientPostalCode" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Postal Code</label>
+                <input type="text" id="editClientPostalCode" name="clientPostalCode" placeholder="12345" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+              <div>
+                <label for="editClientCountry" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Country</label>
+                <input type="text" id="editClientCountry" name="clientCountry" placeholder="Country" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+            </div>
+          </div>
+
+        <!-- Product Information -->
+          <div style="padding: 20px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a;">
+            <h5 style="color: #a855f7; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Product Information</h5>
+            <div style="display: grid; gap: 14px;">
+              <div>
+                <label for="editProductName" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Product Name *</label>
+                <input type="text" id="editProductName" name="productName" required placeholder="Enter product name" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+              <div>
+                <label for="editQuantity" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Quantity *</label>
+                <input type="number" id="editQuantity" name="quantity" required min="1" value="1" placeholder="1" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+              <div>
+                <label for="editMaterial" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Material</label>
+                <select id="editMaterial" name="material" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                  <option value="">Select material</option>
+                  <!-- Options will be populated dynamically from Firebase -->
+                </select>
+              </div>
+              <div>
+                <label for="editFinish" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Finish</label>
+                <select id="editFinish" name="finish" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                  <option value="">Select finish</option>
+                  <option value="Matte">Matte</option>
+                  <option value="Glossy">Glossy</option>
+                  <option value="Textured">Textured</option>
+                  <option value="Smooth">Smooth</option>
+                </select>
+              </div>
+              <div>
+                <label for="editScale" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Scale (%)</label>
+                <input type="number" id="editScale" name="scale" placeholder="100" min="1" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+            </div>
+          </div>
+
+        <!-- Payment Information -->
+          <div style="padding: 20px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a;">
+            <h5 style="color: #a855f7; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Payment Information</h5>
+            <div style="display: grid; gap: 14px;">
+              <div>
+                <label for="editOrderTotal" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Total Price</label>
+                <input type="number" id="editOrderTotal" name="orderTotal" step="0.01" min="0" placeholder="0.00" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+              <div>
+                <label for="editAmountPaid" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Amount Paid</label>
+                <input type="number" id="editAmountPaid" name="amountPaid" step="0.01" min="0" placeholder="0.00" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+              <div style="padding-top: 8px; border-top: 1px solid rgba(168, 85, 247, 0.2);">
+                <label for="editPaymentMethod" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Payment Method</label>
+                <select id="editPaymentMethod" name="paymentMethod" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                  <option value="">Not specified</option>
+                  <optgroup label="Digital Payments">
+                    <option value="PayPal">PayPal</option>
+                    <option value="Card">Credit/Debit Card</option>
+                    <option value="Wire Transfer">Wire Transfer</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Venmo">Venmo</option>
+                    <option value="Zelle">Zelle</option>
+                    <option value="Apple Pay">Apple Pay</option>
+                    <option value="Google Pay">Google Pay</option>
+                    <option value="Stripe">Stripe</option>
+                    <option value="Square">Square</option>
+                  </optgroup>
+                  <optgroup label="Traditional">
+                    <option value="Cash">Cash</option>
+                    <option value="Cheque">Cheque</option>
+                    <option value="Money Order">Money Order</option>
+                  </optgroup>
+                  <optgroup label="Cryptocurrency">
+                    <option value="Bitcoin">Bitcoin</option>
+                    <option value="Ethereum">Ethereum</option>
+                    <option value="Crypto">Other Cryptocurrency</option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option value="Trade/Barter">Trade/Barter</option>
+                    <option value="Store Credit">Store Credit</option>
+                    <option value="Other">Other</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div>
+                <label for="editPaymentStatus" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Payment Status</label>
+                <select id="editPaymentStatus" name="paymentStatus" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                  <option value="unpaid">Unpaid</option>
+                  <option value="partially">Partially</option>
+                  <option value="paid">Paid</option>
+                </select>
+              </div>
+              <div>
+                <label for="editOrderStatus" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Order Status</label>
+                <select id="editOrderStatus" name="orderStatus" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- Close grid -->
+
+        <!-- Color Selection - Full Width -->
+        <div style="padding: 20px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a; margin-bottom: 24px;">
+          <h5 style="color: #a855f7; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Color Selection (Up to 4)</h5>
+          <input type="text" id="editColorSearchInput" placeholder="Search colors by name..." 
+            style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px; margin-bottom: 12px;">
+          <div id="editColorSelectionGrid" class="color-selection-grid">
+            <!-- Colors will be populated here -->
+          </div>
+          <div style="margin-top: 12px; display: flex; gap: 8px; align-items: center; padding: 12px; background: rgba(36, 29, 53, 0.3); border-radius: 8px; border: 1px solid #2d2e3a;">
+            <span style="font-size: 12px; color: #9ca3af; font-weight: 500;">Selected:</span>
+            <div id="editSelectedColorsPreview" style="display: flex; gap: 8px; flex: 1;">
+              <!-- Selected colors will appear here -->
+            </div>
+          </div>
+          <input type="hidden" id="editColor1" value="">
+          <input type="hidden" id="editColor2" value="">
+          <input type="hidden" id="editColor3" value="">
+          <input type="hidden" id="editColor4" value="">
+        </div>
+
+        <!-- Additional Notes -->
+        <div style="padding: 20px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a; margin-bottom: 24px;">
+          <h5 style="color: #a855f7; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Additional Notes</h5>
+          <label for="editExtraNotes" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Extra Notes</label>
+          <textarea id="editExtraNotes" name="extraNotes" placeholder="Add any special instructions or notes..." style="width: 100%; min-height: 100px; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px; resize: vertical;"></textarea>
+        </div>
+
+        <!-- Modal Actions -->
+        <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; padding-top: 24px; border-top: 1px solid #2d2e3a;">
+          <button type="button" class="btn-calc-ghost" onclick="closeEditOrderModal()">Cancel</button>
+          <button type="submit" class="btn-calc">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 6px;">
+              <path d="M3 8l3 3 6-6"/>
+            </svg>
+            Save Changes
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -1675,10 +2026,19 @@
         document.getElementById('models-uploaded').textContent = count;
       });
 
-      // Load orders count
-      firebase.database().ref(`users/${userId}/orders`).once('value', (snapshot) => {
-        const count = snapshot.exists() ? snapshot.numChildren() : 0;
-        document.getElementById('active-orders').textContent = count;
+      // Load orders count (only pending and processing orders)
+      firebase.database().ref(`orders/${userId}`).once('value', (snapshot) => {
+        let activeCount = 0;
+        if (snapshot.exists()) {
+          snapshot.forEach((childSnapshot) => {
+            const order = childSnapshot.val();
+            // Count orders with "pending" or "processing" status as active
+            if (order.orderStatus === 'pending' || order.orderStatus === 'processing') {
+              activeCount++;
+            }
+          });
+        }
+        document.getElementById('active-orders').textContent = activeCount;
       });
     }
 
@@ -2592,17 +2952,21 @@
       
       const brand = document.getElementById('printerBrand').value.trim();
       const name = document.getElementById('printerName').value.trim();
-      const price = parseFloat(document.getElementById('printerPrice').value);
+      const priceInput = parseFloat(document.getElementById('printerPrice').value);
       const lifespan = parseInt(document.getElementById('printerLifespan').value);
       const printerErr = document.getElementById('printerErr');
       
-      if (!brand || !name || !price || price < 0 || !lifespan || lifespan < 1) {
+      if (!brand || !name || !priceInput || priceInput < 0 || !lifespan || lifespan < 1) {
         printerErr.textContent = 'Please fill all fields correctly.';
         printerErr.style.display = 'block';
         return;
       }
       
-      const printerData = { brand, name, price, lifespan };
+      // Convert price from current currency to USD for storage
+      const currentCurrency = window.currentCurrency || 'USD';
+      const priceUSD = convertToUSD(priceInput, currentCurrency);
+      
+      const printerData = { brand, name, price: priceUSD, lifespan };
       
       // Use Cloud Function for secure printer preset saving
       const savePrinterPresetFunc = firebase.functions().httpsCallable('savePrinterPreset');
@@ -2637,16 +3001,20 @@
       const brand = document.getElementById('filamentBrand').value.trim();
       const type = document.getElementById('filamentType').value.trim();
       const spoolWeight = parseFloat(document.getElementById('spoolWeight').value);
-      const spoolCost = parseFloat(document.getElementById('spoolCost').value);
+      const spoolCostInput = parseFloat(document.getElementById('spoolCost').value);
       const filamentErr = document.getElementById('filamentErr');
       
-      if (!brand || !type || !spoolWeight || spoolWeight <= 0 || !spoolCost || spoolCost < 0) {
+      if (!brand || !type || !spoolWeight || spoolWeight <= 0 || !spoolCostInput || spoolCostInput < 0) {
         filamentErr.textContent = 'Please fill all fields correctly.';
         filamentErr.style.display = 'block';
         return;
       }
       
-      const filamentData = { brand, type, spoolWeight, spoolCost };
+      // Convert cost from current currency to USD for storage
+      const currentCurrency = window.currentCurrency || 'USD';
+      const spoolCostUSD = convertToUSD(spoolCostInput, currentCurrency);
+      
+      const filamentData = { brand, type, spoolWeight, spoolCost: spoolCostUSD };
       
       // Use Cloud Function for secure filament preset saving
       const saveFilamentPresetFunc = firebase.functions().httpsCallable('saveFilamentPreset');
@@ -2693,16 +3061,20 @@
           const entries = quickAddText.split(';').map(s => s.trim()).filter(s => s);
           const printers = [];
           
+          const currentCurrency = window.currentCurrency || 'USD';
+          
           for (const entry of entries) {
             const parsed = JSON.parse(entry);
             if (!Array.isArray(parsed) || parsed.length !== 4) {
               throw new Error('Each entry must be: ["Name", "Brand", Price, Lifespan]');
             }
-            const [name, brand, price, lifespan] = parsed;
-            if (!name || !brand || typeof price !== 'number' || typeof lifespan !== 'number') {
+            const [name, brand, priceInput, lifespan] = parsed;
+            if (!name || !brand || typeof priceInput !== 'number' || typeof lifespan !== 'number') {
               throw new Error('Invalid data format');
             }
-            printers.push({ name, brand, price, lifespan });
+            // Convert price from current currency to USD
+            const priceUSD = convertToUSD(priceInput, currentCurrency);
+            printers.push({ name, brand, price: priceUSD, lifespan });
           }
           
           if (printers.length === 0) {
@@ -2747,16 +3119,20 @@
           const entries = quickAddText.split(';').map(s => s.trim()).filter(s => s);
           const filaments = [];
           
+          const currentCurrency = window.currentCurrency || 'USD';
+          
           for (const entry of entries) {
             const parsed = JSON.parse(entry);
             if (!Array.isArray(parsed) || parsed.length !== 4) {
               throw new Error('Each entry must be: ["Type", "Brand", Weight, Cost]');
             }
-            const [type, brand, spoolWeight, spoolCost] = parsed;
-            if (!type || !brand || typeof spoolWeight !== 'number' || typeof spoolCost !== 'number') {
+            const [type, brand, spoolWeight, spoolCostInput] = parsed;
+            if (!type || !brand || typeof spoolWeight !== 'number' || typeof spoolCostInput !== 'number') {
               throw new Error('Invalid data format');
             }
-            filaments.push({ type, brand, spoolWeight, spoolCost });
+            // Convert cost from current currency to USD
+            const spoolCostUSD = convertToUSD(spoolCostInput, currentCurrency);
+            filaments.push({ type, brand, spoolWeight, spoolCost: spoolCostUSD });
           }
           
           if (filaments.length === 0) {
@@ -2898,36 +3274,49 @@
 
     // Load filaments from Firebase
     function loadFilaments() {
-      filamentsRef.on('value', snapshot => {
-        filamentsData = {};
-        const data = snapshot.val();
-        
-        if (!data) {
+      console.log('Loading global filaments...');
+      console.log('filamentsRef:', filamentsRef);
+      console.log('Firebase database:', firebase.database());
+      
+      filamentsRef.once('value')
+        .then(snapshot => {
+          console.log('Firebase snapshot received');
+          filamentsData = {};
+          const data = snapshot.val();
+          
+          console.log('Global filaments data:', data);
+          
+          if (!data) {
+            console.log('No global filaments found in database');
+            renderFilamentSelect();
+            renderFilamentsList();
+            return;
+          }
+          
+          Object.entries(data).forEach(([key, value]) => {
+            const type = value.type;
+            const spoolWeight = Number(value.spoolWeight || 1000);
+            const spoolCost = Number(value.spoolCost || 0);
+            const costPerG = spoolCost / spoolWeight;
+            
+            filamentsData[type] = {
+              id: key,
+              type: type,
+              brand: value.brand,
+              spoolWeight: spoolWeight,
+              spoolCost: spoolCost,
+              costPerG: costPerG
+            };
+          });
+          
+          console.log('Loaded global filaments:', filamentsData);
           renderFilamentSelect();
           renderFilamentsList();
-          return;
-        }
-        
-        Object.entries(data).forEach(([key, value]) => {
-          const type = value.type;
-          const spoolWeight = Number(value.spoolWeight || 1000);
-          const spoolCost = Number(value.spoolCost || 0);
-          const costPerG = spoolCost / spoolWeight;
-          
-          filamentsData[type] = {
-            id: key,
-            type: type,
-            brand: value.brand,
-            spoolWeight: spoolWeight,
-            spoolCost: spoolCost,
-            costPerG: costPerG
-          };
+          updatePriceInfo();
+        })
+        .catch(error => {
+          console.error('Error loading filaments from Firebase:', error);
         });
-        
-        renderFilamentSelect();
-        renderFilamentsList();
-        updatePriceInfo();
-      });
     }
 
     // Render printer select dropdown
@@ -3186,15 +3575,23 @@
 
     // Render filaments list
     function renderFilamentsList() {
+      console.log('renderFilamentsList called');
       const list = document.getElementById('filamentsList');
-      if (!list) return;
+      console.log('filamentsList element:', list);
+      if (!list) {
+        console.error('filamentsList element not found!');
+        return;
+      }
       
       list.innerHTML = '';
       
       const filamentCount = Object.keys(filamentsData).length;
+      console.log('Filament count:', filamentCount);
+      console.log('filamentsData:', filamentsData);
       const isAdmin = currentUserTier === 'admin';
       
       if (filamentCount === 0) {
+        console.log('No filaments - showing empty state');
         list.innerHTML = `
           <div class="empty-state">
             <div class="empty-state-icon">
@@ -3206,6 +3603,7 @@
         return;
       }
 
+      console.log('Rendering filaments...');
       // Group by brand
       const brandGroups = {};
       Object.entries(filamentsData).forEach(([type, filament]) => {
@@ -3217,6 +3615,7 @@
       });
       
       const sortedBrands = Object.keys(brandGroups).sort();
+      console.log('Brands found:', sortedBrands);
       
       sortedBrands.forEach(brand => {
         const filaments = brandGroups[brand].sort((a, b) => a.type.localeCompare(b.type));
@@ -3875,6 +4274,8 @@
           document.getElementById('addGlobalPrinterPrice').value = '';
           document.getElementById('addGlobalPrinterLifespan').value = '5000';
           document.getElementById('addGlobalPrinterDepreciation').textContent = '-';
+          document.getElementById('globalPrinterQuickAdd').value = '';
+          document.getElementById('addGlobalPrinterErr').style.display = 'none';
           addGlobalPrinterModal.style.display = 'grid';
         });
       }
@@ -3895,20 +4296,24 @@
         saveAddGlobalPrinter.addEventListener('click', async () => {
           const name = document.getElementById('addGlobalPrinterName').value.trim();
           const brand = document.getElementById('addGlobalPrinterBrand').value.trim();
-          const price = parseFloat(document.getElementById('addGlobalPrinterPrice').value);
+          const priceInput = parseFloat(document.getElementById('addGlobalPrinterPrice').value);
           const lifespan = parseFloat(document.getElementById('addGlobalPrinterLifespan').value);
           
-          if (!name || !brand || !price || !lifespan) {
+          if (!name || !brand || !priceInput || !lifespan) {
             await showNotification('Please fill in all fields.', 'Missing Information', 'ℹ️');
             return;
           }
           
+          // Convert price from current currency to USD for storage
+          const currentCurrency = window.currentCurrency || 'USD';
+          const priceUSD = convertToUSD(priceInput, currentCurrency);
+          
           const newPrinter = {
             name: name,
             brand: brand,
-            price: price,
+            price: priceUSD,
             lifespan: lifespan,
-            costPerHour: price / lifespan
+            costPerHour: priceUSD / lifespan
           };
           
           printersRef.push(newPrinter)
@@ -3929,6 +4334,70 @@
       if (addPriceInput) addPriceInput.addEventListener('input', updateAddGlobalPrinterDepreciation);
       if (addLifespanInput) addLifespanInput.addEventListener('input', updateAddGlobalPrinterDepreciation);
       
+      // Bulk add global printers functionality
+      const btnParseGlobalPrinterQuickAdd = document.getElementById('btnParseGlobalPrinterQuickAdd');
+      if (btnParseGlobalPrinterQuickAdd) {
+        btnParseGlobalPrinterQuickAdd.addEventListener('click', async () => {
+          if (currentUserTier !== 'admin') {
+            await showNotification('You need admin access to add global printers.', 'Access Denied', '🔒');
+            return;
+          }
+          
+          const quickAddText = document.getElementById('globalPrinterQuickAdd').value.trim();
+          const errDiv = document.getElementById('addGlobalPrinterErr');
+          
+          if (!quickAddText) {
+            errDiv.textContent = 'Please enter printer data to batch add.';
+            errDiv.style.display = 'block';
+            return;
+          }
+          
+          try {
+            // Split by semicolon and parse each entry
+            const entries = quickAddText.split(';').map(s => s.trim()).filter(s => s);
+            const printers = [];
+            const currentCurrency = window.currentCurrency || 'USD';
+            
+            for (const entry of entries) {
+              const parsed = JSON.parse(entry);
+              if (!Array.isArray(parsed) || parsed.length !== 4) {
+                throw new Error('Each entry must be: ["Name", "Brand", Price, Lifespan]');
+              }
+              const [name, brand, priceInput, lifespan] = parsed;
+              if (!name || !brand || typeof priceInput !== 'number' || typeof lifespan !== 'number') {
+                throw new Error('Invalid data format');
+              }
+              // Convert price from current currency to USD
+              const priceUSD = convertToUSD(priceInput, currentCurrency);
+              printers.push({ 
+                name, 
+                brand, 
+                price: priceUSD, 
+                lifespan,
+                costPerHour: priceUSD / lifespan
+              });
+            }
+            
+            if (printers.length === 0) {
+              throw new Error('No valid printers found');
+            }
+            
+            // Add all printers to Firebase
+            const promises = printers.map(printer => printersRef.push(printer));
+            await Promise.all(promises);
+            
+            await showNotification(`Successfully added ${printers.length} global printer(s)!`, 'Success', '✅');
+            addGlobalPrinterModal.style.display = 'none';
+            document.getElementById('globalPrinterQuickAdd').value = '';
+            renderPrintersList();
+            
+          } catch (error) {
+            errDiv.textContent = 'Error: ' + error.message;
+            errDiv.style.display = 'block';
+          }
+        });
+      }
+      
       // Add Global Filament Modal
       const addGlobalFilamentModal = document.getElementById('addGlobalFilamentModal');
       const btnAddGlobalFilament = document.getElementById('btnAddGlobalFilament');
@@ -3948,6 +4417,8 @@
           document.getElementById('addGlobalFilamentWeight').value = '1000';
           document.getElementById('addGlobalFilamentCost').value = '';
           document.getElementById('addGlobalFilamentCostPerG').textContent = '-';
+          document.getElementById('globalFilamentQuickAdd').value = '';
+          document.getElementById('addGlobalFilamentErr').style.display = 'none';
           addGlobalFilamentModal.style.display = 'grid';
         });
       }
@@ -3969,19 +4440,23 @@
           const type = document.getElementById('addGlobalFilamentType').value.trim();
           const brand = document.getElementById('addGlobalFilamentBrand').value.trim();
           const weight = parseFloat(document.getElementById('addGlobalFilamentWeight').value);
-          const cost = parseFloat(document.getElementById('addGlobalFilamentCost').value);
+          const costInput = parseFloat(document.getElementById('addGlobalFilamentCost').value);
           
-          if (!type || !brand || !weight || !cost) {
+          if (!type || !brand || !weight || !costInput) {
             await showNotification('Please fill in all fields.', 'Missing Information', 'ℹ️');
             return;
           }
+          
+          // Convert cost from current currency to USD for storage
+          const currentCurrency = window.currentCurrency || 'USD';
+          const costUSD = convertToUSD(costInput, currentCurrency);
           
           const newFilament = {
             type: type,
             brand: brand,
             spoolWeight: weight,
-            spoolCost: cost,
-            costPerG: cost / weight
+            spoolCost: costUSD,
+            costPerG: costUSD / weight
           };
           
           filamentsRef.push(newFilament)
@@ -4001,6 +4476,70 @@
       const addWeightInput = document.getElementById('addGlobalFilamentWeight');
       if (addCostInput) addCostInput.addEventListener('input', updateAddGlobalFilamentCostPerG);
       if (addWeightInput) addWeightInput.addEventListener('input', updateAddGlobalFilamentCostPerG);
+      
+      // Bulk add global filaments functionality
+      const btnParseGlobalFilamentQuickAdd = document.getElementById('btnParseGlobalFilamentQuickAdd');
+      if (btnParseGlobalFilamentQuickAdd) {
+        btnParseGlobalFilamentQuickAdd.addEventListener('click', async () => {
+          if (currentUserTier !== 'admin') {
+            await showNotification('You need admin access to add global filaments.', 'Access Denied', '🔒');
+            return;
+          }
+          
+          const quickAddText = document.getElementById('globalFilamentQuickAdd').value.trim();
+          const errDiv = document.getElementById('addGlobalFilamentErr');
+          
+          if (!quickAddText) {
+            errDiv.textContent = 'Please enter filament data to batch add.';
+            errDiv.style.display = 'block';
+            return;
+          }
+          
+          try {
+            // Split by semicolon and parse each entry
+            const entries = quickAddText.split(';').map(s => s.trim()).filter(s => s);
+            const filaments = [];
+            const currentCurrency = window.currentCurrency || 'USD';
+            
+            for (const entry of entries) {
+              const parsed = JSON.parse(entry);
+              if (!Array.isArray(parsed) || parsed.length !== 4) {
+                throw new Error('Each entry must be: ["Type", "Brand", Weight, Cost]');
+              }
+              const [type, brand, spoolWeight, spoolCostInput] = parsed;
+              if (!type || !brand || typeof spoolWeight !== 'number' || typeof spoolCostInput !== 'number') {
+                throw new Error('Invalid data format');
+              }
+              // Convert cost from current currency to USD
+              const spoolCostUSD = convertToUSD(spoolCostInput, currentCurrency);
+              filaments.push({ 
+                type, 
+                brand, 
+                spoolWeight, 
+                spoolCost: spoolCostUSD,
+                costPerG: spoolCostUSD / spoolWeight
+              });
+            }
+            
+            if (filaments.length === 0) {
+              throw new Error('No valid filaments found');
+            }
+            
+            // Add all filaments to Firebase
+            const promises = filaments.map(filament => filamentsRef.push(filament));
+            await Promise.all(promises);
+            
+            await showNotification(`Successfully added ${filaments.length} global filament(s)!`, 'Success', '✅');
+            addGlobalFilamentModal.style.display = 'none';
+            document.getElementById('globalFilamentQuickAdd').value = '';
+            renderFilamentsList();
+            
+          } catch (error) {
+            errDiv.textContent = 'Error: ' + error.message;
+            errDiv.style.display = 'block';
+          }
+        });
+      }
     });
 
     // Check if user can perform calculation (tier limit)
@@ -4514,10 +5053,12 @@
 
     // Orders data storage
     let ordersData = [];
-    let globalColorsData = {};
-    let userColorsData = {};
     let selectedColors = [];
     let currentViewingOrderId = null;
+    
+    // Color data - expose to window for access by orders.js
+    window.globalColorsData = {};
+    window.userColorsData = {};
 
     // Initialize orders when user is authenticated
     firebase.auth().onAuthStateChanged(async (user) => {
@@ -4555,6 +5096,12 @@
       btnAddUserColor.addEventListener('click', addUserColor);
     }
 
+    // Add event listener for Add Global Color button
+    const btnAddGlobalColor = document.getElementById('btnAddGlobalColor');
+    if (btnAddGlobalColor) {
+      btnAddGlobalColor.addEventListener('click', addGlobalColor);
+    }
+
     // Search and filter functionality
     const searchInput = document.getElementById('ordersSearchInput');
     const statusFilter = document.getElementById('ordersStatusFilter');
@@ -4571,7 +5118,20 @@
     function openColorManagementModal() {
       const modal = document.getElementById('colorManagementModal');
       if (modal) {
-        modal.style.display = 'flex';
+        modal.style.display = 'grid';
+        
+        // Show/hide admin buttons based on user tier
+        const isAdmin = currentUserTier === 'admin';
+        const btnAddGlobal = document.getElementById('btnAddGlobalColor');
+        const btnMassDeleteGlobal = document.getElementById('btnMassDeleteGlobalColors');
+        
+        if (btnAddGlobal) {
+          btnAddGlobal.style.display = isAdmin ? 'inline-flex' : 'none';
+        }
+        if (btnMassDeleteGlobal) {
+          btnMassDeleteGlobal.style.display = isAdmin ? 'inline-flex' : 'none';
+        }
+        
         // Re-render colors when modal opens to ensure they're visible
         renderGlobalColors();
         renderUserColors();
@@ -4610,12 +5170,12 @@
       // Load global colors (using 'colors' path like orders.html)
       const globalColorsRef = firebase.database().ref('colors');
       globalColorsRef.on('value', snapshot => {
-        globalColorsData = {};
+        window.globalColorsData = {};
         const data = snapshot.val();
         
         if (data) {
           Object.entries(data).forEach(([key, value]) => {
-            globalColorsData[key] = {
+            window.globalColorsData[key] = {
               id: key,
               name: value.name,
               hex: value.hex,
@@ -4624,7 +5184,7 @@
           });
         }
         
-        console.log('Global colors loaded:', Object.keys(globalColorsData).length, 'colors');
+        console.log('Global colors loaded:', Object.keys(window.globalColorsData).length, 'colors');
         renderGlobalColors();
       });
       
@@ -4632,12 +5192,12 @@
       if (user) {
         const userColorsRef = firebase.database().ref(`userColors/${user.uid}`);
         userColorsRef.on('value', snapshot => {
-          userColorsData = {};
+          window.userColorsData = {};
           
           if (snapshot.exists()) {
             snapshot.forEach(child => {
               const color = child.val();
-              userColorsData[child.key] = {
+              window.userColorsData[child.key] = {
                 id: child.key,
                 name: color.name,
                 hex: color.hex,
@@ -4646,7 +5206,7 @@
             });
           }
           
-          console.log('User colors loaded:', Object.keys(userColorsData).length, 'colors');
+          console.log('User colors loaded:', Object.keys(window.userColorsData).length, 'colors');
           renderUserColors();
         });
       }
@@ -4679,6 +5239,12 @@
       return { h: h * 360, s: s * 100, l: l * 100 };
     }
 
+    // Track selected colors
+    let selectedGlobalColors = [];
+    let selectedUserColors = [];
+    let globalSelectionMode = false;
+    let userSelectionMode = false;
+
     function renderGlobalColors() {
       const grid = document.getElementById('globalColorsGrid');
       if (!grid) {
@@ -4688,6 +5254,7 @@
       
       const colors = Object.entries(globalColorsData);
       console.log('Rendering global colors:', colors.length);
+      const isAdmin = currentUserTier === 'admin';
       
       if (colors.length === 0) {
         grid.innerHTML = '<div class="empty-colors-state" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #9ca3af;"><h4 style="margin-bottom: 8px; color: #ffffff;">No global colors available</h4><p>Contact admin to add global colors</p></div>';
@@ -4733,13 +5300,40 @@
         
         // Add color cards for this brand
         brandColors.forEach(([id, color]) => {
+          const isSelected = selectedGlobalColors.includes(id);
+          const selectedClass = isSelected ? ' selected' : '';
+          
+          // Show checkbox in selection mode, or edit/delete buttons normally
+          let actionArea = '';
+          let cardClick = '';
+          
+          if (globalSelectionMode && isAdmin) {
+            cardClick = `onclick="toggleGlobalColorSelection('${id}')" style="cursor: pointer;"`;
+            actionArea = `
+              <div style="position: absolute; top: 8px; right: 8px; pointer-events: none;">
+                <input type="checkbox" 
+                       class="color-checkbox" 
+                       ${isSelected ? 'checked' : ''} 
+                       style="width: 20px; height: 20px; cursor: pointer;">
+              </div>
+            `;
+          } else if (isAdmin) {
+            actionArea = `
+              <div class="color-actions">
+                <button class="btn-action" onclick="editGlobalColor('${id}')">Edit</button>
+                <button class="btn-action" onclick="deleteGlobalColor('${id}')">Delete</button>
+              </div>
+            `;
+          }
+          
           html += `
-            <div class="color-card">
+            <div class="color-card${selectedClass}" ${cardClick} style="position: relative;">
               <div class="color-preview" style="background-color: ${color.hex};"></div>
               <div class="color-info">
                 <div class="color-name">${color.name}</div>
                 <div class="color-hex">${color.hex}</div>
               </div>
+              ${actionArea}
             </div>
           `;
         });
@@ -4802,17 +5396,40 @@
         
         // Add color cards for this brand
         brandColors.forEach(([id, color]) => {
+          const isSelected = selectedUserColors.includes(id);
+          const selectedClass = isSelected ? ' selected' : '';
+          
+          // Show checkbox in selection mode, or edit/delete buttons normally
+          let actionArea = '';
+          let cardClick = '';
+          
+          if (userSelectionMode) {
+            cardClick = `onclick="toggleUserColorSelection('${id}')" style="cursor: pointer;"`;
+            actionArea = `
+              <div style="position: absolute; top: 8px; right: 8px; pointer-events: none;">
+                <input type="checkbox" 
+                       class="color-checkbox" 
+                       ${isSelected ? 'checked' : ''} 
+                       style="width: 20px; height: 20px; cursor: pointer;">
+              </div>
+            `;
+          } else {
+            actionArea = `
+              <div class="color-actions">
+                <button class="btn-action" onclick="editUserColor('${id}')">Edit</button>
+                <button class="btn-action" onclick="deleteUserColor('${id}')">Delete</button>
+              </div>
+            `;
+          }
+          
           html += `
-            <div class="color-card">
+            <div class="color-card${selectedClass}" ${cardClick} style="position: relative;">
               <div class="color-preview" style="background-color: ${color.hex};"></div>
               <div class="color-info">
                 <div class="color-name">${color.name}</div>
                 <div class="color-hex">${color.hex}</div>
               </div>
-              <div class="color-actions">
-                <button class="btn-action" onclick="editUserColor('${id}')">Edit</button>
-                <button class="btn-action" onclick="deleteUserColor('${id}')">Delete</button>
-              </div>
+              ${actionArea}
             </div>
           `;
         });
@@ -4821,35 +5438,204 @@
       grid.innerHTML = html;
     }
 
-    // Add user color
+    // Add user color - open modal
     function addUserColor() {
-      const name = prompt('Enter color name:');
-      if (!name) return;
-      
-      const brand = prompt('Enter brand (optional):') || '';
-      
-      const hex = prompt('Enter hex code (e.g., #FF5733):');
-      if (!hex || !hex.match(/^#[0-9A-F]{6}$/i)) {
-        alert('Invalid hex code');
-        return;
-      }
-      
       if (!currentUser) {
         alert('Please login to add colors');
         return;
       }
       
-      const colorRef = firebase.database().ref(`userColors/${currentUser.uid}`).push();
-      colorRef.set({
+      // Set mode to user
+      document.getElementById('addColorMode').value = 'user';
+      document.getElementById('editColorId').value = '';
+      
+      // Update modal title
+      document.getElementById('addColorModalTitle').textContent = 'Add Your Color';
+      document.getElementById('addColorModalSubtitle').textContent = 'Add a color to your personal library.';
+      
+      // Clear form fields
+      document.getElementById('singleColorName').value = '';
+      document.getElementById('singleColorBrand').value = '';
+      document.getElementById('singleColorHex').value = '';
+      document.getElementById('bulkColorInput').value = '';
+      
+      // Open modal
+      const modal = document.getElementById('addColorModal');
+      if (modal) modal.style.display = 'grid';
+    }
+
+    // Close add color modal
+    function closeAddColorModal() {
+      const modal = document.getElementById('addColorModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    // Save single color
+    async function saveSingleColor() {
+      const mode = document.getElementById('addColorMode').value;
+      const editId = document.getElementById('editColorId').value;
+      const name = document.getElementById('singleColorName').value.trim();
+      const brand = document.getElementById('singleColorBrand').value.trim();
+      const hex = document.getElementById('singleColorHex').value.trim();
+      
+      // Validation
+      if (!name) {
+        alert('Please enter a color name');
+        return;
+      }
+      
+      if (!hex || !hex.match(/^#[0-9A-F]{6}$/i)) {
+        alert('Please enter a valid hex code (e.g., #FF5733)');
+        return;
+      }
+
+      const colorData = {
         name: name,
-        brand: brand,
-        hex: hex,
+        brand: brand || '',
+        hex: hex.toUpperCase(),
         createdAt: Date.now()
-      }).then(() => {
-        alert('Color added successfully!');
-      }).catch(error => {
-        alert('Error adding color: ' + error.message);
-      });
+      };
+
+      try {
+        if (mode === 'global') {
+          // Admin check for global colors
+          if (currentUserTier !== 'admin') {
+            await showNotification('You need admin access to add global colors.', 'Access Denied', '🔒');
+            return;
+          }
+
+          if (editId) {
+            // Edit existing global color
+            delete colorData.createdAt; // Don't update timestamp on edit
+            await firebase.database().ref(`colors/${editId}`).update(colorData);
+            await showNotification(`Color "${name}" has been updated successfully.`, 'Success', '✅');
+          } else {
+            // Add new global color
+            await firebase.database().ref('colors').push(colorData);
+            await showNotification(`Color "${name}" has been added to global library.`, 'Success', '✅');
+          }
+        } else {
+          // User colors
+          if (!currentUser) {
+            alert('Please login to add colors');
+            return;
+          }
+
+          if (editId) {
+            // Edit existing user color
+            delete colorData.createdAt; // Don't update timestamp on edit
+            await firebase.database().ref(`userColors/${currentUser.uid}/${editId}`).update(colorData);
+            await showNotification(`Color "${name}" has been updated successfully.`, 'Success', '✅');
+          } else {
+            // Add new user color
+            await firebase.database().ref(`userColors/${currentUser.uid}`).push(colorData);
+            await showNotification(`Color "${name}" has been added to your library.`, 'Success', '✅');
+          }
+        }
+
+        // Clear form
+        document.getElementById('singleColorName').value = '';
+        document.getElementById('singleColorBrand').value = '';
+        document.getElementById('singleColorHex').value = '';
+        document.getElementById('editColorId').value = '';
+      } catch (error) {
+        console.error('Error saving color:', error);
+        alert('Error saving color: ' + error.message);
+      }
+    }
+
+    // Save bulk colors
+    async function saveBulkColors() {
+      const mode = document.getElementById('addColorMode').value;
+      const bulkInput = document.getElementById('bulkColorInput').value.trim();
+      
+      if (!bulkInput) {
+        alert('Please enter colors to import');
+        return;
+      }
+
+      // Admin check for global colors
+      if (mode === 'global') {
+        if (currentUserTier !== 'admin') {
+          await showNotification('You need admin access to add global colors.', 'Access Denied', '🔒');
+          return;
+        }
+      } else {
+        if (!currentUser) {
+          alert('Please login to add colors');
+          return;
+        }
+      }
+      
+      const lines = bulkInput.split('\n').filter(line => line.trim());
+      let successCount = 0;
+      let errorCount = 0;
+      const errors = [];
+      
+      if (lines.length === 0) {
+        alert('No valid colors to import');
+        return;
+      }
+      
+      // Determine the database path
+      const dbPath = mode === 'global' 
+        ? 'colors' 
+        : `userColors/${currentUser.uid}`;
+      
+      // Process each line sequentially
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        try {
+          // Remove trailing semicolon if present
+          const cleanLine = line.trim().replace(/;$/, '');
+          
+          // Parse the array format: ["Name", "Brand", "Hex"]
+          const match = cleanLine.match(/\["([^"]+)",\s*"([^"]*)",\s*"([^"]+)"\]/);
+          
+          if (match) {
+            const name = match[1].trim();
+            const brand = match[2].trim();
+            const hex = match[3].trim();
+            
+            if (name && hex && hex.match(/^#[0-9A-F]{6}$/i)) {
+              try {
+                const colorRef = firebase.database().ref(dbPath).push();
+                await colorRef.set({
+                  name: name,
+                  brand: brand,
+                  hex: hex.toUpperCase(),
+                  createdAt: Date.now()
+                });
+                successCount++;
+              } catch (error) {
+                errorCount++;
+                errors.push(`Line ${i + 1}: ${error.message}`);
+              }
+            } else {
+              errorCount++;
+              errors.push(`Line ${i + 1}: Invalid name or hex code`);
+            }
+          } else {
+            errorCount++;
+            errors.push(`Line ${i + 1}: Invalid format`);
+          }
+        } catch (e) {
+          errorCount++;
+          errors.push(`Line ${i + 1}: ${e.message}`);
+        }
+      }
+      
+      // Show results
+      const location = mode === 'global' ? 'global library' : 'your library';
+      await showNotification(
+        `Import complete!\n✅ Success: ${successCount}\n❌ Errors: ${errorCount}`,
+        `Added to ${location}`,
+        '📦'
+      );
+      
+      if (successCount > 0) {
+        document.getElementById('bulkColorInput').value = '';
+      }
     }
 
     // Edit user color
@@ -4857,26 +5643,23 @@
       const color = userColorsData[colorId];
       if (!color) return;
       
-      const name = prompt('Enter color name:', color.name);
-      if (!name) return;
+      // Set mode to user and edit mode
+      document.getElementById('addColorMode').value = 'user';
+      document.getElementById('editColorId').value = colorId;
       
-      const brand = prompt('Enter brand (optional):', color.brand || '') || '';
+      // Update modal title
+      document.getElementById('addColorModalTitle').textContent = 'Edit Your Color';
+      document.getElementById('addColorModalSubtitle').textContent = 'Update your personal color.';
       
-      const hex = prompt('Enter hex code:', color.hex);
-      if (!hex || !hex.match(/^#[0-9A-F]{6}$/i)) {
-        alert('Invalid hex code');
-        return;
-      }
+      // Populate form fields
+      document.getElementById('singleColorName').value = color.name;
+      document.getElementById('singleColorBrand').value = color.brand || '';
+      document.getElementById('singleColorHex').value = color.hex;
+      document.getElementById('bulkColorInput').value = '';
       
-      firebase.database().ref(`userColors/${currentUser.uid}/${colorId}`).update({
-        name: name,
-        brand: brand,
-        hex: hex
-      }).then(() => {
-        alert('Color updated successfully!');
-      }).catch(error => {
-        alert('Error updating color: ' + error.message);
-      });
+      // Open modal
+      const modal = document.getElementById('addColorModal');
+      if (modal) modal.style.display = 'grid';
     }
 
     // Delete user color
@@ -4888,26 +5671,309 @@
         .catch(error => alert('Error: ' + error.message));
     }
 
-    // Mass delete functions
-    function massDeleteUserColors() {
-      if (!confirm('Delete all your colors? This cannot be undone!')) return;
-      
-      firebase.database().ref(`userColors/${currentUser.uid}`).remove()
-        .then(() => alert('All colors deleted'))
-        .catch(error => alert('Error: ' + error.message));
+    // Toggle color selection
+    function toggleGlobalColorSelection(colorId) {
+      const index = selectedGlobalColors.indexOf(colorId);
+      if (index > -1) {
+        selectedGlobalColors.splice(index, 1);
+      } else {
+        selectedGlobalColors.push(colorId);
+      }
+      updateGlobalSelectionUI();
+      renderGlobalColors();
     }
 
-    function massDeleteGlobalColors() {
-      alert('Only admins can delete global colors');
+    function toggleUserColorSelection(colorId) {
+      const index = selectedUserColors.indexOf(colorId);
+      if (index > -1) {
+        selectedUserColors.splice(index, 1);
+      } else {
+        selectedUserColors.push(colorId);
+      }
+      updateUserSelectionUI();
+      renderUserColors();
+    }
+
+    // Update selection UI
+    function updateGlobalSelectionUI() {
+      const cancelBtn = document.getElementById('btnCancelGlobalSelection');
+      const deleteBtn = document.getElementById('btnMassDeleteGlobalColors');
+      const addBtn = document.getElementById('btnAddGlobalColor');
+      
+      if (globalSelectionMode) {
+        if (cancelBtn) cancelBtn.style.display = 'inline-flex';
+        if (deleteBtn) {
+          deleteBtn.style.display = 'inline-flex';
+          deleteBtn.innerHTML = `
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+              <path d="M3 3l8 8M11 3l-8 8"/>
+            </svg>
+            Delete Selected (${selectedGlobalColors.length})
+          `;
+        }
+        if (addBtn) addBtn.style.display = 'none';
+      } else {
+        // Exit selection mode - restore initial button state
+        if (cancelBtn) cancelBtn.style.display = 'none';
+        if (deleteBtn) {
+          // Global delete button should be hidden for non-admins, visible with "Select & Delete" text for admins
+          if (currentUserTier === 'admin') {
+            deleteBtn.style.display = 'inline-flex';
+            deleteBtn.innerHTML = `
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+                <path d="M3 3l8 8M11 3l-8 8"/>
+              </svg>
+              Select & Delete
+            `;
+          } else {
+            deleteBtn.style.display = 'none';
+          }
+        }
+        if (addBtn && currentUserTier === 'admin') addBtn.style.display = 'inline-flex';
+      }
+    }
+
+    function updateUserSelectionUI() {
+      const cancelBtn = document.getElementById('btnCancelUserSelection');
+      const deleteBtn = document.getElementById('btnMassDeleteUserColors');
+      const addBtn = document.getElementById('btnAddUserColor');
+      
+      if (userSelectionMode) {
+        if (cancelBtn) cancelBtn.style.display = 'inline-flex';
+        if (deleteBtn) {
+          deleteBtn.style.display = 'inline-flex';
+          const btnText = deleteBtn.querySelector('span') || deleteBtn;
+          btnText.innerHTML = `
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+              <path d="M3 3l8 8M11 3l-8 8"/>
+            </svg>
+            Delete Selected (${selectedUserColors.length})
+          `;
+        }
+        if (addBtn) addBtn.style.display = 'none';
+      } else {
+        // Exit selection mode - restore initial button state
+        if (cancelBtn) cancelBtn.style.display = 'none';
+        if (deleteBtn) {
+          deleteBtn.style.display = 'inline-flex'; // User delete button should always be visible
+          const btnText = deleteBtn.querySelector('span') || deleteBtn;
+          btnText.innerHTML = `
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+              <path d="M3 3l8 8M11 3l-8 8"/>
+            </svg>
+            Select & Delete
+          `;
+        }
+        if (addBtn) addBtn.style.display = 'inline-flex';
+      }
+    }
+
+    // Enter/Exit selection mode
+    function enterGlobalSelectionMode() {
+      globalSelectionMode = true;
+      selectedGlobalColors = [];
+      updateGlobalSelectionUI();
+      renderGlobalColors();
+    }
+
+    function enterUserSelectionMode() {
+      userSelectionMode = true;
+      selectedUserColors = [];
+      updateUserSelectionUI();
+      renderUserColors();
     }
 
     function cancelGlobalSelection() {
-      // Placeholder for selection cancel
+      globalSelectionMode = false;
+      selectedGlobalColors = [];
+      updateGlobalSelectionUI();
+      renderGlobalColors();
     }
 
     function cancelUserSelection() {
-      // Placeholder for selection cancel
+      userSelectionMode = false;
+      selectedUserColors = [];
+      updateUserSelectionUI();
+      renderUserColors();
     }
+
+    // Mass delete selected colors
+    window.massDeleteUserColors = async function() {
+      if (!userSelectionMode) {
+        // Enter selection mode
+        enterUserSelectionMode();
+        return;
+      }
+
+      if (selectedUserColors.length === 0) {
+        alert('Please select colors to delete');
+        return;
+      }
+
+      const confirmed = await showConfirm(
+        `Delete ${selectedUserColors.length} selected color${selectedUserColors.length > 1 ? 's' : ''}?`,
+        'Delete Selected Colors?'
+      );
+      
+      if (!confirmed) return;
+      
+      try {
+        // Delete each selected color
+        for (const colorId of selectedUserColors) {
+          await firebase.database().ref(`userColors/${currentUser.uid}/${colorId}`).remove();
+        }
+        
+        await showNotification(`${selectedUserColors.length} color${selectedUserColors.length > 1 ? 's' : ''} deleted successfully.`, 'Success', '✅');
+        
+        // Exit selection mode
+        cancelUserSelection();
+      } catch (error) {
+        console.error('Error deleting colors:', error);
+        await showNotification(`Error deleting colors: ${error.message}`, 'Error', '❌');
+      }
+    };
+
+    window.massDeleteGlobalColors = async function() {
+      if (currentUserTier !== 'admin') {
+        await showNotification('You need admin access to delete global colors.', 'Access Denied', '🔒');
+        return;
+      }
+
+      if (!globalSelectionMode) {
+        // Enter selection mode
+        enterGlobalSelectionMode();
+        return;
+      }
+
+      if (selectedGlobalColors.length === 0) {
+        alert('Please select colors to delete');
+        return;
+      }
+
+      const confirmed = await showConfirm(
+        `Delete ${selectedGlobalColors.length} selected global color${selectedGlobalColors.length > 1 ? 's' : ''}? This will affect all users.`,
+        'Delete Selected Colors?'
+      );
+      
+      if (!confirmed) return;
+      
+      try {
+        // Delete each selected color
+        for (const colorId of selectedGlobalColors) {
+          await firebase.database().ref(`colors/${colorId}`).remove();
+        }
+        
+        await showNotification(`${selectedGlobalColors.length} global color${selectedGlobalColors.length > 1 ? 's' : ''} deleted successfully.`, 'Success', '✅');
+        
+        // Exit selection mode
+        cancelGlobalSelection();
+      } catch (error) {
+        console.error('Error deleting colors:', error);
+        await showNotification(`Error deleting colors: ${error.message}`, 'Error', '❌');
+      }
+    };
+
+    // ===============================================
+    // ADMIN FUNCTIONS FOR GLOBAL COLORS
+    // ===============================================
+
+    // Add Global Color (Admin Only)
+    function addGlobalColor() {
+      if (currentUserTier !== 'admin') {
+        showNotification('You need admin access to add global colors.', 'Access Denied', '🔒');
+        return;
+      }
+
+      // Set mode to global
+      document.getElementById('addColorMode').value = 'global';
+      document.getElementById('editColorId').value = '';
+      
+      // Update modal title
+      document.getElementById('addColorModalTitle').textContent = 'Add Global Color';
+      document.getElementById('addColorModalSubtitle').textContent = 'Available to all users in the global library.';
+      
+      // Clear form fields
+      document.getElementById('singleColorName').value = '';
+      document.getElementById('singleColorBrand').value = '';
+      document.getElementById('singleColorHex').value = '';
+      document.getElementById('bulkColorInput').value = '';
+
+      // Show modal
+      const modal = document.getElementById('addColorModal');
+      if (modal) {
+        modal.style.display = 'grid';
+      }
+    }
+
+    // Edit Global Color (Admin Only)
+    window.editGlobalColor = async function(colorId) {
+      console.log('editGlobalColor called with:', colorId);
+      
+      if (currentUserTier !== 'admin') {
+        await showNotification('You need admin access to edit global colors.', 'Access Denied', '🔒');
+        return;
+      }
+
+      const color = globalColorsData[colorId];
+      if (!color) {
+        console.error('Color not found:', colorId);
+        await showNotification('Color not found in the database.', 'Error', '❌');
+        return;
+      }
+
+      console.log('Opening edit modal for color:', color);
+
+      // Set mode to global and edit mode
+      document.getElementById('addColorMode').value = 'global';
+      document.getElementById('editColorId').value = colorId;
+      
+      // Update modal title
+      document.getElementById('addColorModalTitle').textContent = 'Edit Global Color';
+      document.getElementById('addColorModalSubtitle').textContent = 'Update color in the global library.';
+      
+      // Populate form fields
+      document.getElementById('singleColorName').value = color.name;
+      document.getElementById('singleColorBrand').value = color.brand || '';
+      document.getElementById('singleColorHex').value = color.hex;
+      document.getElementById('bulkColorInput').value = '';
+
+      // Show modal
+      const modal = document.getElementById('addColorModal');
+      if (modal) {
+        modal.style.display = 'grid';
+      }
+    };
+
+    // Delete Global Color (Admin Only)
+    window.deleteGlobalColor = async function(colorId) {
+      console.log('deleteGlobalColor called with:', colorId);
+      
+      if (currentUserTier !== 'admin') {
+        await showNotification('You need admin access to delete global colors.', 'Access Denied', '🔒');
+        return;
+      }
+
+      const color = globalColorsData[colorId];
+      if (!color) {
+        await showNotification('Color not found in the database.', 'Error', '❌');
+        return;
+      }
+
+      const confirmed = await showConfirm(
+        `Delete global color "${color.name}"? This will affect all users and cannot be undone.`,
+        'Delete Color?'
+      );
+
+      if (!confirmed) return;
+
+      try {
+        await firebase.database().ref(`colors/${colorId}`).remove();
+        await showNotification(`Color "${color.name}" has been deleted successfully.`, 'Success', '✅');
+      } catch (error) {
+        console.error('Error deleting color:', error);
+        await showNotification(`Error deleting color: ${error.message}`, 'Error', '❌');
+      }
+    };
 
     // Populate material dropdown from existing filaments data
     function populateMaterialDropdowns() {
@@ -5000,7 +6066,7 @@
                 <th>Order ID</th>
                 <th>Title</th>
                 <th>Client</th>
-                <th>Product</th>
+                <!-- <th>Product</th> -->
                 <th>Total</th>
                 <th>Status</th>
                 <th>Payment</th>
@@ -5014,7 +6080,7 @@
                   <td>#${order.id.slice(0, 7).toUpperCase()}</td>
                   <td>${order.orderTitle || 'N/A'}</td>
                   <td>${order.clientName || 'N/A'}</td>
-                  <td>${order.productName || 'N/A'}</td>
+                  <!-- <td>${order.productName || 'N/A'}</td> -->
                   <td>${getCurrencySymbolLocal()}${formatCurrencyLocal(convertFromUSD(order.total || 0))}</td>
                   <td><span class="status-badge status-${order.orderStatus || 'pending'}">${order.orderStatus || 'pending'}</span></td>
                   <td><span class="status-badge status-${order.paymentStatus || 'unpaid'}">${order.paymentStatus || 'unpaid'}</span></td>
@@ -5131,9 +6197,10 @@
       const grid = document.getElementById('colorSelectionGrid');
       if (!grid) return;
       
+      // User colors first, then global colors (matching printer/filament preset order)
       const allColors = [
-        ...Object.entries(globalColorsData).map(([id, color]) => ({ ...color, id, source: 'global' })),
-        ...Object.entries(userColorsData).map(([id, color]) => ({ ...color, id, source: 'user' }))
+        ...Object.entries(userColorsData).map(([id, color]) => ({ ...color, id, source: 'user' })),
+        ...Object.entries(globalColorsData).map(([id, color]) => ({ ...color, id, source: 'global' }))
       ];
       
       // Filter colors by search term
@@ -5150,7 +6217,7 @@
         const isSelected = selectedColors.some(c => c.hex === color.hex);
         const selectedClass = isSelected ? ' selected' : '';
         return `
-          <div class="color-option${selectedClass}" 
+          <div class="color-option${selectedClass} color-swatch-preserve" 
                style="background-color: ${color.hex}; border-color: ${isSelected ? 'var(--purple)' : color.hex};" 
                onclick="selectColor('${color.id}', '${color.name}', '${color.hex}')"
                title="${color.name}">
@@ -5194,7 +6261,7 @@
       if (!preview) return;
       
       preview.innerHTML = selectedColors.map((color, index) => `
-        <div style="position: relative; width: 40px; height: 40px; border-radius: 6px; background-color: ${color.hex}; border: 2px solid var(--purple); cursor: pointer;" 
+        <div class="color-swatch-preserve" style="position: relative; width: 40px; height: 40px; border-radius: 6px; background-color: ${color.hex}; border: 2px solid var(--purple); cursor: pointer;" 
              onclick="removeSelectedColor(${index})"
              title="${color.name} - Click to remove">
         </div>
@@ -5228,110 +6295,419 @@
       return luminance > 0.5 ? '#000000' : '#FFFFFF';
     }
 
-    // Handle new order form submission
-    const newOrderForm = document.getElementById('newOrderForm');
-    if (newOrderForm) {
-      newOrderForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        if (!currentUser) {
-          alert('Please login to create an order');
-          return;
-        }
-        
-        const orderData = {
-          orderTitle: document.getElementById('orderTitle').value.trim(),
-          clientName: document.getElementById('clientName').value.trim(),
-          clientEmail: document.getElementById('clientEmail').value.trim(),
-          clientPhone: document.getElementById('clientPhone').value.trim(),
-          clientStreet: document.getElementById('clientStreet').value.trim(),
-          clientCity: document.getElementById('clientCity').value.trim(),
-          clientState: document.getElementById('clientState').value.trim(),
-          clientPostalCode: document.getElementById('clientPostalCode').value.trim(),
-          clientCountry: document.getElementById('clientCountry').value.trim(),
-          messagingApp: document.getElementById('messaging_app').value,
-          productName: document.getElementById('productName').value.trim(),
-          quantity: parseInt(document.getElementById('quantity').value) || 1,
-          colors: selectedColors.map(c => c.name),
-          material: document.getElementById('material').value,
-          finish: document.getElementById('finish').value,
-          scale: document.getElementById('scale').value,
-          extraNotes: document.getElementById('extraNotes').value.trim(),
-          total: parseFloat(document.getElementById('orderTotal').value) || 0,
-          amountPaid: parseFloat(document.getElementById('amountPaid').value) || 0,
-          paymentMethod: document.getElementById('paymentMethod').value,
-          paymentStatus: document.getElementById('paymentStatus').value,
-          orderStatus: document.getElementById('orderStatus').value
-        };
-        
-        try {
-          // Use Cloud Function for secure order creation
-          const createOrder = firebase.functions().httpsCallable('createOrder');
-          const result = await createOrder(orderData);
-          
-          if (result.data.success) {
-            alert('Order created successfully!');
-            closeNewOrderModal();
-          } else {
-            alert('Error creating order: ' + result.data.message);
-          }
-        } catch (error) {
-          alert('Error creating order: ' + error.message);
-        }
-      });
-    }
-
-    // View order
-    function viewOrder(orderId) {
-      alert('View order functionality - ID: ' + orderId + '\nFull implementation in progress');
-    }
-
-    function closeViewOrderModal() {
-      const modal = document.getElementById('viewOrderModal');
-      if (modal) {
-        modal.style.display = 'none';
-      }
-    }
-
-    // Duplicate order
-    async function duplicateOrder(orderId) {
-      if (!confirm('Create a duplicate of this order?')) return;
-      
-      try {
-        // Use Cloud Function for secure order duplication
-        const duplicateOrderFunc = firebase.functions().httpsCallable('duplicateOrder');
-        const result = await duplicateOrderFunc({ orderId: orderId });
-        
-        if (result.data.success) {
-          alert('Order duplicated successfully!');
-        } else {
-          alert('Error: ' + result.data.message);
-        }
-      } catch (error) {
-        alert('Error: ' + error.message);
-      }
-    }
-
-    // Delete order
-    async function deleteOrder(orderId) {
-      if (!confirm('Delete this order? This cannot be undone!')) return;
-      
-      try {
-        // Use Cloud Function for secure order deletion
-        const deleteOrderFunc = firebase.functions().httpsCallable('deleteOrder');
-        const result = await deleteOrderFunc({ orderId: orderId });
-        
-        if (result.data.success) {
-          alert('Order deleted');
-        } else {
-          alert('Error: ' + result.data.message);
-        }
-      } catch (error) {
-        alert('Error: ' + error.message);
-      }
-    }
+    // Form submission handler is in orders.js
 
   </script>
+
+  <!-- ============================================ -->
+  <!-- UPLOAD MODEL MODALS - START -->
+  <!-- ============================================ -->
+
+  <!-- Add Model Form Modal -->
+  <div class="modal-overlay" id="addModelModal">
+    <div class="modal-card modal-dark-theme" style="max-width: 1800px; width: 98%; max-height: 95vh; overflow-y: auto;">
+      <div class="modal-header-centered">
+        <h3 class="modal-title-large">Add New <span class="gradient-highlight">Model</span></h3>
+        <p class="modal-subtitle-large">Fill in the model details below</p>
+        <button type="button" class="modal-close" onclick="closeAddModelModal()">×</button>
+      </div>
+
+      <form id="modelForm">
+      <!-- Model Information Section -->
+      <div style="padding: 24px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a; margin-bottom: 24px;">
+        <h4 style="color: #ffffff; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Model Information</h4>
+        
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+          <div>
+            <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">SKU</label>
+            <input type="text" class="form-input" id="sku" placeholder="1000 | 0 for infinite" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+          </div>
+
+          <div>
+            <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Designer</label>
+            <input type="text" class="form-input" id="designer" placeholder="Vixvvo3D" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+          </div>
+
+          <div>
+            <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Category</label>
+            <input type="text" class="form-input" id="category" list="categoryOptions" placeholder="Enter or select category" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            <datalist id="categoryOptions">
+              <!-- Populated dynamically -->
+            </datalist>
+          </div>
+
+          <div>
+            <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Marketplace</label>
+            <input type="text" class="form-input" id="marketplace" placeholder="Marketplace" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+          </div>
+
+          <div style="grid-column: 1 / -1;">
+            <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Model Name <span style="color: #ef4444;">*</span></label>
+            <input type="text" class="form-input" id="modelName" placeholder="Enter model name" required style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+          </div>
+
+          <div style="grid-column: 1 / -1;">
+            <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Print Time</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div>
+                <label style="display: block; color: #9ca3af; margin: 0 0 4px 0; font-size: 11px;">Hours</label>
+                <input type="number" class="form-input" id="printHours" min="0" value="0" placeholder="0" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+              <div>
+                <label style="display: block; color: #9ca3af; margin: 0 0 4px 0; font-size: 11px;">Minutes</label>
+                <input type="number" class="form-input" id="printMinutes" min="0" max="59" value="0" placeholder="0" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Model Image Section -->
+      <div style="padding: 24px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a; margin-bottom: 24px;">
+        <h4 style="color: #ffffff; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Model Image</h4>
+
+        <div style="display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: start;">
+          <div class="image-preview" id="imagePreview" style="aspect-ratio: 1; background: rgba(36, 29, 53, 0.6); border: 2px dashed #2d2e3a; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+            <div class="image-preview-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; color: #9ca3af; position: absolute; top: 0; left: 0;">
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.6;">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              <p style="margin: 12px 0 0 0; font-size: 13px; opacity: 0.6;">No Image</p>
+            </div>
+            <img id="imagePreviewImg" style="display: none; width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 1;" alt="">
+          </div>
+          <div style="display: flex; gap: 12px; flex-direction: column;">
+            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+            <button type="button" class="btn-calc-ghost" onclick="document.getElementById('imageInput').click()" style="width: fit-content;">Choose Image</button>
+            <button type="button" class="btn-calc-ghost" id="btnRemoveImage" style="display: none; width: fit-content; border-color: #ef4444; color: #ef4444;">Remove</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Model Files Section -->
+      <div style="padding: 24px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a; margin-bottom: 24px;">
+        <h4 style="color: #ffffff; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Model Files</h4>
+
+        <div class="upload-area" id="uploadArea" style="padding: 40px; background: rgba(36, 29, 53, 0.6); border: 2px dashed #2d2e3a; border-radius: 12px; text-align: center; cursor: pointer; transition: all 0.3s;">
+          <div class="upload-icon" style="font-size: 48px; margin-bottom: 12px;">⬆</div>
+          <div class="upload-text" style="color: #ffffff; font-size: 16px; margin-bottom: 4px;">Click to upload or drag and drop</div>
+          <div class="upload-subtext" style="color: #9ca3af; font-size: 13px;">Supports: .stl, .3mf, .obj, .step, .zip (Max 100MB per file)</div>
+          <input type="file" id="fileInput" multiple accept=".stl,.3mf,.obj,.step,.zip" style="display: none;">
+        </div>
+
+        <div class="file-list" id="fileList" style="margin-top: 16px;"></div>
+      </div>
+
+      <!-- Filament Cost Section -->
+      <div style="padding: 24px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a; margin-bottom: 24px;">
+        <h4 style="color: #ffffff; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Filament Cost</h4>
+
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Choose Your Filament</label>
+          <select class="form-select" id="filamentSelect" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px; cursor: pointer;">
+            <option value="">Select filament...</option>
+            <optgroup label="Global Filaments" id="globalFilamentsGroup">
+              <!-- Populated dynamically -->
+            </optgroup>
+            <optgroup label="Your Filaments" id="userFilamentsGroup">
+              <!-- Populated dynamically -->
+            </optgroup>
+          </select>
+        </div>
+
+        <div id="filamentDisplay" class="filament-display" style="display: none; padding: 16px; background: rgba(36, 29, 53, 0.6); border-radius: 8px; border: 1px solid #2d2e3a;">
+          <div class="filament-info" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+            <div class="filament-field">
+              <div class="filament-field-label" style="color: #9ca3af; font-size: 12px; margin-bottom: 4px;">Brand</div>
+              <div class="filament-field-value" id="filamentBrand" style="color: #ffffff; font-size: 14px;">-</div>
+            </div>
+            <div class="filament-field">
+              <div class="filament-field-label" style="color: #9ca3af; font-size: 12px; margin-bottom: 4px;">Type</div>
+              <div class="filament-field-value" id="filamentType" style="color: #ffffff; font-size: 14px;">-</div>
+            </div>
+            <div class="filament-field">
+              <div class="filament-field-label" style="color: #9ca3af; font-size: 12px; margin-bottom: 4px;">Spool Weight</div>
+              <div class="filament-field-value" id="filamentWeight" style="color: #ffffff; font-size: 14px;">-</div>
+            </div>
+            <div class="filament-field">
+              <div class="filament-field-label" style="color: #9ca3af; font-size: 12px; margin-bottom: 4px;">Cost per Spool</div>
+              <div class="filament-field-value" id="filamentCost" style="color: #ffffff; font-size: 14px;">-</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 16px; padding: 12px 16px; background: rgba(251, 191, 36, 0.1); border-radius: 8px; border: 1px solid rgba(251, 191, 36, 0.2);">
+          <div style="color: #fbbf24; font-size: 13px; font-weight: 600; margin-bottom: 4px;">Auto-Calculator (Coming Soon)</div>
+          <div style="color: #9ca3af; font-size: 13px;">Filament cost calculation based on estimated weight/length will be available soon.</div>
+        </div>
+      </div>
+
+      <!-- Supplies Section -->
+      <div style="padding: 24px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a; margin-bottom: 24px;">
+        <h4 style="color: #ffffff; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Supplies</h4>
+
+        <div class="supply-list" id="supplyList" style="margin-bottom: 16px;"></div>
+
+        <div style="display: flex; gap: 12px;">
+          <button type="button" class="btn-calc-ghost" id="btnAddSupply">
+            Add Existing Supply
+          </button>
+          <button type="button" class="btn-calc-ghost" id="btnCreateSupply">
+            Create New Supply
+          </button>
+        </div>
+      </div>
+
+      <!-- Sales Platform Section -->
+      <div style="padding: 24px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a; margin-bottom: 24px;">
+        <h4 style="color: #ffffff; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Sales Platform</h4>
+
+        <div>
+          <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Sales Platform Sold On?</label>
+          <select class="form-select" id="salesPlatform" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px; cursor: pointer;">
+            <option value="">Select platform...</option>
+            <option value="Etsy">Etsy</option>
+            <option value="eBay">eBay</option>
+            <option value="Shopify">Shopify</option>
+            <option value="TikTok Shop">TikTok Shop</option>
+            <option value="Facebook Marketplace">Facebook Marketplace</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Printer Section -->
+      <div style="padding: 24px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a; margin-bottom: 24px;">
+        <h4 style="color: #ffffff; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Printer</h4>
+
+        <div style="margin-bottom: 12px;">
+          <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Model Printed On</label>
+          <select class="form-select" id="printerSelect" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px; cursor: pointer;">
+            <option value="">Select printer...</option>
+            <optgroup label="Global Printers" id="globalPrintersGroup">
+              <!-- Populated dynamically -->
+            </optgroup>
+            <optgroup label="Your Printers" id="userPrintersGroup">
+              <!-- Populated dynamically -->
+            </optgroup>
+          </select>
+        </div>
+
+        <button type="button" class="btn-calc-ghost" id="btnAddPrinter">
+          Add Printer
+        </button>
+      </div>
+
+      <!-- Submit Section -->
+      <div style="display: flex; justify-content: flex-end; gap: 12px; padding-top: 8px;">
+        <button type="button" class="btn-calc-ghost" onclick="closeAddModelModal()">Cancel</button>
+        <button type="submit" class="btn-calc" id="btnCreateModel" disabled>
+          CREATE MODEL
+        </button>
+      </div>
+    </form>
+    </div>
+  </div>
+
+  <!-- View Model Modal -->
+  <div class="modal-overlay" id="viewModelModal">
+    <div class="modal-card modal-dark-theme" style="max-width: 1800px; width: 98%; max-height: 95vh; overflow-y: auto;">
+      <div class="modal-header-centered">
+        <h3 class="modal-title-large">Model <span class="gradient-highlight">Details</span></h3>
+        <p class="modal-subtitle-large">View model information and download files</p>
+        <button type="button" class="modal-close" onclick="closeViewModelModal()">×</button>
+      </div>
+
+      <div id="viewModelContent">
+        <!-- Content will be dynamically loaded -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Supply Modal -->
+  <div class="modal-overlay" id="addSupplyModal">
+    <div class="modal-card modal-dark-theme" style="max-width: 900px; width: 90%; max-height: 90vh; overflow-y: auto;">
+      <button type="button" class="modal-close" onclick="closeAddSupplyModal()">×</button>
+      
+      <div class="modal-header-centered">
+        <h2 class="modal-title-large">Add Existing <span class="gradient-highlight">Supply</span></h2>
+        <p class="modal-subtitle-large">Select a supply from your inventory to add to this model</p>
+      </div>
+
+      <!-- Search Box -->
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Search Supplies</label>
+        <input type="text" class="form-input" id="searchAddSupply" placeholder="Search by name or category..." style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+      </div>
+
+      <!-- Supplies Grid -->
+      <div id="addSupplyGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 20px; max-height: 50vh; overflow-y: auto; padding: 4px;">
+        <!-- Populated dynamically -->
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-top: 24px;">
+        <button type="button" class="btn btn-ghost" onclick="closeAddSupplyModal()" style="flex: 1;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Supply Modal -->
+  <div class="modal-overlay" id="createSupplyModal">
+    <div class="modal-card modal-dark-theme" style="max-width: 700px; width: 90%;">
+      <button type="button" class="modal-close" onclick="closeCreateSupplyModal()">×</button>
+      
+      <div class="modal-header-centered">
+        <h3 class="modal-title-large">Create New <span class="gradient-highlight">Supply</span></h3>
+        <p class="modal-subtitle-large">Add a new supply item to your inventory</p>
+      </div>
+
+      <form id="createSupplyForm">
+        <!-- Supply Information Section -->
+        <div style="padding: 24px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a; margin-bottom: 24px;">
+          <h4 style="color: #ffffff; margin: 0 0 20px 0; font-size: 16px; font-weight: 600;">Supply Information</h4>
+          
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+            <div>
+              <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Category <span style="color: #ef4444;">*</span></label>
+              <input type="text" class="form-input" id="newSupplyCategory" placeholder="e.g., Hardware, Paint, Tools" required style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
+
+            <div>
+              <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Supply Name <span style="color: #ef4444;">*</span></label>
+              <input type="text" class="form-input" id="newSupplyName" placeholder="e.g., M3 Screws, Acrylic Paint" required style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
+
+            <div>
+              <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">
+                Cost Per Item <span id="createSupplyCurrencyLabel"></span> <span style="color: #ef4444;">*</span>
+              </label>
+              <input type="number" class="form-input" id="newSupplyCost" step="0.01" min="0" placeholder="19.99" required style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
+
+            <div>
+              <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">
+                <span style="display: flex; align-items: center; gap: 6px;">
+                  Supplies in Stock
+                  <span style="font-size: 11px; color: #9ca3af; font-weight: 400;">(0 = 
+                    <span style="color: #a855f7; font-size: 14px;">∞</span>
+                  )</span>
+                </span>
+              </label>
+              <input type="number" class="form-input" id="newSupplyStock" min="0" value="0" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
+
+            <div style="grid-column: 1 / -1;">
+              <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Purchase Link</label>
+              <input type="url" class="form-input" id="newSupplyLink" placeholder="https://example.com/product" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 12px;">
+          <button type="button" class="btn btn-ghost" onclick="closeCreateSupplyModal()" style="flex: 1;">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="flex: 1;">
+            <img src="../images/Icons/Plus.svg" alt="" style="width: 14px; height: 14px; margin-right: 6px; vertical-align: middle; filter: brightness(0) invert(1);">
+            Create Supply
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Manage Supplies Modal -->
+  <div class="modal-overlay" id="manageSuppliesModal">
+    <div class="modal-card modal-dark-theme" style="max-width: 1800px; width: 98%; height: 95vh; max-height: 95vh; display: flex; flex-direction: column; overflow: hidden;">
+      <button type="button" class="modal-close" onclick="closeManageSuppliesModal()">×</button>
+      
+      <div class="modal-header-centered" style="flex-shrink: 0;">
+        <h3 class="modal-title-large">Supply <span class="gradient-highlight">Management</span></h3>
+        <p class="modal-subtitle-large">View and organize your supplies inventory</p>
+      </div>
+
+      <!-- Action Bar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; flex-shrink: 0;">
+        <div style="position: relative; flex: 1; max-width: 400px;">
+          <img src="../images/Icons/MagnifyingGlass.svg" alt="" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; opacity: 0.5; filter: brightness(0) invert(1); pointer-events: none;">
+          <input type="text" id="searchSupplies" placeholder="Search by name or category..." style="width: 100%; padding: 12px 16px 12px 42px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px; transition: all 0.2s ease;">
+        </div>
+        <button type="button" class="btn btn-primary" onclick="openCreateSupplyForManagement()" style="white-space: nowrap; padding: 12px 20px;">
+          <img src="../images/Icons/Plus.svg" alt="" style="width: 16px; height: 16px; margin-right: 8px; vertical-align: middle; filter: brightness(0) invert(1);">
+          New Supply
+        </button>
+      </div>
+
+      <!-- Supplies List Container -->
+      <div id="manageSuppliesList" style="flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; padding-right: 4px;">
+        <!-- Will be populated dynamically -->
+      </div>
+
+      <!-- Footer -->
+      <div style="display: flex; justify-content: flex-end; gap: 12px; padding-top: 20px; border-top: 1px solid rgba(168, 85, 247, 0.2); flex-shrink: 0; margin-top: 20px;">
+        <button type="button" class="btn btn-ghost" onclick="closeManageSuppliesModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Printer Modal -->
+  <div class="modal-overlay" id="addPrinterModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Add Printer</h2>
+        <button type="button" class="modal-close" onclick="closeAddPrinterModal()">×</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Printer Name <span class="required">*</span></label>
+        <input type="text" class="form-input" id="newPrinterName" placeholder="e.g., Prusa i3 MK3S, Ender 3 Pro">
+      </div>
+
+      <div style="margin-top: 24px; display: flex; gap: 12px;">
+        <button type="button" class="btn btn-ghost" onclick="closeAddPrinterModal()" style="flex: 1;">Cancel</button>
+        <button type="button" class="btn btn-primary" id="btnConfirmAddPrinter" style="flex: 1;">Add Printer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification for Upload Model -->
+  <div class="toast" id="toast">
+    <div class="toast-header">
+      <div class="toast-icon" id="toastIcon">✓</div>
+      <div class="toast-title" id="toastTitle">Success</div>
+    </div>
+    <div class="toast-message" id="toastMessage">Operation completed successfully</div>
+  </div>
+
+  <!-- Image Crop Modal -->
+  <div class="modal-overlay" id="cropModal">
+    <div class="modal-card modal-dark-theme" style="max-width: 800px; width: 95%;">
+      <div class="modal-header-centered">
+        <h3 class="modal-title-large">Crop <span class="gradient-highlight">Image</span></h3>
+        <p class="modal-subtitle-large">Drag the purple square to reposition the crop area</p>
+        <button type="button" class="modal-close" onclick="closeCropModal()">×</button>
+      </div>
+      
+      <div style="padding: 24px; background: rgba(0, 0, 0, 0.15); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 24px;">
+        <div style="display: flex; justify-content: center; align-items: center; min-height: 300px;">
+          <canvas id="cropCanvas" style="max-width: 100%; border-radius: 8px; cursor: grab;"></canvas>
+        </div>
+      </div>
+      
+      <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <button type="button" class="btn-calc-ghost" onclick="closeCropModal()">Cancel</button>
+        <button type="button" class="btn-calc" onclick="applyCrop()">Apply Crop</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- UPLOAD MODEL MODALS - END -->
+  <!-- ============================================ -->
+
+  <!-- Upload Model Script -->
+  <script src="../js/upload-model.js" defer></script>
 
 </body>
 </html>

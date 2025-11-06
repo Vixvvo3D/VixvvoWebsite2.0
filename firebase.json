@@ -29,7 +29,7 @@
       },
       {
         "source": "/orders",
-        "destination": "/pages/orders.html"
+        "destination": "/dashboard.html"
       },
       {
         "source": "/settings",

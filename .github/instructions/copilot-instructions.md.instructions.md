@@ -40,7 +40,10 @@ applyTo: '**'
 **ALWAYS add the new modal ID to the main modal CSS selector in `/css/shared-styles.css`:**
 
 ```css
-#modal, #signupModal, #verificationModal, #resetPasswordModal, #printerModal, #filamentModal, #savePresetModal, #managePresetsModal, #yourNewModal {
+#modal, #signupModal, #verificationModal, #resetPasswordModal, 
+#printerModal, #filamentModal, #savePresetModal, #managePresetsModal, 
+#viewOrderModal, #editOrderModal, #addColorModal,
+#addModelModal, #addSupplyModal, #createSupplyModal, #addPrinterModal, #cropModal {
   position: fixed;
   inset: 0;
   display: none;
