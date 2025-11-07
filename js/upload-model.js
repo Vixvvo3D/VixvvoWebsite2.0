@@ -282,51 +282,69 @@ function viewModel(modelId) {
       const viewContent = document.getElementById('viewModelContent');
       
       viewContent.innerHTML = `
-        <!-- Model Image -->
-        ${model.imageUrl ? `
-          <div style="margin-bottom: 32px; text-align: center;">
-            <img src="${model.imageUrl}" alt="${model.name}" style="max-width: 400px; width: 100%; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);">
-          </div>
-        ` : ''}
-        
-        <!-- Model Information -->
-        <div style="padding: 24px; background: rgba(0, 0, 0, 0.15); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 24px;">
-          <h4 style="color: #a855f7; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Model Information</h4>
+        <!-- Top Section: Image + Model Information -->
+        <div style="display: grid; grid-template-columns: 250px 1fr; gap: 24px; margin-bottom: 24px;">
+          <!-- Model Image -->
+          ${model.imageUrl ? `
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <img src="${model.imageUrl}" alt="${model.name}" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);">
+            </div>
+          ` : `
+            <div style="width: 100%; aspect-ratio: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.3;">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+            </div>
+          `}
           
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
-            <div>
-              <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Model Name</label>
-              <p style="color: #ffffff; margin: 0; font-size: 14px;">${model.name || 'N/A'}</p>
-            </div>
+          <!-- Model Information -->
+          <div style="padding: 24px; background: rgba(0, 0, 0, 0.15); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);">
+            <h4 style="color: #a855f7; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Model Information</h4>
             
-            <div>
-              <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Category</label>
-              <p style="color: #ffffff; margin: 0; font-size: 14px;">${model.category || 'N/A'}</p>
-            </div>
-            
-            <div>
-              <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">SKU</label>
-              <p style="color: ${model.sku === '0' || model.sku === 0 ? '#a855f7' : '#ffffff'}; margin: 0; font-size: ${model.sku === '0' || model.sku === 0 ? '20px' : '14px'};">${model.sku === '0' || model.sku === 0 ? '∞' : (model.sku || 'N/A')}</p>
-            </div>
-            
-            <div>
-              <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Designer</label>
-              <p style="color: #ffffff; margin: 0; font-size: 14px;">${model.designer || 'N/A'}</p>
-            </div>
-            
-            ${model.printTime ? `
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
               <div>
-                <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Print Time</label>
-                <p style="color: #ffffff; margin: 0; font-size: 14px;">${model.printTime.hours}h ${model.printTime.minutes}m</p>
+                <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Model Name</label>
+                <p style="color: #ffffff; margin: 0; font-size: 14px;">${model.name || 'N/A'}</p>
               </div>
-            ` : ''}
-            
-            ${model.description ? `
-              <div style="grid-column: 1 / -1;">
-                <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Description</label>
-                <p style="color: #ffffff; margin: 0; font-size: 14px; line-height: 1.6;">${model.description}</p>
+              
+              <div>
+                <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Category</label>
+                <p style="color: #ffffff; margin: 0; font-size: 14px;">${model.category || 'N/A'}</p>
               </div>
-            ` : ''}
+              
+              <div>
+                <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">SKU</label>
+                <p style="color: ${model.sku === '0' || model.sku === 0 ? '#a855f7' : '#ffffff'}; margin: 0; font-size: ${model.sku === '0' || model.sku === 0 ? '20px' : '14px'};">${model.sku === '0' || model.sku === 0 ? '∞' : (model.sku || 'N/A')}</p>
+              </div>
+              
+              <div>
+                <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Designer</label>
+                <p style="color: #ffffff; margin: 0; font-size: 14px;">${model.designer || 'N/A'}</p>
+              </div>
+              
+              ${model.printTime ? `
+                <div>
+                  <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Print Time</label>
+                  <p style="color: #ffffff; margin: 0; font-size: 14px;">${model.printTime.hours}h ${model.printTime.minutes}m</p>
+                </div>
+              ` : ''}
+              
+              ${model.marketplace ? `
+                <div>
+                  <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Marketplace</label>
+                  <p style="color: #ffffff; margin: 0; font-size: 14px;">${model.marketplace}</p>
+                </div>
+              ` : ''}
+              
+              ${model.description ? `
+                <div style="grid-column: 1 / -1;">
+                  <label style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Description</label>
+                  <p style="color: #ffffff; margin: 0; font-size: 14px; line-height: 1.6;">${model.description}</p>
+                </div>
+              ` : ''}
+            </div>
           </div>
         </div>
         
@@ -2156,12 +2174,10 @@ async function createModel() {
     if (isEditing) {
       // Update existing model
       await db.ref(`users/${state.currentUser.uid}/models/${state.editingModelId}`).update(modelData);
-      showToast('Success', `Model "${modelData.name}" updated successfully!`, 'success');
     } else {
       // Create new model
       const modelRef = db.ref(`users/${state.currentUser.uid}/models`).push();
       await modelRef.set(modelData);
-      showToast('Success', `Model "${modelData.name}" created successfully!`, 'success');
     }
     
     // Save category if new
@@ -2169,10 +2185,13 @@ async function createModel() {
       await db.ref(`users/${state.currentUser.uid}/modelCategories`).push(modelData.category);
     }
     
-    // Close modal and reset form
+    // Close modal first
+    closeAddModelModal();
+    
+    // Show success notification AFTER modal closes (with small delay for animation)
     setTimeout(() => {
-      closeAddModelModal();
-    }, 1500);
+      showToast('Success', `Model "${modelData.name}" ${isEditing ? 'updated' : 'created'} successfully!`, 'success');
+    }, 300);
     
   } catch (error) {
     console.error('Error saving model:', error);
@@ -2318,10 +2337,24 @@ function resetForm() {
 }
 
 /**
- * Show toast notification
+ * Show toast notification - Uses dashboard's showNotification if available
  */
 function showToast(title, message, type = 'success') {
+  // If dashboard's showNotification exists, use it (for consistency)
+  if (typeof window.showNotification === 'function') {
+    window.showNotification(message, type, title);
+    return;
+  }
+  
+  if (typeof showNotification === 'function') {
+    showNotification(message, type, title);
+    return;
+  }
+  
+  // Fallback to old toast for standalone upload-model.html page
   const toast = document.getElementById('toast');
+  if (!toast) return; // No toast element, skip
+  
   const toastIcon = document.getElementById('toastIcon');
   const toastTitle = document.getElementById('toastTitle');
   const toastMessage = document.getElementById('toastMessage');

@@ -520,13 +520,17 @@
   
   if (googleLoginBtn) {
     googleLoginBtn.addEventListener('click', function() {
-      alert('Google Sign-In coming soon!');
+      if (typeof showNotification === 'function') {
+        showNotification('Google Sign-In coming soon!', 'warning', 'Coming Soon');
+      }
     });
   }
   
   if (googleSignupBtn) {
     googleSignupBtn.addEventListener('click', function() {
-      alert('Google Sign-Up coming soon!');
+      if (typeof showNotification === 'function') {
+        showNotification('Google Sign-Up coming soon!', 'warning', 'Coming Soon');
+      }
     });
   }
 })();

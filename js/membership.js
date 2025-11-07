@@ -226,8 +226,10 @@ function displayMembershipBadge(tier, container) {
 function showFeatureLockedMessage(requiredTier) {
   const tierInfo = TIER_INFO[requiredTier];
   
-  // You can customize this to use your notification system
-  alert(`This feature requires ${tierInfo.name} membership or higher.\n\nUpgrade on Patreon to unlock!`);
+  // Use new notification system if available
+  if (typeof showNotification === 'function') {
+    showNotification(`This feature requires ${tierInfo.name} membership or higher. Upgrade on Patreon to unlock!`, 'warning', 'Membership Required');
+  }
 }
 
 // Export functions for use in other scripts

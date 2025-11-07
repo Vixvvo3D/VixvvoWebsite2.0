@@ -275,7 +275,7 @@
         // The table will auto-update due to Firebase listener
       }).catch(error => {
         console.error('Error updating order status:', error);
-        if (typeof showNotification === 'function') showNotification('Failed to update order status. Please try again.', 'error', 'Update Failed');
+        alert('Failed to update order status. Please try again.');
         
         // Revert the dropdown to original value on error
         if (selectElement) {
@@ -312,7 +312,7 @@
         // The table will auto-update due to Firebase listener
       }).catch(error => {
         console.error('Error updating payment status:', error);
-        if (typeof showNotification === 'function') showNotification('Failed to update payment status. Please try again.', 'error', 'Update Failed');
+        alert('Failed to update payment status. Please try again.');
         
         // Revert the dropdown to original value on error
         if (selectElement) {
@@ -342,7 +342,7 @@
         console.log(`Order ${orderId} amounts updated - payment status auto-set to ${autoPaymentStatus}`);
       }).catch(error => {
         console.error('Error updating order amounts:', error);
-        if (typeof showNotification === 'function') showNotification('Failed to update order amounts. Please try again.', 'error', 'Update Failed');
+        alert('Failed to update order amounts. Please try again.');
       });
     };
 
@@ -477,7 +477,20 @@
         }
       }
       
-      // Define place selection handler FIRST
+      // Always attach listeners (whether new or existing element)
+      console.log('� Attaching event listeners to autocomplete element...');
+      
+      // Handle place selection with event listener
+      autocompleteElement.addEventListener('gmp-placeselect', async (event) => {
+        console.log('🎯 gmp-placeselect event fired!');
+        console.log('Event:', event);
+        const place = event.place;
+        await handlePlaceSelect(place);
+      });
+      
+      console.log('✅ Event listener attached');
+      
+      // Handle place selection
       async function handlePlaceSelect(place) {
         console.log('🎯 handlePlaceSelect called for new order!');
         console.log('Place object:', place);
@@ -591,18 +604,14 @@
         }
       }
       
-      // Attach event listener for place selection
-      console.log('🎯 Attaching event listener to autocomplete element...');
+      // Now attach listeners (function is defined above)
+      console.log('🎯 Attaching event listeners to autocomplete element...');
       
-      // Handle place selection with new gmp-select event
-      autocompleteElement.addEventListener('gmp-select', async (event) => {
-        console.log('🎯 gmp-select event fired!');
+      // Handle place selection with event listener
+      autocompleteElement.addEventListener('gmp-placeselect', async (event) => {
+        console.log('🎯 gmp-placeselect event fired!');
         console.log('Event:', event);
-        
-        // Use placePrediction.toPlace() to get the place object
-        const place = await event.placePrediction.toPlace();
-        console.log('Place from prediction:', place);
-        
+        const place = event.place;
         await handlePlaceSelect(place);
       });
       
@@ -898,7 +907,7 @@
       } else {
         // Color is not selected, add it
         if (selectedColors.length >= 4) {
-          if (typeof showNotification === 'function') showNotification('Maximum 4 colors allowed', 'warning', 'Color Limit');
+          alert('Maximum 4 colors allowed');
           return;
         }
         selectedColors.push({ id, name, hex });
@@ -921,7 +930,7 @@
       } else {
         // Color is not selected, add it
         if (selectedColors.length >= 4) {
-          if (typeof showNotification === 'function') showNotification('Maximum 4 colors allowed', 'warning', 'Color Limit');
+          alert('Maximum 4 colors allowed');
           return;
         }
         selectedColors.push({ id, name, hex });
@@ -1006,7 +1015,7 @@
           const currentUser = firebase.auth().currentUser;
           
           if (!currentUser) {
-            if (typeof showNotification === 'function') showNotification('Please login to create an order', 'warning', 'Authentication Required');
+            alert('Please login to create an order');
             return;
           }
           
@@ -1048,32 +1057,12 @@
           };
           
           try {
-            console.log('📝 Creating new order...');
             const orderRef = firebase.database().ref(`orders/${currentUser.uid}`).push();
             await orderRef.set(orderData);
-            console.log('✅ Order created successfully:', orderRef.key);
-            
-            if (typeof showNotification === 'function') showNotification('Order created successfully!', 'success', 'Order Created');
-            
-            // Reset the form
-            newOrderForm.reset();
-            
-            // Clear selected colors
-            selectedColors = [];
-            
-            // Close modal
+            alert('Order created successfully!');
             closeNewOrderModal();
-            
-            // Reload orders to show the new order
-            if (typeof window.loadOrders === 'function') {
-              console.log('🔄 Reloading orders...');
-              window.loadOrders();
-            } else {
-              console.warn('⚠️ loadOrders function not found');
-            }
           } catch (error) {
-            console.error('❌ Error creating order:', error);
-            if (typeof showNotification === 'function') showNotification('Error creating order: ' + error.message, 'error', 'Error');
+            alert('Error creating order: ' + error.message);
           }
         });
       }
@@ -1105,7 +1094,7 @@
     window.viewOrder = function(orderId) {
       const order = ordersData.find(o => o.id === orderId);
       if (!order) {
-        if (typeof showNotification === 'function') showNotification('Order not found', 'error', 'Not Found');
+        alert('Order not found');
         return;
       }
       
@@ -1303,7 +1292,7 @@
     window.editOrder = function(orderId) {
       const order = ordersData.find(o => o.id === orderId);
       if (!order) {
-        if (typeof showNotification === 'function') showNotification('Order not found', 'error', 'Not Found');
+        alert('Order not found');
         return;
       }
       
@@ -1581,19 +1570,13 @@
           }
         }
         
-        // Attach event listener for place selection
-        console.log('🎯 Attaching event listener to edit autocomplete...');
+        // Now attach listeners (function is defined above)
+        console.log('🎯 Attaching event listeners to edit autocomplete...');
         
-        // Handle place selection with new gmp-select event
-        autocompleteElement.addEventListener('gmp-select', async (event) => {
-          console.log('🎯 Edit order gmp-select event fired!');
-          console.log('Event:', event);
-          
-          // Use placePrediction.toPlace() to get the place object
-          const place = await event.placePrediction.toPlace();
-          console.log('Place from prediction:', place);
-          
-          await handlePlaceSelect(place);
+        // Event listener method (preferred)
+        autocompleteElement.addEventListener('gmp-placeselect', async (event) => {
+          console.log('🎯 Edit order gmp-placeselect event fired!');
+          handlePlaceSelect(event.place);
         });
         
         console.log('✅ Edit autocomplete event listener attached');
@@ -1614,7 +1597,7 @@
           const orderId = document.getElementById('editOrderId').value;
           
           if (!currentUser || !orderId) {
-            if (typeof showNotification === 'function') showNotification('Missing user or order ID', 'error', 'Error');
+            alert('Error: Missing user or order ID');
             return;
           }
           
@@ -1666,19 +1649,18 @@
           
           try {
             await firebase.database().ref(`orders/${currentUser.uid}/${orderId}`).set(orderData);
-            if (typeof showNotification === 'function') showNotification('Order updated successfully!', 'success', 'Order Updated');
+            alert('Order updated successfully!');
             closeEditOrderModal();
           } catch (error) {
-            if (typeof showNotification === 'function') showNotification('Error updating order: ' + error.message, 'error', 'Error');
+            alert('Error updating order: ' + error.message);
           }
         });
       }
     });
 
     // Duplicate order
-    window.duplicateOrder = async function(orderId) {
-      const confirmed = await window.showConfirm('Create a duplicate of this order?', 'Duplicate Order');
-      if (!confirmed) return;
+    window.duplicateOrder = function(orderId) {
+      if (!confirm('Create a duplicate of this order?')) return;
       
       const currentUser = firebase.auth().currentUser;
       const order = ordersData.find(o => o.id === orderId);
@@ -1695,28 +1677,19 @@
       delete duplicatedOrder.id;
       
       firebase.database().ref(`orders/${currentUser.uid}`).push().set(duplicatedOrder)
-        .then(() => {
-          if (typeof showNotification === 'function') showNotification('Order duplicated successfully!', 'success', 'Order Duplicated');
-        })
-        .catch(error => {
-          if (typeof showNotification === 'function') showNotification('Error: ' + error.message, 'error', 'Error');
-        });
+        .then(() => alert('Order duplicated successfully!'))
+        .catch(error => alert('Error: ' + error.message));
     };
 
     // Delete order
-    window.deleteOrder = async function(orderId) {
-      const confirmed = await window.showConfirm('Delete this order? This cannot be undone!', 'Delete Order');
-      if (!confirmed) return;
+    window.deleteOrder = function(orderId) {
+      if (!confirm('Delete this order? This cannot be undone!')) return;
       
       const currentUser = firebase.auth().currentUser;
       
       firebase.database().ref(`orders/${currentUser.uid}/${orderId}`).remove()
-        .then(() => {
-          if (typeof showNotification === 'function') showNotification('Order deleted', 'success', 'Order Deleted');
-        })
-        .catch(error => {
-          if (typeof showNotification === 'function') showNotification('Error: ' + error.message, 'error', 'Error');
-        });
+        .then(() => alert('Order deleted'))
+        .catch(error => alert('Error: ' + error.message));
     };
     
     // Initialize filters when DOM is ready

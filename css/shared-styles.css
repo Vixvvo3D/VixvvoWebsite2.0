@@ -463,7 +463,7 @@ nav {
   z-index: 200;
 }
 
-#modal, #signupModal, #verificationModal, #resetPasswordModal, #printerModal, #filamentModal, #savePresetModal, #managePresetsModal, #viewOrderModal, #editOrderModal, #newOrderModal, #addColorModal, #colorManagementModal, #addModelModal, #viewModelModal, #addSupplyModal, #createSupplyModal, #addPrinterModal, #cropModal, #adminNotificationModal, #adminConfirmModal, #adminPromptModal, #editGlobalPrinterModal, #editGlobalFilamentModal, #addGlobalPrinterModal, #addGlobalFilamentModal, #manageSuppliesModal {
+#modal, #signupModal, #verificationModal, #resetPasswordModal, #printerModal, #filamentModal, #savePresetModal, #managePresetsModal, #viewOrderModal, #editOrderModal, #newOrderModal, #addColorModal, #colorManagementModal, #addModelModal, #viewModelModal, #addSupplyModal, #createSupplyModal, #addPrinterModal, #cropModal, #adminNotificationModal, #adminConfirmModal, #adminPromptModal, #editGlobalPrinterModal, #editGlobalFilamentModal, #addGlobalPrinterModal, #addGlobalFilamentModal, #manageSuppliesModal, #addClientModal {
   position: fixed;
   inset: 0;
   display: none;

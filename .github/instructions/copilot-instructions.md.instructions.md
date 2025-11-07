@@ -104,6 +104,63 @@ applyTo: '**'
 
 ---
 
+## Notification System Standards
+
+### ⚠️ CRITICAL: Notification timing with modals
+
+**ALWAYS show notifications AFTER modal closes, not before or during:**
+
+```javascript
+// ❌ WRONG - Notification gets hidden when modal closes
+hideModal(someModal);
+showNotification('Success!', 'success');
+
+// ✅ CORRECT - Notification shows after modal animation completes
+hideModal(someModal);
+setTimeout(() => {
+  showNotification('Success!', 'success');
+}, 300); // 300ms delay for modal close animation
+```
+
+**Why this matters:**
+- Notifications shown immediately before/during modal close get hidden by the modal animation
+- User never sees the notification popup animation
+- 300ms delay allows modal to fully close before notification slides in
+- This applies to ALL modals: addModelModal, printerModal, filamentModal, colorModal, etc.
+
+### Notification Best Practices:
+
+1. ✅ **Replace ALL `alert()` calls** with `showNotification(message, type, title)`
+2. ✅ **Replace ALL `confirm()` calls** with `await showConfirm(message, title)`
+3. ✅ **Use consistent notification types:**
+   - `'success'` - Green gradient (create, update, delete success)
+   - `'error'` - Red gradient (failures, errors)
+   - `'warning'` - Orange gradient (missing auth, limits reached)
+4. ✅ **Always delay notifications after modal close:**
+   ```javascript
+   closeModal();
+   setTimeout(() => showNotification(...), 300);
+   ```
+
+### For external JS files using notifications:
+
+External JS files (like `upload-model.js`, `orders.js`) should check if `showNotification` exists:
+
+```javascript
+function showToast(title, message, type = 'success') {
+  // Use dashboard's notification system if available
+  if (typeof window.showNotification === 'function') {
+    window.showNotification(message, type, title);
+    return;
+  }
+  
+  // Fallback for standalone pages
+  // ... old toast code ...
+}
+```
+
+---
+
 ## 🔍 PRE-SUBMISSION CHECKLIST
 
 Before completing any task, **VERIFY ALL** of the following:

@@ -21,7 +21,6 @@
 <!-- Load shared styles -->
 <link rel="stylesheet" href="../css/shared-styles.css">
 <link rel="stylesheet" href="../css/dashboard.css">
-<link rel="stylesheet" href="../css/notification-modals.css">
 <link rel="stylesheet" href="../css/upload-model.css">
 
 <!-- Load shared navbar components -->
@@ -33,8 +32,14 @@
 <script src="../js/currency.js" defer></script>
 <script src="../js/orders.js" defer></script>
 
-<!-- Google Places API for Address Autocomplete -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDN2UpD_xHvxrQ2LQjDHIlLmuRi8e4wAQQ&loading=async&libraries=places&callback=initGoogleMaps" async defer></script>
+<!-- Google Places API (New) for Address Autocomplete -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwEDp5SfrxeEntOJg_XzbiBoGc9ADbX5g&libraries=places&callback=initGoogleMaps&loading=async" async defer></script>
+<script>
+  (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.googleapis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
+    key: "AIzaSyDwEDp5SfrxeEntOJg_XzbiBoGc9ADbX5g",
+    v: "beta"
+  });
+</script>
 </head>
 <body>
   <!-- Sidebar Navigation -->
@@ -69,6 +74,12 @@
         <a href="#" class="nav-link" data-page="upload-model">
           <span class="sidebar-icon"><img src="../images/Icons/Upload.svg" alt="Upload"></span>
           <span>Upload Model</span>
+        </a>
+      </li>
+      <li>
+        <a href="#" class="nav-link" data-page="clients">
+          <span class="sidebar-icon"><img src="../images/Icons/Users.svg" alt="Clients"></span>
+          <span>Clients</span>
         </a>
       </li>
       <li>
@@ -989,54 +1000,10 @@
             </div>
           </div>
 
-          <!-- Notification Modal -->
-          <div id="adminNotificationModal" class="modal-overlay" style="display: none;">
-            <div class="modal-card" style="max-width: 500px;">
-              <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
-                <div id="adminNotificationIcon" class="notification-icon">
-                  <!-- Icon will be set dynamically -->
-                </div>
-                <h3 id="adminNotificationTitle" style="margin: 0; flex: 1;">Notification</h3>
-              </div>
-              <p id="adminNotificationMessage" style="color: #9ca3af; margin-bottom: 24px; line-height: 1.6;"></p>
-              <div class="modal-buttons">
-                <button id="adminNotificationOk" class="btn btn-primary" style="width: 100%;">OK</button>
-              </div>
-            </div>
-          </div>
+          <!-- OLD MODAL NOTIFICATIONS REMOVED - NOW USING TOAST NOTIFICATIONS -->
 
-          <!-- Confirmation Modal -->
-          <div id="adminConfirmModal" class="modal-overlay" style="display: none;">
-            <div class="modal-card" style="max-width: 500px;">
-              <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
-                <div class="notification-icon warning-icon">
-                  <img src="../images/Icons/Warning.svg" width="48" height="48" style="filter: brightness(0) saturate(100%) invert(71%) sepia(87%) saturate(1495%) hue-rotate(358deg) brightness(97%) contrast(96%);">
-                </div>
-                <h3 id="adminConfirmTitle" style="margin: 0; flex: 1;">Confirm Action</h3>
-              </div>
-              <p id="adminConfirmMessage" style="color: #9ca3af; margin-bottom: 24px; line-height: 1.6;"></p>
-              <div class="modal-buttons" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <button id="adminConfirmCancel" class="btn btn-ghost" style="width: 100%;">Cancel</button>
-                <button id="adminConfirmOk" class="btn btn-primary" style="width: 100%; background: #ef4444; border-color: #ef4444;">Confirm</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Prompt Modal -->
-          <div id="adminPromptModal" class="modal-overlay" style="display: none;">
-            <div class="modal-card" style="max-width: 500px;">
-              <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
-                <div class="notification-icon input-icon">
-                  <img src="../images/Icons/PencilSimple.svg" width="48" height="48" style="filter: brightness(0) saturate(100%) invert(43%) sepia(63%) saturate(1752%) hue-rotate(236deg) brightness(93%) contrast(92%);">
-                </div>
-                <h3 id="adminPromptTitle" style="margin: 0; flex: 1;">Enter Value</h3>
-              </div>
-              <p id="adminPromptMessage" style="color: #9ca3af; margin-bottom: 16px; line-height: 1.6;"></p>
-              <input id="adminPromptInput" type="text" placeholder="Enter value..." style="width: 100%; margin-bottom: 20px;">
-              <div class="modal-buttons" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <button id="adminPromptCancel" class="btn btn-ghost">Cancel</button>
-                <button id="adminPromptOk" class="btn btn-primary">OK</button>
-              </div>
+          <!-- SETTINGS SECTION -->
+          <div class="page-section" id="settings-section">
             </div>
           </div>
 
@@ -1084,37 +1051,88 @@
                 </h2>
                 <p class="calculator-subtitle">Track and manage your customer orders</p>
               </div>
-            
+
               <!-- Action Bar -->
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; flex-wrap: wrap;">
-              <div style="display: flex; gap: 12px; align-items: center; flex: 1;">
-                <div style="flex: 1; min-width: 250px;">
-                  <input type="text" id="ordersSearchInput" placeholder="Search orders..." style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="display: flex; gap: 12px; flex: 1; max-width: 600px;">
+                  <div style="position: relative; flex: 1;">
+                    <img src="../images/Icons/MagnifyingGlass.svg" alt="" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; opacity: 0.5; filter: brightness(0) invert(1);">
+                    <input type="text" id="ordersSearchInput" placeholder="Search orders..." style="width: 100%; padding: 10px 10px 10px 38px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px;">
+                  </div>
+                  <div style="position: relative;">
+                    <img src="../images/Icons/Funnel.svg" alt="" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; opacity: 0.5; filter: brightness(0) invert(1); pointer-events: none; z-index: 1;">
+                    <select id="ordersStatusFilter" style="padding: 10px 10px 10px 38px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px; cursor: pointer; appearance: none; padding-right: 32px;">
+                      <option value="all">All Orders</option>
+                      <optgroup label="Order Status">
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                      </optgroup>
+                      <optgroup label="Payment Status">
+                        <option value="paid">Paid</option>
+                        <option value="partially">Partially</option>
+                        <option value="unpaid">Unpaid</option>
+                      </optgroup>
+                    </select>
+                    <img src="../images/Icons/CaretDown.svg" alt="" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; opacity: 0.5; filter: brightness(0) invert(1); pointer-events: none;">
+                  </div>
                 </div>
-                <select id="ordersStatusFilter" style="padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; cursor: pointer;">
-                  <option value="all">All Orders</option>
-                  <optgroup label="Order Status">
-                    <option value="pending">Pending</option>
-                    <option value="processing">Processing</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </optgroup>
-                  <optgroup label="Payment Status">
-                    <option value="paid">Paid</option>
-                    <option value="partially">Partially</option>
-                    <option value="unpaid">Unpaid</option>
-                  </optgroup>
-                </select>
+                <div style="display: flex; gap: 12px;">
+                  <button type="button" class="btn btn-ghost" id="btnManageColors" style="white-space: nowrap;">
+                    <img src="../images/Icons/Palette.svg" alt="" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle; filter: brightness(0) invert(1);">
+                    Manage Colors
+                  </button>
+                  <button type="button" class="btn btn-primary" id="btnNewOrder" style="white-space: nowrap;">
+                    <img src="../images/Icons/Plus.svg" alt="" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle; filter: brightness(0) invert(1);">
+                    New Order
+                  </button>
+                </div>
               </div>
-              <div style="display: flex; gap: 12px;">
-                <button class="btn-calc-ghost btn-small" id="btnManageColors">Manage Colors</button>
-                <button class="btn-calc btn-small" id="btnNewOrder">New Order</button>
-              </div>
-            </div>
 
               <!-- Orders Content -->
               <div id="ordersContent">
                 <!-- Orders will be loaded here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- CLIENTS SECTION -->
+          <div class="page-section" id="clients-section">
+            <div class="calculator-container">
+              <div class="calculator-header">
+                <h2 class="calculator-title">
+                  Client <span class="highlight">Management</span>
+                </h2>
+                <p class="calculator-subtitle">Manage your customer relationships and contacts</p>
+              </div>
+
+              <!-- Action Bar -->
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="position: relative; flex: 1; max-width: 400px;">
+                  <img src="../images/Icons/MagnifyingGlass.svg" alt="" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; opacity: 0.5; filter: brightness(0) invert(1);">
+                  <input type="text" id="searchClients" placeholder="Search clients..." style="width: 100%; padding: 10px 10px 10px 38px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #fff; font-size: 14px;">
+                </div>
+                <div style="display: flex; gap: 12px;">
+                  <button type="button" class="btn btn-primary" id="btnAddClient" style="white-space: nowrap;">
+                    <img src="../images/Icons/Plus.svg" alt="" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle; filter: brightness(0) invert(1);">
+                    Add Client
+                  </button>
+                </div>
+              </div>
+
+              <!-- Clients Content -->
+              <div id="clientsContent">
+                <!-- Empty state -->
+                <div style="text-align: center; padding: 60px 20px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;">
+                  <img src="../images/Icons/Users.svg" alt="" style="width: 64px; height: 64px; opacity: 0.3; margin: 0 auto 16px; filter: brightness(0) invert(1);">
+                  <h3 style="font-size: 18px; margin-bottom: 8px; color: #fff; font-weight: 600;">No clients yet</h3>
+                  <p style="font-size: 14px; color: rgba(255, 255, 255, 0.5); margin-bottom: 24px;">Add your first client to get started</p>
+                  <button type="button" class="btn btn-primary" onclick="document.getElementById('btnAddClient').click()">
+                    <img src="../images/Icons/Plus.svg" alt="" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle; filter: brightness(0) invert(1);">
+                    Add Your First Client
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1310,20 +1328,20 @@
           <h5 style="color: #a855f7; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Client Information</h5>
           <div style="display: grid; gap: 14px;">
             <div>
-              <label for="clientName" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Client Name *</label>
-              <input type="text" id="clientName" name="clientName" required placeholder="Enter client name" autocomplete="name" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              <label for="orderClientName" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Client Name *</label>
+              <input type="text" id="orderClientName" name="orderClientName" required placeholder="Enter client name" autocomplete="name" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
             </div>
             <div>
-              <label for="clientEmail" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Email</label>
-              <input type="email" id="clientEmail" name="clientEmail" placeholder="client@example.com" autocomplete="email" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              <label for="orderClientEmail" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Email</label>
+              <input type="email" id="orderClientEmail" name="orderClientEmail" placeholder="client@example.com" autocomplete="email" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
             </div>
             <div>
-              <label for="clientPhone" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Phone</label>
-              <input type="tel" id="clientPhone" name="clientPhone" placeholder="+1 (555) 123-4567" autocomplete="tel" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              <label for="orderClientPhone" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Phone</label>
+              <input type="tel" id="orderClientPhone" name="orderClientPhone" placeholder="+1 (555) 123-4567" autocomplete="tel" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
             </div>
             <div>
-              <label for="messaging_app" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Messaging Platform</label>
-              <select id="messaging_app" name="messaging_app" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              <label for="orderMessagingApp" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Messaging Platform</label>
+              <select id="orderMessagingApp" name="orderMessagingApp" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
                 <option value="">Select messaging app or platform...</option>
                 <optgroup label="Messaging Apps">
                   <option value="WhatsApp">WhatsApp</option>
@@ -1381,28 +1399,28 @@
               </select>
             </div>
             <div style="padding-top: 8px; border-top: 1px solid rgba(168, 85, 247, 0.2); margin-top: 4px;">
-              <label for="addressAutocomplete" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Address Search</label>
-              <input type="text" id="addressAutocomplete" name="addressAutocomplete" placeholder="Start typing address..." autocomplete="street-address" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              <label for="orderAddressAutocomplete" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Address Search</label>
+              <input type="text" id="orderAddressAutocomplete" name="orderAddressAutocomplete" placeholder="Start typing address..." autocomplete="off" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
             </div>
             <div>
-              <label for="clientStreet" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Street Address</label>
-              <input type="text" id="clientStreet" name="clientStreet" placeholder="123 Main St" autocomplete="street-address" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              <label for="orderStreet" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Street Address</label>
+              <input type="text" id="orderStreet" name="orderStreet" placeholder="123 Main St" autocomplete="street-address" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
             </div>
             <div>
-              <label for="clientCity" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">City</label>
-              <input type="text" id="clientCity" name="clientCity" placeholder="City" autocomplete="address-level2" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              <label for="orderCity" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">City</label>
+              <input type="text" id="orderCity" name="orderCity" placeholder="City" autocomplete="address-level2" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
             </div>
             <div>
-              <label for="clientState" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">State/Province</label>
-              <input type="text" id="clientState" name="clientState" placeholder="State/Province" autocomplete="address-level1" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              <label for="orderState" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">State/Province</label>
+              <input type="text" id="orderState" name="orderState" placeholder="State/Province" autocomplete="address-level1" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
             </div>
             <div>
-              <label for="clientPostalCode" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Postal Code</label>
-              <input type="text" id="clientPostalCode" name="clientPostalCode" placeholder="12345" autocomplete="postal-code" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              <label for="orderPostalCode" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Postal Code</label>
+              <input type="text" id="orderPostalCode" name="orderPostalCode" placeholder="12345" autocomplete="postal-code" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
             </div>
             <div>
-              <label for="clientCountry" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Country</label>
-              <input type="text" id="clientCountry" name="clientCountry" placeholder="Country" autocomplete="country-name" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              <label for="orderCountry" style="display: block; color: #9ca3af; margin: 0 0 6px 0; font-size: 12px; font-weight: 500;">Country</label>
+              <input type="text" id="orderCountry" name="orderCountry" placeholder="Country" autocomplete="country-name" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
             </div>
           </div>
         </div>
@@ -1858,8 +1876,31 @@
         e.preventDefault();
         return true;
       }
-      // Let all other errors through normally
+      
+      // Suppress only ad blocker CSP test errors (gen_204), not actual Google Maps errors
+      if (errorMsg.includes('ERR_BLOCKED_BY_CLIENT') && errorFile.includes('gen_204')) {
+        e.stopPropagation();
+        e.preventDefault();
+        return true;
+      }
+      
+      // Let all other errors through normally (including Google Maps API errors so you can see them)
     }, true);
+
+    // Suppress unhandled promise rejections from classifier.js
+    window.addEventListener('unhandledrejection', function(e) {
+      const reason = e.reason || {};
+      const stack = reason.stack || '';
+      const message = reason.message || '';
+      
+      // Check if this is from classifier.js
+      if (stack.includes('classifier.js') || message.includes('uuid')) {
+        console.warn('[Suppressed] External extension promise rejection from classifier.js');
+        e.preventDefault();
+        return true;
+      }
+      // Let all other rejections through normally
+    });
 
     // Use existing Firebase instance from auth.js
     // auth and db are already declared in the global scope by auth.js
@@ -1891,6 +1932,11 @@
         loadColors(currentUser);
       }
       
+      // Load data when switching to clients page
+      if (pageName === 'clients' && currentUser) {
+        loadClients();
+      }
+      
       // Update page title and header
       updatePageTitle(pageName);
     }
@@ -1899,8 +1945,9 @@
       const titles = {
         'dashboard': 'Dashboard',
         'calculator': 'Calculator',
-        'upload-model': 'Upload Model',
         'orders': 'Orders',
+        'clients': 'Clients',
+        'upload-model': 'Upload Model',
         'tools': 'Tools',
         'activity': 'Activity',
         'settings': 'Settings'
@@ -1909,8 +1956,9 @@
       const descriptions = {
         'dashboard': '', // Will show date
         'calculator': 'Calculate 3D printing costs and pricing',
-        'upload-model': 'Upload and manage your 3D models',
         'orders': 'View and track your print orders',
+        'clients': 'Manage your customer relationships',
+        'upload-model': 'Upload and manage your 3D models',
         'tools': 'Explore additional tools and features',
         'activity': 'View your recent activity and history',
         'settings': 'Manage your account and preferences'
@@ -2108,12 +2156,16 @@
 
     // Handle logout
     function handleLogout() {
-      if (confirm('Are you sure you want to logout?')) {
+      // Show confirmation toast
+      if (window.confirm('Are you sure you want to logout?')) {
         firebase.auth().signOut().then(() => {
-          window.location.href = '../index.html';
+          showNotification('Logged out successfully', 'success', 'Goodbye!');
+          setTimeout(() => {
+            window.location.href = '../index.html';
+          }, 1000);
         }).catch((error) => {
           console.error('Logout error:', error);
-          alert('Error logging out. Please try again.');
+          showNotification('Error logging out. Please try again.', 'error');
         });
       }
     }
@@ -2170,10 +2222,11 @@
         const verification = await ref.once('value');
         console.log('Verification - saved value:', verification.val());
         
+        showNotification('Currency preference saved successfully', 'success');
         return true;
       } catch (error) {
         console.error('❌ Error saving currency preference:', error);
-        alert('Failed to save currency: ' + error.message);
+        showNotification('Failed to save currency: ' + error.message, 'error');
         return false;
       }
     }
@@ -2460,7 +2513,7 @@
       btnSavePreset.addEventListener('click', () => {
         const user = firebase.auth().currentUser;
         if (!user) {
-          alert('Please login to save presets');
+          showNotification('Please login to save presets', 'warning', 'Login Required');
           return;
         }
         
@@ -2533,7 +2586,7 @@
       btnManagePresets.addEventListener('click', () => {
         const user = firebase.auth().currentUser;
         if (!user) {
-          alert('Please login to manage presets');
+          showNotification('Please login to manage presets', 'warning', 'Login Required');
           return;
         }
         renderPresetsList();
@@ -2678,16 +2731,17 @@
       const user = firebase.auth().currentUser;
       if (!user) return;
       
-      if (!confirm('Are you sure you want to delete this preset?')) return;
+      if (!window.confirm('Are you sure you want to delete this preset?')) return;
       
       try {
         await firebase.database().ref(`users/${user.uid}/presets/${presetId}`).remove();
         console.log('Preset deleted successfully');
+        showNotification('Preset deleted successfully', 'success');
         await loadUserPresets();
         renderPresetsList();
       } catch (error) {
         console.error('Error deleting preset:', error);
-        alert('Error deleting preset. Please try again.');
+        showNotification('Error deleting preset. Please try again.', 'error');
       }
     };
 
@@ -2901,7 +2955,7 @@
     if (document.getElementById('btnAddUserPrinter')) {
       document.getElementById('btnAddUserPrinter').onclick = () => {
         if (!firebase.auth().currentUser) {
-          alert('Please login to add your own printers');
+          showNotification('Please login to add your own printers', 'warning', 'Login Required');
           return;
         }
         editingUserPrinterId = null;
@@ -2924,7 +2978,7 @@
     if (document.getElementById('btnAddUserFilament')) {
       document.getElementById('btnAddUserFilament').onclick = () => {
         if (!firebase.auth().currentUser) {
-          alert('Please login to add your own filaments');
+          showNotification('Please login to add your own filaments', 'warning', 'Login Required');
           return;
         }
         editingUserFilamentId = null;
@@ -2946,7 +3000,7 @@
     // Save user printer
     function saveUserPrinter() {
       if (!firebase.auth().currentUser) {
-        alert('Please login to save your printer');
+        showNotification('Please login to save your printer', 'warning', 'Login Required');
         return;
       }
       
@@ -2979,7 +3033,10 @@
           if (result.data.success) {
             editingUserPrinterId = null;
             hideModal(printerModal);
-            alert(`"${brand} ${name}" has been ${wasEditing ? 'updated in' : 'added to'} your library!`);
+            // Show notification AFTER modal closes
+            setTimeout(() => {
+              showNotification(`"${brand} ${name}" has been ${wasEditing ? 'updated in' : 'added to'} your library!`, 'success', wasEditing ? 'Printer Updated' : 'Printer Added');
+            }, 300);
           } else {
             printerErr.textContent = result.data.message || 'Error saving printer';
             printerErr.style.display = 'block';
@@ -2994,7 +3051,7 @@
     // Save user filament
     function saveUserFilament() {
       if (!firebase.auth().currentUser) {
-        alert('Please login to save your filament');
+        showNotification('Please login to save your filament', 'warning', 'Login Required');
         return;
       }
       
@@ -3027,7 +3084,10 @@
           if (result.data.success) {
             editingUserFilamentId = null;
             hideModal(filamentModal);
-            alert(`"${brand} - ${type}" has been ${wasEditing ? 'updated in' : 'added to'} your library!`);
+            // Show notification AFTER modal closes
+            setTimeout(() => {
+              showNotification(`"${brand} - ${type}" has been ${wasEditing ? 'updated in' : 'added to'} your library!`, 'success', wasEditing ? 'Filament Updated' : 'Filament Added');
+            }, 300);
           } else {
             filamentErr.textContent = result.data.message || 'Error saving filament';
             filamentErr.style.display = 'block';
@@ -3043,7 +3103,7 @@
     if (document.getElementById('btnParseQuickAdd')) {
       document.getElementById('btnParseQuickAdd').onclick = async function() {
         if (!firebase.auth().currentUser) {
-          alert('Please login to add printers');
+          showNotification('Please login to add printers', 'warning', 'Login Required');
           return;
         }
         
@@ -3087,7 +3147,7 @@
           await Promise.all(promises);
           
           hideModal(printerModal);
-          alert(`Successfully added ${printers.length} printer(s) to your library!`);
+          showNotification(`Successfully added ${printers.length} printer(s) to your library!`, 'success', 'Printers Added');
           document.getElementById('printerQuickAdd').value = '';
           
         } catch (error) {
@@ -3101,7 +3161,7 @@
     if (document.getElementById('btnParseFilamentQuickAdd')) {
       document.getElementById('btnParseFilamentQuickAdd').onclick = async function() {
         if (!auth.currentUser) {
-          alert('Please login to add filaments');
+          showNotification('Please login to add filaments', 'warning', 'Login Required');
           return;
         }
         
@@ -3145,7 +3205,7 @@
           await Promise.all(promises);
           
           hideModal(filamentModal);
-          alert(`Successfully added ${filaments.length} filament(s) to your library!`);
+          showNotification(`Successfully added ${filaments.length} filament(s) to your library!`, 'success', 'Filaments Added');
           document.getElementById('filamentQuickAdd').value = '';
           
         } catch (error) {
@@ -3184,14 +3244,14 @@
       const printer = userPrintersData[id];
       if (!printer) return;
       
-      if (!confirm(`Delete "${printer.brand} ${printer.name}" from your library? This action cannot be undone.`)) return;
+      if (!window.confirm(`Delete "${printer.brand} ${printer.name}" from your library? This action cannot be undone.`)) return;
       
       db.ref(`users/${auth.currentUser.uid}/printers/${id}`).remove()
         .then(() => {
-          alert(`"${printer.brand} ${printer.name}" has been deleted from your library.`);
+          showNotification(`"${printer.brand} ${printer.name}" has been deleted from your library.`, 'success', 'Printer Deleted');
         })
         .catch(error => {
-          alert('Error deleting printer: ' + error.message);
+          showNotification('Error deleting printer: ' + error.message, 'error');
         });
     };
 
@@ -3224,14 +3284,14 @@
       const filament = userFilamentsData[id];
       if (!filament) return;
       
-      if (!confirm(`Delete "${filament.brand} - ${filament.type}" from your library? This action cannot be undone.`)) return;
+      if (!window.confirm(`Delete "${filament.brand} - ${filament.type}" from your library? This action cannot be undone.`)) return;
       
       db.ref(`users/${auth.currentUser.uid}/filaments/${id}`).remove()
         .then(() => {
-          alert(`"${filament.brand} - ${filament.type}" has been deleted from your library.`);
+          showNotification(`"${filament.brand} - ${filament.type}" has been deleted from your library.`, 'success', 'Filament Deleted');
         })
         .catch(error => {
-          alert('Error deleting filament: ' + error.message);
+          showNotification('Error deleting filament: ' + error.message, 'error');
         });
     };
 
@@ -3726,58 +3786,10 @@
     // Replacements for alert/confirm/prompt with custom styling
     // ===============================================
     
-    // Show notification modal (replaces alert)
-    // type: 'success', 'error', 'warning', 'info'
-    function showNotification(message, title = 'Notification', type = 'info') {
-      return new Promise((resolve) => {
-        const modal = document.getElementById('adminNotificationModal');
-        const titleEl = document.getElementById('adminNotificationTitle');
-        const messageEl = document.getElementById('adminNotificationMessage');
-        const iconEl = document.getElementById('adminNotificationIcon');
-        const okBtn = document.getElementById('adminNotificationOk');
-        
-        titleEl.textContent = title;
-        messageEl.textContent = message;
-        
-        // Set icon SVG and color based on type
-        let iconSVG = '';
-        let iconColor = '';
-        
-        switch(type) {
-          case 'success':
-            iconColor = '#10b981';
-            iconSVG = '<img src="../images/Icons/CheckCircle.svg" width="48" height="48" style="filter: brightness(0) saturate(100%) invert(66%) sepia(28%) saturate(2050%) hue-rotate(101deg) brightness(95%) contrast(86%);">';
-            break;
-          case 'error':
-            iconColor = '#ef4444';
-            iconSVG = '<img src="../images/Icons/XCircle.svg" width="48" height="48" style="filter: brightness(0) saturate(100%) invert(38%) sepia(72%) saturate(2826%) hue-rotate(340deg) brightness(100%) contrast(89%);">';
-            break;
-          case 'warning':
-            iconColor = '#f59e0b';
-            iconSVG = '<img src="../images/Icons/Warning.svg" width="48" height="48" style="filter: brightness(0) saturate(100%) invert(71%) sepia(87%) saturate(1495%) hue-rotate(358deg) brightness(97%) contrast(96%);">';
-            break;
-          default: // info
-            iconColor = '#8b5cf6';
-            iconSVG = '<img src="../images/Icons/Info.svg" width="48" height="48" style="filter: brightness(0) saturate(100%) invert(43%) sepia(63%) saturate(1752%) hue-rotate(236deg) brightness(93%) contrast(92%);">';
-        }
-        
-        iconEl.innerHTML = iconSVG;
-        iconEl.style.color = iconColor;
-        
-        modal.style.display = 'grid';
-        
-        const handleClose = () => {
-          modal.style.display = 'none';
-          okBtn.removeEventListener('click', handleClose);
-          resolve(true);
-        };
-        
-        okBtn.addEventListener('click', handleClose);
-      });
-    }
+    // OLD showNotificationModal REMOVED - Now using toast notifications at bottom of page
     
     // Show confirmation modal (replaces confirm)
-    function showConfirm(message, title = 'Confirm Action') {
+    window.showConfirm = function(message, title = 'Confirm Action') {
       return new Promise((resolve) => {
         const modal = document.getElementById('adminConfirmModal');
         const titleEl = document.getElementById('adminConfirmTitle');
@@ -3812,7 +3824,7 @@
     }
     
     // Show prompt modal (replaces prompt)
-    function showPrompt(message, defaultValue = '', title = 'Enter Value') {
+    window.showPrompt = function(message, defaultValue = '', title = 'Enter Value') {
       return new Promise((resolve) => {
         const modal = document.getElementById('adminPromptModal');
         const titleEl = document.getElementById('adminPromptTitle');
@@ -3870,14 +3882,14 @@
       console.log('Available printers:', Object.keys(printersData));
       
       if (currentUserTier !== 'admin') {
-        await showNotification('You need admin access to edit global printers.', 'Access Denied', '🔒');
+        showNotification('You need admin access to edit global printers.', 'warning', 'Access Denied');
         return;
       }
       
       const printer = printersData[printerName];
       if (!printer) {
         console.error('Printer not found:', printerName);
-        await showNotification('Printer not found in the database.', 'Error', '❌');
+        showNotification('Printer not found in the database.', 'error', 'Error');
         return;
       }
       
@@ -3907,7 +3919,7 @@
     // Delete Global Printer (Admin Only)
     window.deleteGlobalPrinter = async function(printerName) {
       if (currentUserTier !== 'admin') {
-        await showNotification('You need admin access to delete global printers.', 'Access Denied', '🔒');
+        showNotification('You need admin access to delete global printers.', 'warning', 'Access Denied');
         return;
       }
       
@@ -3923,11 +3935,11 @@
         snapshot.forEach(child => {
           child.ref.remove()
             .then(async () => {
-              await showNotification(`Printer "${printerName}" has been deleted successfully.`, 'Success', '✅');
+              showNotification(`Printer "${printerName}" has been deleted successfully.`, 'success', 'Success');
               renderPrintersList();
             })
             .catch(async (error) => {
-              await showNotification(`Error deleting printer: ${error.message}`, 'Error', '❌');
+              showNotification(`Error deleting printer: ${error.message}`, 'error', 'Error');
             });
         });
       });
@@ -3936,13 +3948,13 @@
     // Duplicate Global Printer (Admin Only)
     window.duplicateGlobalPrinter = async function(printerName) {
       if (currentUserTier !== 'admin') {
-        await showNotification('You need admin access to duplicate global printers.', 'Access Denied', '🔒');
+        showNotification('You need admin access to duplicate global printers.', 'warning', 'Access Denied');
         return;
       }
       
       const printer = printersData[printerName];
       if (!printer) {
-        await showNotification('Printer not found in the database.', 'Error', '❌');
+        showNotification('Printer not found in the database.', 'error', 'Error');
         return;
       }
       
@@ -3965,11 +3977,11 @@
       
       printersRef.push(newPrinter)
         .then(async () => {
-          await showNotification(`Printer "${newName}" has been duplicated successfully.`, 'Success', '✅');
+          showNotification(`Printer "${newName}" has been duplicated successfully.`, 'success', 'Success');
           renderPrintersList();
         })
         .catch(async (error) => {
-          await showNotification(`Error duplicating printer: ${error.message}`, 'Error', '❌');
+          showNotification(`Error duplicating printer: ${error.message}`, 'error', 'Error');
         });
     };
     
@@ -3980,14 +3992,14 @@
       console.log('Available filaments:', Object.keys(filamentsData));
       
       if (currentUserTier !== 'admin') {
-        await showNotification('You need admin access to edit global filaments.', 'Access Denied', '🔒');
+        showNotification('You need admin access to edit global filaments.', 'warning', 'Access Denied');
         return;
       }
       
       const filament = filamentsData[filamentType];
       if (!filament) {
         console.error('Filament not found:', filamentType);
-        await showNotification('Filament not found in the database.', 'Error', '❌');
+        showNotification('Filament not found in the database.', 'error', 'Error');
         return;
       }
       
@@ -4017,7 +4029,7 @@
     // Delete Global Filament (Admin Only)
     window.deleteGlobalFilament = async function(filamentType) {
       if (currentUserTier !== 'admin') {
-        await showNotification('You need admin access to delete global filaments.', 'Access Denied', '🔒');
+        showNotification('You need admin access to delete global filaments.', 'warning', 'Access Denied');
         return;
       }
       
@@ -4033,11 +4045,11 @@
         snapshot.forEach(child => {
           child.ref.remove()
             .then(async () => {
-              await showNotification(`Filament "${filamentType}" has been deleted successfully.`, 'Success', '✅');
+              showNotification(`Filament "${filamentType}" has been deleted successfully.`, 'success', 'Success');
               renderFilamentsList();
             })
             .catch(async (error) => {
-              await showNotification(`Error deleting filament: ${error.message}`, 'Error', '❌');
+              showNotification(`Error deleting filament: ${error.message}`, 'error', 'Error');
             });
         });
       });
@@ -4046,13 +4058,13 @@
     // Duplicate Global Filament (Admin Only)
     window.duplicateGlobalFilament = async function(filamentType) {
       if (currentUserTier !== 'admin') {
-        await showNotification('You need admin access to duplicate global filaments.', 'Access Denied', '🔒');
+        showNotification('You need admin access to duplicate global filaments.', 'warning', 'Access Denied');
         return;
       }
       
       const filament = filamentsData[filamentType];
       if (!filament) {
-        await showNotification('Filament not found in the database.', 'Error', '❌');
+        showNotification('Filament not found in the database.', 'error', 'Error');
         return;
       }
       
@@ -4075,11 +4087,11 @@
       
       filamentsRef.push(newFilament)
         .then(async () => {
-          await showNotification(`Filament "${newType}" has been duplicated successfully.`, 'Success', '✅');
+          showNotification(`Filament "${newType}" has been duplicated successfully.`, 'success', 'Success');
           renderFilamentsList();
         })
         .catch(async (error) => {
-          await showNotification(`Error duplicating filament: ${error.message}`, 'Error', '❌');
+          showNotification(`Error duplicating filament: ${error.message}`, 'error', 'Error');
         });
     };
     
@@ -4158,7 +4170,7 @@
           const lifespan = parseFloat(document.getElementById('editGlobalPrinterLifespan').value);
           
           if (!newName || !brand || !price || !lifespan) {
-            await showNotification('Please fill in all fields.', 'Missing Information', 'ℹ️');
+            showNotification('Please fill in all fields.', 'warning', 'Missing Information');
             return;
           }
           
@@ -4175,12 +4187,12 @@
             snapshot.forEach(child => {
               child.ref.update(updatedPrinter)
                 .then(async () => {
-                  await showNotification(`Printer "${newName}" has been updated successfully.`, 'Success', '✅');
+                  showNotification(`Printer "${newName}" has been updated successfully.`, 'success', 'Success');
                   editGlobalPrinterModal.style.display = 'none';
                   renderPrintersList();
                 })
                 .catch(async (error) => {
-                  await showNotification(`Error updating printer: ${error.message}`, 'Error', '❌');
+                  showNotification(`Error updating printer: ${error.message}`, 'error', 'Error');
                 });
             });
           });
@@ -4220,7 +4232,7 @@
           const cost = parseFloat(document.getElementById('editGlobalFilamentCost').value);
           
           if (!newType || !brand || !weight || !cost) {
-            await showNotification('Please fill in all fields.', 'Missing Information', 'ℹ️');
+            showNotification('Please fill in all fields.', 'warning', 'Missing Information');
             return;
           }
           
@@ -4237,12 +4249,12 @@
             snapshot.forEach(child => {
               child.ref.update(updatedFilament)
                 .then(async () => {
-                  await showNotification(`Filament "${newType}" has been updated successfully.`, 'Success', '✅');
+                  showNotification(`Filament "${newType}" has been updated successfully.`, 'success', 'Success');
                   editGlobalFilamentModal.style.display = 'none';
                   renderFilamentsList();
                 })
                 .catch(async (error) => {
-                  await showNotification(`Error updating filament: ${error.message}`, 'Error', '❌');
+                  showNotification(`Error updating filament: ${error.message}`, 'error', 'Error');
                 });
             });
           });
@@ -4265,7 +4277,7 @@
       if (btnAddGlobalPrinter) {
         btnAddGlobalPrinter.addEventListener('click', async () => {
           if (currentUserTier !== 'admin') {
-            await showNotification('You need admin access to add global printers.', 'Access Denied', '🔒');
+            showNotification('You need admin access to add global printers.', 'warning', 'Access Denied');
             return;
           }
           // Clear form
@@ -4300,7 +4312,7 @@
           const lifespan = parseFloat(document.getElementById('addGlobalPrinterLifespan').value);
           
           if (!name || !brand || !priceInput || !lifespan) {
-            await showNotification('Please fill in all fields.', 'Missing Information', 'ℹ️');
+            showNotification('Please fill in all fields.', 'warning', 'Missing Information');
             return;
           }
           
@@ -4318,12 +4330,12 @@
           
           printersRef.push(newPrinter)
             .then(async () => {
-              await showNotification(`Global printer "${name}" has been added successfully.`, 'Success', '✅');
+              showNotification(`Global printer "${name}" has been added successfully.`, 'success', 'Success');
               addGlobalPrinterModal.style.display = 'none';
               renderPrintersList();
             })
             .catch(async (error) => {
-              await showNotification(`Error adding printer: ${error.message}`, 'Error', '❌');
+              showNotification(`Error adding printer: ${error.message}`, 'error', 'Error');
             });
         });
       }
@@ -4339,7 +4351,7 @@
       if (btnParseGlobalPrinterQuickAdd) {
         btnParseGlobalPrinterQuickAdd.addEventListener('click', async () => {
           if (currentUserTier !== 'admin') {
-            await showNotification('You need admin access to add global printers.', 'Access Denied', '🔒');
+            showNotification('You need admin access to add global printers.', 'warning', 'Access Denied');
             return;
           }
           
@@ -4386,7 +4398,7 @@
             const promises = printers.map(printer => printersRef.push(printer));
             await Promise.all(promises);
             
-            await showNotification(`Successfully added ${printers.length} global printer(s)!`, 'Success', '✅');
+            showNotification(`Successfully added ${printers.length} global printer(s)!`, 'success', 'Success');
             addGlobalPrinterModal.style.display = 'none';
             document.getElementById('globalPrinterQuickAdd').value = '';
             renderPrintersList();
@@ -4408,7 +4420,7 @@
       if (btnAddGlobalFilament) {
         btnAddGlobalFilament.addEventListener('click', async () => {
           if (currentUserTier !== 'admin') {
-            await showNotification('You need admin access to add global filaments.', 'Access Denied', '🔒');
+            showNotification('You need admin access to add global filaments.', 'warning', 'Access Denied');
             return;
           }
           // Clear form
@@ -4443,7 +4455,7 @@
           const costInput = parseFloat(document.getElementById('addGlobalFilamentCost').value);
           
           if (!type || !brand || !weight || !costInput) {
-            await showNotification('Please fill in all fields.', 'Missing Information', 'ℹ️');
+            showNotification('Please fill in all fields.', 'warning', 'Missing Information');
             return;
           }
           
@@ -4461,12 +4473,12 @@
           
           filamentsRef.push(newFilament)
             .then(async () => {
-              await showNotification(`Global filament "${type}" has been added successfully.`, 'Success', '✅');
+              showNotification(`Global filament "${type}" has been added successfully.`, 'success', 'Success');
               addGlobalFilamentModal.style.display = 'none';
               renderFilamentsList();
             })
             .catch(async (error) => {
-              await showNotification(`Error adding filament: ${error.message}`, 'Error', '❌');
+              showNotification(`Error adding filament: ${error.message}`, 'error', 'Error');
             });
         });
       }
@@ -4482,7 +4494,7 @@
       if (btnParseGlobalFilamentQuickAdd) {
         btnParseGlobalFilamentQuickAdd.addEventListener('click', async () => {
           if (currentUserTier !== 'admin') {
-            await showNotification('You need admin access to add global filaments.', 'Access Denied', '🔒');
+            showNotification('You need admin access to add global filaments.', 'warning', 'Access Denied');
             return;
           }
           
@@ -4529,7 +4541,7 @@
             const promises = filaments.map(filament => filamentsRef.push(filament));
             await Promise.all(promises);
             
-            await showNotification(`Successfully added ${filaments.length} global filament(s)!`, 'Success', '✅');
+            showNotification(`Successfully added ${filaments.length} global filament(s)!`, 'success', 'Success');
             addGlobalFilamentModal.style.display = 'none';
             document.getElementById('globalFilamentQuickAdd').value = '';
             renderFilamentsList();
@@ -5066,6 +5078,7 @@
         currentUser = user;
         await loadSavedCurrency(user);
         loadOrders();
+        loadClients();
         loadColors(user);
         
         // Load filaments for material dropdown (reuse existing filaments data from calculator)
@@ -5080,13 +5093,28 @@
     }
 
     const btnNewOrder = document.getElementById('btnNewOrder');
+    console.log('btnNewOrder element:', btnNewOrder);
     if (btnNewOrder) {
       btnNewOrder.addEventListener('click', () => {
+        console.log('New Order button clicked!');
         if (!currentUser) {
           alert('Please login to create an order');
           return;
         }
         openNewOrderModal();
+      });
+      console.log('New Order button click handler attached');
+    }
+
+    // Add Client button event listener
+    const btnAddClient = document.getElementById('btnAddClient');
+    if (btnAddClient) {
+      btnAddClient.addEventListener('click', () => {
+        if (!currentUser) {
+          alert('Please login to add a client');
+          return;
+        }
+        openAddClientModal();
       });
     }
 
@@ -5500,7 +5528,7 @@
         if (mode === 'global') {
           // Admin check for global colors
           if (currentUserTier !== 'admin') {
-            await showNotification('You need admin access to add global colors.', 'Access Denied', '🔒');
+            showNotification('You need admin access to add global colors.', 'warning', 'Access Denied');
             return;
           }
 
@@ -5508,11 +5536,11 @@
             // Edit existing global color
             delete colorData.createdAt; // Don't update timestamp on edit
             await firebase.database().ref(`colors/${editId}`).update(colorData);
-            await showNotification(`Color "${name}" has been updated successfully.`, 'Success', '✅');
+            showNotification(`Color "${name}" has been updated successfully.`, 'success', 'Success');
           } else {
             // Add new global color
             await firebase.database().ref('colors').push(colorData);
-            await showNotification(`Color "${name}" has been added to global library.`, 'Success', '✅');
+            showNotification(`Color "${name}" has been added to global library.`, 'success', 'Success');
           }
         } else {
           // User colors
@@ -5525,11 +5553,11 @@
             // Edit existing user color
             delete colorData.createdAt; // Don't update timestamp on edit
             await firebase.database().ref(`userColors/${currentUser.uid}/${editId}`).update(colorData);
-            await showNotification(`Color "${name}" has been updated successfully.`, 'Success', '✅');
+            showNotification(`Color "${name}" has been updated successfully.`, 'success', 'Success');
           } else {
             // Add new user color
             await firebase.database().ref(`userColors/${currentUser.uid}`).push(colorData);
-            await showNotification(`Color "${name}" has been added to your library.`, 'Success', '✅');
+            showNotification(`Color "${name}" has been added to your library.`, 'success', 'Success');
           }
         }
 
@@ -5557,7 +5585,7 @@
       // Admin check for global colors
       if (mode === 'global') {
         if (currentUserTier !== 'admin') {
-          await showNotification('You need admin access to add global colors.', 'Access Denied', '🔒');
+          showNotification('You need admin access to add global colors.', 'warning', 'Access Denied');
           return;
         }
       } else {
@@ -5823,19 +5851,19 @@
           await firebase.database().ref(`userColors/${currentUser.uid}/${colorId}`).remove();
         }
         
-        await showNotification(`${selectedUserColors.length} color${selectedUserColors.length > 1 ? 's' : ''} deleted successfully.`, 'Success', '✅');
+        showNotification(`${selectedUserColors.length} color${selectedUserColors.length > 1 ? 's' : ''} deleted successfully.`, 'success', 'Success');
         
         // Exit selection mode
         cancelUserSelection();
       } catch (error) {
         console.error('Error deleting colors:', error);
-        await showNotification(`Error deleting colors: ${error.message}`, 'Error', '❌');
+        showNotification(`Error deleting colors: ${error.message}`, 'error', 'Error');
       }
     };
 
     window.massDeleteGlobalColors = async function() {
       if (currentUserTier !== 'admin') {
-        await showNotification('You need admin access to delete global colors.', 'Access Denied', '🔒');
+        showNotification('You need admin access to delete global colors.', 'warning', 'Access Denied');
         return;
       }
 
@@ -5863,13 +5891,13 @@
           await firebase.database().ref(`colors/${colorId}`).remove();
         }
         
-        await showNotification(`${selectedGlobalColors.length} global color${selectedGlobalColors.length > 1 ? 's' : ''} deleted successfully.`, 'Success', '✅');
+        showNotification(`${selectedGlobalColors.length} global color${selectedGlobalColors.length > 1 ? 's' : ''} deleted successfully.`, 'success', 'Success');
         
         // Exit selection mode
         cancelGlobalSelection();
       } catch (error) {
         console.error('Error deleting colors:', error);
-        await showNotification(`Error deleting colors: ${error.message}`, 'Error', '❌');
+        showNotification(`Error deleting colors: ${error.message}`, 'error', 'Error');
       }
     };
 
@@ -5880,7 +5908,7 @@
     // Add Global Color (Admin Only)
     function addGlobalColor() {
       if (currentUserTier !== 'admin') {
-        showNotification('You need admin access to add global colors.', 'Access Denied', '🔒');
+        showNotification('You need admin access to add global colors.', 'warning', 'Access Denied');
         return;
       }
 
@@ -5910,14 +5938,14 @@
       console.log('editGlobalColor called with:', colorId);
       
       if (currentUserTier !== 'admin') {
-        await showNotification('You need admin access to edit global colors.', 'Access Denied', '🔒');
+        showNotification('You need admin access to edit global colors.', 'warning', 'Access Denied');
         return;
       }
 
       const color = globalColorsData[colorId];
       if (!color) {
         console.error('Color not found:', colorId);
-        await showNotification('Color not found in the database.', 'Error', '❌');
+        showNotification('Color not found in the database.', 'error', 'Error');
         return;
       }
 
@@ -5949,13 +5977,13 @@
       console.log('deleteGlobalColor called with:', colorId);
       
       if (currentUserTier !== 'admin') {
-        await showNotification('You need admin access to delete global colors.', 'Access Denied', '🔒');
+        showNotification('You need admin access to delete global colors.', 'warning', 'Access Denied');
         return;
       }
 
       const color = globalColorsData[colorId];
       if (!color) {
-        await showNotification('Color not found in the database.', 'Error', '❌');
+        showNotification('Color not found in the database.', 'error', 'Error');
         return;
       }
 
@@ -5968,10 +5996,10 @@
 
       try {
         await firebase.database().ref(`colors/${colorId}`).remove();
-        await showNotification(`Color "${color.name}" has been deleted successfully.`, 'Success', '✅');
+        showNotification(`Color "${color.name}" has been deleted successfully.`, 'success', 'Success');
       } catch (error) {
         console.error('Error deleting color:', error);
-        await showNotification(`Error deleting color: ${error.message}`, 'Error', '❌');
+        showNotification(`Error deleting color: ${error.message}`, 'error', 'Error');
       }
     };
 
@@ -6146,8 +6174,12 @@
         modal.style.display = 'grid';
       }
       
-      // Initialize address autocomplete
-      setTimeout(initAutocomplete, 200);
+      // Initialize address autocomplete for order modal
+      console.log('About to call initOrderAutocomplete');
+      setTimeout(() => {
+        console.log('setTimeout fired, calling initOrderAutocomplete now');
+        initOrderAutocomplete();
+      }, 200);
     }
 
     function closeNewOrderModal() {
@@ -6157,39 +6189,633 @@
       }
     }
 
-    // Initialize address autocomplete
-    function initAutocomplete() {
-      const input = document.getElementById('addressAutocomplete');
-      if (!input || !window.google) return;
+    // ============================================
+    // CLIENT MODAL FUNCTIONS
+    // ============================================
+
+    let clientAutocomplete = null;
+
+    function openAddClientModal() {
+      const modal = document.getElementById('addClientModal');
+      const form = document.getElementById('addClientForm');
       
-      autocomplete = new google.maps.places.Autocomplete(input, {
-        types: ['address']
-      });
+      if (form) {
+        form.reset();
+      }
       
-      autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-        if (!place.address_components) return;
+      if (modal) {
+        modal.style.display = 'grid';
+      }
+      
+      // Initialize address autocomplete for client
+      console.log('About to call initClientAutocomplete');
+      setTimeout(() => {
+        console.log('setTimeout fired, calling initClientAutocomplete now');
+        initClientAutocomplete();
+      }, 200);
+    }
+
+    function closeAddClientModal() {
+      const modal = document.getElementById('addClientModal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+    }
+
+    // Initialize client address autocomplete
+    async function initClientAutocomplete() {
+      const container = document.getElementById('newClientAddressSearch')?.parentElement;
+      console.log('initClientAutocomplete called');
+      console.log('Container element:', container);
+      
+      if (!container) {
+        console.error('Client address autocomplete container not found');
+        return;
+      }
+      
+      // Wait for Google Maps library to load
+      if (!window.google?.maps?.places) {
+        console.log('Waiting for Google Maps to load...');
+        setTimeout(initClientAutocomplete, 500);
+        return;
+      }
+      
+      try {
+        // Import the Places library
+        const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
         
-        // Populate address fields
-        place.address_components.forEach(component => {
-          const types = component.types;
-          if (types.includes('street_number') || types.includes('route')) {
-            document.getElementById('clientStreet').value = place.name || '';
+        // Remove the old input field
+        const oldInput = document.getElementById('newClientAddressSearch');
+        if (oldInput) {
+          oldInput.remove();
+        }
+        
+        // Create the new PlaceAutocompleteElement
+        const autocompleteElement = new PlaceAutocompleteElement();
+        autocompleteElement.id = 'newClientAddressSearch';
+        
+        // Apply custom styling to match your design
+        const style = document.createElement('style');
+        style.textContent = `
+          #newClientAddressSearch {
+            width: 100%;
+            font-family: inherit;
           }
-          if (types.includes('locality')) {
-            document.getElementById('clientCity').value = component.long_name;
+          #newClientAddressSearch input {
+            width: 100% !important;
+            padding: 12px 16px !important;
+            background: rgba(36, 29, 53, 0.6) !important;
+            border: 1px solid #2d2e3a !important;
+            border-radius: 8px !important;
+            color: #ffffff !important;
+            font-size: 14px !important;
+            font-family: inherit !important;
           }
-          if (types.includes('administrative_area_level_1')) {
-            document.getElementById('clientState').value = component.short_name;
+          #newClientAddressSearch input:focus {
+            outline: none !important;
+            border-color: #a855f7 !important;
+            box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.1) !important;
           }
-          if (types.includes('postal_code')) {
-            document.getElementById('clientPostalCode').value = component.long_name;
+          #newClientAddressSearch input::placeholder {
+            color: #6b7280 !important;
           }
-          if (types.includes('country')) {
-            document.getElementById('clientCountry').value = component.long_name;
+        `;
+        document.head.appendChild(style);
+        
+        container.appendChild(autocompleteElement);
+        console.log('Client autocomplete element created and appended');
+        console.log('Element type:', autocompleteElement.constructor.name);
+        console.log('Element:', autocompleteElement);
+        
+        // Define place selection handler
+        async function handlePlaceSelect(place) {
+          console.log('🎯 handlePlaceSelect called!');
+          console.log('Place object:', place);
+          
+          if (!place) {
+            console.log('❌ No place object');
+            return;
+          }
+          
+          try {
+            // Fetch place details with address components
+            await place.fetchFields({
+              fields: ['addressComponents', 'formattedAddress']
+            });
+            
+            console.log('✅ Place details fetched');
+            console.log('Address Components:', place.addressComponents);
+            console.log('Formatted Address:', place.formattedAddress);
+            
+            if (!place.addressComponents || place.addressComponents.length === 0) {
+              console.error('❌ No address components returned');
+              return;
+            }
+            
+            let street = '';
+            let city = '';
+            let state = '';
+            let postalCode = '';
+            let country = '';
+            
+            for (const component of place.addressComponents) {
+              const types = component.types;
+              console.log(`📍 Component: "${component.longText}" | Types: ${types.join(', ')}`);
+              
+              if (types.includes('street_number')) {
+                street = component.longText;
+              }
+              if (types.includes('route')) {
+                street += (street ? ' ' : '') + component.longText;
+              }
+              if (types.includes('locality')) {
+                city = component.longText;
+              }
+              if (types.includes('administrative_area_level_1')) {
+                state = component.shortText;
+              }
+              if (types.includes('postal_code')) {
+                postalCode = component.longText;
+              }
+              if (types.includes('country')) {
+                country = component.longText;
+              }
+            }
+            
+            console.log('📋 Parsed Address:', { street, city, state, postalCode, country });
+            
+            // Fill in the form fields
+            const streetField = document.getElementById('newClientStreet');
+            const cityField = document.getElementById('newClientCity');
+            const stateField = document.getElementById('newClientState');
+            const postalCodeField = document.getElementById('newClientPostalCode');
+            const countryField = document.getElementById('newClientCountry');
+            
+            console.log('🔍 Field elements:', {
+              streetField: !!streetField,
+              cityField: !!cityField,
+              stateField: !!stateField,
+              postalCodeField: !!postalCodeField,
+              countryField: !!countryField
+            });
+            
+            if (streetField) {
+              streetField.value = street;
+              console.log('✅ Street set to:', street);
+            }
+            if (cityField) {
+              cityField.value = city;
+              console.log('✅ City set to:', city);
+            }
+            if (stateField) {
+              stateField.value = state;
+              console.log('✅ State set to:', state);
+            }
+            if (postalCodeField) {
+              postalCodeField.value = postalCode;
+              console.log('✅ Postal code set to:', postalCode);
+            }
+            if (countryField) {
+              countryField.value = country;
+              console.log('✅ Country set to:', country);
+            }
+            
+            console.log('🎉 Address fields populated successfully!');
+          } catch (error) {
+            console.error('❌ Error fetching place details:', error);
+          }
+        }
+        
+        // Attach event listener for place selection
+        autocompleteElement.addEventListener('gmp-select', async (event) => {
+          console.log('🎯 gmp-select event fired!');
+          console.log('Event:', event);
+          
+          // Use placePrediction.toPlace() to get the place object
+          const place = await event.placePrediction.toPlace();
+          console.log('Place from prediction:', place);
+          
+          await handlePlaceSelect(place);
+        });
+        
+        console.log('✅ Event listener attached to autocomplete element');
+      } catch (error) {
+        console.error('❌ Error initializing client autocomplete:', error);
+      }
+    }
+
+    // Handle client form submission
+    window.addEventListener('DOMContentLoaded', () => {
+      const addClientForm = document.getElementById('addClientForm');
+      if (addClientForm) {
+        addClientForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          console.log('📝 Add Client form submitted');
+          console.log('Current user:', currentUser);
+          
+          if (!currentUser) {
+            alert('Please login to add a client');
+            return;
+          }
+          
+          // Get form data
+          const clientData = {
+            name: document.getElementById('newClientName').value,
+            email: document.getElementById('newClientEmail').value,
+            phone: document.getElementById('newClientPhone').value,
+            messagingPlatform: document.getElementById('newClientMessaging').value,
+            company: document.getElementById('newClientCompany').value,
+            tags: document.getElementById('newClientTags').value,
+            address: {
+              street: document.getElementById('newClientStreet').value,
+              city: document.getElementById('newClientCity').value,
+              state: document.getElementById('newClientState').value,
+              postalCode: document.getElementById('newClientPostalCode').value,
+              country: document.getElementById('newClientCountry').value
+            },
+            preferredLanguage: document.getElementById('newClientLanguage').value,
+            notes: document.getElementById('newClientNotes').value,
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+          };
+          
+          console.log('Client data to save:', clientData);
+          
+          try {
+            // Save to Firebase
+            console.log('Saving to Firebase...');
+            await firebase.database().ref(`users/${currentUser.uid}/clients`).push(clientData);
+            
+            console.log('✅ Client saved successfully');
+            
+            // Show success message
+            showNotification('Client added successfully!', 'success', 'Client Added');
+            
+            // Reset form
+            addClientForm.reset();
+            
+            // Close modal
+            closeAddClientModal();
+            
+            // Reload clients list (if function exists)
+            if (typeof loadClients === 'function') {
+              loadClients();
+            }
+          } catch (error) {
+            console.error('❌ Error adding client:', error);
+            showNotification('Error adding client. Please try again.', 'error');
           }
         });
+        console.log('✅ Add Client form listener attached');
+      } else {
+        console.error('❌ Add Client form not found');
+      }
+    });
+
+    // Clients data storage
+    let clientsData = [];
+
+    // Load clients from Firebase
+    function loadClients() {
+      if (!currentUser) {
+        console.log('No user logged in, skipping client load');
+        return;
+      }
+
+      console.log('📋 Loading clients for user:', currentUser.uid);
+      
+      const clientsRef = firebase.database().ref(`users/${currentUser.uid}/clients`);
+      
+      clientsRef.on('value', snapshot => {
+        clientsData = [];
+        
+        if (snapshot.exists()) {
+          snapshot.forEach(child => {
+            const client = child.val();
+            clientsData.push({
+              id: child.key,
+              ...client
+            });
+          });
+          console.log(`✅ Loaded ${clientsData.length} clients`);
+        } else {
+          console.log('No clients found');
+        }
+        
+        renderClientsTable();
       });
+    }
+
+    // Render clients table
+    function renderClientsTable() {
+      const container = document.getElementById('clientsContent');
+      if (!container) return;
+
+      // Get search term
+      const searchInput = document.getElementById('searchClients');
+      const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+
+      // Filter clients
+      let filteredClients = clientsData;
+      if (searchTerm) {
+        filteredClients = clientsData.filter(client => {
+          return (
+            (client.name && client.name.toLowerCase().includes(searchTerm)) ||
+            (client.email && client.email.toLowerCase().includes(searchTerm)) ||
+            (client.phone && client.phone.toLowerCase().includes(searchTerm)) ||
+            (client.company && client.company.toLowerCase().includes(searchTerm)) ||
+            (client.tags && client.tags.toLowerCase().includes(searchTerm))
+          );
+        });
+      }
+
+      // Show empty state if no clients
+      if (filteredClients.length === 0) {
+        if (clientsData.length === 0) {
+          // No clients at all
+          container.innerHTML = `
+            <div style="text-align: center; padding: 60px 20px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;">
+              <img src="../images/Icons/Users.svg" alt="" style="width: 64px; height: 64px; opacity: 0.3; margin: 0 auto 16px; filter: brightness(0) invert(1);">
+              <h3 style="font-size: 18px; margin-bottom: 8px; color: #fff; font-weight: 600;">No clients yet</h3>
+              <p style="font-size: 14px; color: rgba(255, 255, 255, 0.5); margin-bottom: 24px;">Add your first client to get started</p>
+              <button type="button" class="btn btn-primary" onclick="document.getElementById('btnAddClient').click()">
+                <img src="../images/Icons/Plus.svg" alt="" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle; filter: brightness(0) invert(1);">
+                Add Your First Client
+              </button>
+            </div>
+          `;
+        } else {
+          // No results from search
+          container.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;">
+              <p style="color: rgba(255, 255, 255, 0.5);">No clients found matching "${searchTerm}"</p>
+            </div>
+          `;
+        }
+        return;
+      }
+
+      // Render clients table
+      container.innerHTML = `
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; overflow: hidden;">
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                  <th style="padding: 16px; text-align: left; color: rgba(255, 255, 255, 0.7); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Client</th>
+                  <th style="padding: 16px; text-align: left; color: rgba(255, 255, 255, 0.7); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Contact</th>
+                  <th style="padding: 16px; text-align: left; color: rgba(255, 255, 255, 0.7); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Platform</th>
+                  <th style="padding: 16px; text-align: left; color: rgba(255, 255, 255, 0.7); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Location</th>
+                  <th style="padding: 16px; text-align: left; color: rgba(255, 255, 255, 0.7); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Language</th>
+                  <th style="padding: 16px; text-align: left; color: rgba(255, 255, 255, 0.7); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Tags</th>
+                  <th style="padding: 16px; text-align: right; color: rgba(255, 255, 255, 0.7); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filteredClients.map((client, index) => `
+                  <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                    <td style="padding: 16px;">
+                      <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <span style="color: #fff; font-weight: 600; font-size: 14px;">${client.name || 'Unnamed Client'}</span>
+                        ${client.company ? `<span style="color: rgba(255, 255, 255, 0.5); font-size: 12px;">${client.company}</span>` : ''}
+                      </div>
+                    </td>
+                    <td style="padding: 16px;">
+                      <div style="display: flex; flex-direction: column; gap: 4px;">
+                        ${client.email ? `
+                          <a href="mailto:${client.email}" style="color: rgba(255, 255, 255, 0.7); font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+                            <img src="../images/Icons/EnvelopeSimple.svg" alt="" style="width: 12px; height: 12px; opacity: 0.5; filter: brightness(0) invert(1);">
+                            ${client.email}
+                          </a>
+                        ` : '<span style="color: rgba(255, 255, 255, 0.3); font-size: 13px;">—</span>'}
+                        ${client.phone ? `
+                          <a href="tel:${client.phone}" style="color: rgba(255, 255, 255, 0.7); font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+                            <img src="../images/Icons/Phone.svg" alt="" style="width: 12px; height: 12px; opacity: 0.5; filter: brightness(0) invert(1);">
+                            ${client.phone}
+                          </a>
+                        ` : ''}
+                      </div>
+                    </td>
+                    <td style="padding: 16px;">
+                      <span style="color: rgba(255, 255, 255, 0.7); font-size: 13px;">${client.messagingPlatform || '—'}</span>
+                    </td>
+                    <td style="padding: 16px;">
+                      <span style="color: rgba(255, 255, 255, 0.7); font-size: 13px;">
+                        ${client.address && (client.address.city || client.address.country) 
+                          ? [client.address.city, client.address.state, client.address.country].filter(Boolean).join(', ')
+                          : '—'}
+                      </span>
+                    </td>
+                    <td style="padding: 16px;">
+                      <span style="color: rgba(255, 255, 255, 0.7); font-size: 13px;">${client.preferredLanguage || '—'}</span>
+                    </td>
+                    <td style="padding: 16px;">
+                      ${client.tags ? `
+                        <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                          ${client.tags.split(',').slice(0, 2).map(tag => `
+                            <span style="font-size: 11px; padding: 3px 8px; background: rgba(168, 85, 247, 0.2); color: #a855f7; border-radius: 12px; white-space: nowrap;">${tag.trim()}</span>
+                          `).join('')}
+                          ${client.tags.split(',').length > 2 ? `<span style="font-size: 11px; color: rgba(255, 255, 255, 0.5);">+${client.tags.split(',').length - 2}</span>` : ''}
+                        </div>
+                      ` : '<span style="color: rgba(255, 255, 255, 0.3); font-size: 13px;">—</span>'}
+                    </td>
+                    <td style="padding: 16px; text-align: right;">
+                      <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                        <button onclick="viewClient('${client.id}')" class="btn-calc" style="font-size: 12px; padding: 6px 12px; white-space: nowrap;">View</button>
+                        <button onclick="editClient('${client.id}')" class="btn-calc" style="font-size: 12px; padding: 6px 12px; white-space: nowrap;">Edit</button>
+                        <button onclick="deleteClient('${client.id}')" class="btn-calc-ghost" style="font-size: 12px; padding: 6px 12px; white-space: nowrap;">Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // Add search functionality for clients
+    const searchClientsInput = document.getElementById('searchClients');
+    if (searchClientsInput) {
+      searchClientsInput.addEventListener('input', () => renderClientsTable());
+    }
+
+    // Placeholder functions for client actions
+    window.viewClient = function(clientId) {
+      const client = clientsData.find(c => c.id === clientId);
+      if (client) {
+        alert(`View client: ${client.name}\n\nThis feature is coming soon!`);
+      }
+    };
+
+    window.editClient = function(clientId) {
+      const client = clientsData.find(c => c.id === clientId);
+      if (client) {
+        alert(`Edit client: ${client.name}\n\nThis feature is coming soon!`);
+      }
+    };
+
+    window.deleteClient = async function(clientId) {
+      const client = clientsData.find(c => c.id === clientId);
+      if (!client) return;
+
+      if (window.confirm(`Are you sure you want to delete ${client.name}?`)) {
+        try {
+          await firebase.database().ref(`users/${currentUser.uid}/clients/${clientId}`).remove();
+          showNotification('Client deleted successfully!', 'success', 'Client Deleted');
+        } catch (error) {
+          console.error('Error deleting client:', error);
+          showNotification('Error deleting client. Please try again.', 'error');
+        }
+      }
+    };
+
+    // Initialize address autocomplete for New Order modal
+    function initOrderAutocomplete() {
+      const container = document.getElementById('orderAddressAutocomplete')?.parentElement;
+      console.log('initOrderAutocomplete called');
+      console.log('Container element:', container);
+      console.log('Google Maps loaded:', !!window.google);
+      console.log('Google Places loaded:', !!(window.google && window.google.maps && window.google.maps.places));
+      
+      if (!container) {
+        console.error('Order address autocomplete container not found');
+        return;
+      }
+      
+      if (!window.google || !window.google.maps || !window.google.maps.places) {
+        console.error('Google Maps Places library not loaded');
+        return;
+      }
+      
+      try {
+        // Remove the old input field
+        const oldInput = document.getElementById('orderAddressAutocomplete');
+        if (oldInput) {
+          oldInput.remove();
+        }
+        
+        // Create the new PlaceAutocompleteElement
+        const autocompleteElement = document.createElement('gmp-place-autocomplete');
+        autocompleteElement.id = 'orderAddressAutocomplete';
+        autocompleteElement.setAttribute('placeholder', 'Start typing address...');
+        autocompleteElement.setAttribute('type', 'address');
+        
+        // Apply custom styling to match your design
+        const style = document.createElement('style');
+        style.textContent = `
+          #orderAddressAutocomplete {
+            width: 100%;
+            font-family: inherit;
+          }
+          #orderAddressAutocomplete input {
+            width: 100% !important;
+            padding: 12px 16px !important;
+            background: rgba(36, 29, 53, 0.6) !important;
+            border: 1px solid #2d2e3a !important;
+            border-radius: 8px !important;
+            color: #ffffff !important;
+            font-size: 14px !important;
+            font-family: inherit !important;
+          }
+          #orderAddressAutocomplete input:focus {
+            outline: none !important;
+            border-color: #a855f7 !important;
+            box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.1) !important;
+          }
+          #orderAddressAutocomplete input::placeholder {
+            color: #6b7280 !important;
+          }
+        `;
+        document.head.appendChild(style);
+        
+        container.appendChild(autocompleteElement);
+        console.log('Order autocomplete initialized successfully with new API');
+        
+        // Listen for place selection with new gmp-select event
+        autocompleteElement.addEventListener('gmp-select', async (event) => {
+          console.log('🎯 gmp-select event fired!');
+          console.log('Event:', event);
+          
+          // Use placePrediction.toPlace() to get the place object
+          const place = await event.placePrediction.toPlace();
+          console.log('Place from prediction:', place);
+          
+          if (!place) {
+            console.log('No place object');
+            return;
+          }
+          
+          try {
+            // Fetch place details with address components
+            await place.fetchFields({
+              fields: ['addressComponents', 'formattedAddress']
+            });
+            
+            console.log('Place addressComponents:', place.addressComponents);
+            console.log('Formatted address:', place.formattedAddress);
+            
+            if (!place.addressComponents || place.addressComponents.length === 0) {
+              console.error('No address components returned');
+              return;
+            }
+            
+            let street = '';
+            let city = '';
+            let state = '';
+            let postalCode = '';
+            let country = '';
+            
+            for (const component of place.addressComponents) {
+              const types = component.types;
+              console.log('Component:', component.longText, 'Types:', types);
+              
+              if (types.includes('street_number')) {
+                street = component.longText;
+              }
+              if (types.includes('route')) {
+                street += (street ? ' ' : '') + component.longText;
+              }
+              if (types.includes('locality')) {
+                city = component.longText;
+              }
+              if (types.includes('administrative_area_level_1')) {
+                state = component.shortText;
+              }
+              if (types.includes('postal_code')) {
+                postalCode = component.longText;
+              }
+              if (types.includes('country')) {
+                country = component.longText;
+              }
+            }
+            
+            console.log('Parsed address:', { street, city, state, postalCode, country });
+            
+            // Fill in the form fields
+            const streetField = document.getElementById('orderStreet');
+            const cityField = document.getElementById('orderCity');
+            const stateField = document.getElementById('orderState');
+            const postalCodeField = document.getElementById('orderPostalCode');
+            const countryField = document.getElementById('orderCountry');
+            
+            if (streetField) streetField.value = street;
+            if (cityField) cityField.value = city;
+            if (stateField) stateField.value = state;
+            if (postalCodeField) postalCodeField.value = postalCode;
+            if (countryField) countryField.value = country;
+            
+            console.log('Order address fields populated successfully');
+          } catch (error) {
+            console.error('Error fetching place details:', error);
+          }
+        });
+      } catch (error) {
+        console.error('Error initializing order autocomplete:', error);
+      }
     }
 
     // Populate color picker
@@ -6705,6 +7331,483 @@
   <!-- ============================================ -->
   <!-- UPLOAD MODEL MODALS - END -->
   <!-- ============================================ -->
+
+  <!-- ============================================ -->
+  <!-- CLIENT MODAL -->
+  <!-- ============================================ -->
+  
+  <!-- Add Client Modal -->
+  <div class="modal-overlay" id="addClientModal">
+    <div class="modal-card modal-dark-theme" style="max-width: 1800px; width: 98%; max-height: 95vh; overflow-y: auto;">
+      <button class="modal-close" onclick="closeAddClientModal()">×</button>
+      
+      <div class="modal-header-centered">
+        <h3 class="modal-title-large">
+          Add New <span class="gradient-highlight">Client</span>
+        </h3>
+        <p class="modal-subtitle-large">Fill in the client details below</p>
+      </div>
+
+      <form id="addClientForm">
+        <!-- Two Column Layout: Client Info (Left) + Address Info (Right) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+          
+          <!-- Client Information (Left Column) -->
+          <div style="padding: 24px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a;">
+            <h4 style="color: #ffffff; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Client Information</h4>
+            
+            <div style="display: grid; gap: 16px;">
+              <div>
+                <label for="newClientName" style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Client Name *</label>
+                <input type="text" id="newClientName" name="clientName" required placeholder="Enter client name" autocomplete="name" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+
+              <div>
+                <label for="newClientEmail" style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Email</label>
+                <input type="email" id="newClientEmail" name="email" placeholder="client@example.com" autocomplete="email" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+
+              <div>
+                <label for="newClientPhone" style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Phone</label>
+                <input type="tel" id="newClientPhone" name="phone" placeholder="+1 (555) 123-4567" autocomplete="tel" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+
+              <div>
+                <label for="newClientMessaging" style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Messaging Platform</label>
+                <select id="newClientMessaging" name="messagingPlatform" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                  <option value="">Select messaging app or platform...</option>
+                  <optgroup label="Messaging Apps">
+                    <option value="WhatsApp">WhatsApp</option>
+                    <option value="Facebook Messenger">Facebook Messenger</option>
+                    <option value="Instagram DM">Instagram Direct Message</option>
+                    <option value="Telegram">Telegram</option>
+                    <option value="Discord">Discord</option>
+                    <option value="WeChat">WeChat</option>
+                    <option value="Line">LINE</option>
+                    <option value="Viber">Viber</option>
+                    <option value="Snapchat">Snapchat</option>
+                    <option value="iMessage">iMessage</option>
+                    <option value="SMS">SMS/Text Message</option>
+                    <option value="Signal">Signal</option>
+                    <option value="Kakao Talk">Kakao Talk</option>
+                  </optgroup>
+                  <optgroup label="E-Commerce Marketplaces">
+                    <option value="Etsy">Etsy</option>
+                    <option value="eBay">eBay</option>
+                    <option value="Amazon">Amazon</option>
+                    <option value="Shopify">Shopify</option>
+                    <option value="Facebook Marketplace">Facebook Marketplace</option>
+                    <option value="Mercari">Mercari</option>
+                    <option value="Poshmark">Poshmark</option>
+                    <option value="Depop">Depop</option>
+                    <option value="Vinted">Vinted</option>
+                    <option value="Craigslist">Craigslist</option>
+                    <option value="OfferUp">OfferUp</option>
+                    <option value="Letgo">Letgo</option>
+                    <option value="AliExpress">AliExpress</option>
+                    <option value="Alibaba">Alibaba</option>
+                    <option value="Walmart Marketplace">Walmart Marketplace</option>
+                    <option value="Target Plus">Target Plus</option>
+                    <option value="Wish">Wish</option>
+                    <option value="Temu">Temu</option>
+                    <option value="Shein">Shein</option>
+                  </optgroup>
+                  <optgroup label="Social & Professional">
+                    <option value="Twitter DM">Twitter/X Direct Message</option>
+                    <option value="LinkedIn Messages">LinkedIn Messages</option>
+                    <option value="TikTok">TikTok Shop</option>
+                    <option value="Pinterest">Pinterest</option>
+                  </optgroup>
+                  <optgroup label="Traditional">
+                    <option value="Email">Email</option>
+                    <option value="Phone Call">Phone Call</option>
+                    <option value="In Person">In Person</option>
+                    <option value="Skype">Skype</option>
+                    <option value="Slack">Slack</option>
+                    <option value="Teams">Microsoft Teams</option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option value="Other">Other</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <div>
+                <label for="newClientCompany" style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Company/Business Name</label>
+                <input type="text" id="newClientCompany" name="company" placeholder="Optional" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+
+              <div>
+                <label for="newClientTags" style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Tags</label>
+                <input type="text" id="newClientTags" name="tags" placeholder="e.g., repeat, wholesale, local" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                <p style="font-size: 11px; color: #6b7280; margin: 4px 0 0 0;">Comma-separated tags for easy filtering</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Address Information (Right Column) -->
+          <div style="padding: 24px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a;">
+            <h4 style="color: #ffffff; margin: 0 0 24px 0; font-size: 16px; font-weight: 600;">Address Information</h4>
+            
+            <div style="display: grid; gap: 16px;">
+              <div>
+                <label for="newClientAddressSearch" style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Address Search</label>
+                <input type="text" id="newClientAddressSearch" name="addressSearch" placeholder="Start typing address..." autocomplete="street-address" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                <p style="font-size: 11px; color: #6b7280; margin: 4px 0 0 0;">Use Google Places autocomplete to quickly fill address</p>
+              </div>
+
+              <div>
+                <label for="newClientStreet" style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Street Address</label>
+                <input type="text" id="newClientStreet" name="street" placeholder="123 Main St" autocomplete="street-address" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                <div>
+                  <label for="newClientCity" style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">City</label>
+                  <input type="text" id="newClientCity" name="city" placeholder="City" autocomplete="address-level2" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                </div>
+
+                <div>
+                  <label for="newClientState" style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">State/Province</label>
+                  <input type="text" id="newClientState" name="state" placeholder="State/Province" autocomplete="address-level1" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                <div>
+                  <label for="newClientPostalCode" style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Postal Code</label>
+                  <input type="text" id="newClientPostalCode" name="postalCode" placeholder="12345" autocomplete="postal-code" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                </div>
+
+                <div>
+                  <label for="newClientCountry" style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Country</label>
+                  <input type="text" id="newClientCountry" name="country" placeholder="Country" autocomplete="country-name" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Extra Notes & Preferences -->
+        <div style="padding: 24px; background: rgba(36, 29, 53, 0.4); border-radius: 12px; border: 1px solid #2d2e3a; margin-bottom: 24px;">
+          <h4 style="color: #ffffff; margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Additional Information</h4>
+          
+          <div style="display: grid; gap: 16px;">
+            <div>
+              <label for="newClientLanguage" style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Preferred Language</label>
+              <select id="newClientLanguage" name="preferredLanguage" style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px;">
+                <option value="">Select preferred language...</option>
+                <optgroup label="Most Common">
+                  <option value="English">English</option>
+                  <option value="Spanish">Spanish (Español)</option>
+                  <option value="French">French (Français)</option>
+                  <option value="German">German (Deutsch)</option>
+                  <option value="Portuguese">Portuguese (Português)</option>
+                  <option value="Italian">Italian (Italiano)</option>
+                  <option value="Russian">Russian (Русский)</option>
+                  <option value="Chinese">Chinese (中文)</option>
+                  <option value="Japanese">Japanese (日本語)</option>
+                  <option value="Korean">Korean (한국어)</option>
+                  <option value="Arabic">Arabic (العربية)</option>
+                  <option value="Hindi">Hindi (हिन्दी)</option>
+                </optgroup>
+                <optgroup label="European Languages">
+                  <option value="Dutch">Dutch (Nederlands)</option>
+                  <option value="Polish">Polish (Polski)</option>
+                  <option value="Swedish">Swedish (Svenska)</option>
+                  <option value="Norwegian">Norwegian (Norsk)</option>
+                  <option value="Danish">Danish (Dansk)</option>
+                  <option value="Finnish">Finnish (Suomi)</option>
+                  <option value="Greek">Greek (Ελληνικά)</option>
+                  <option value="Czech">Czech (Čeština)</option>
+                  <option value="Romanian">Romanian (Română)</option>
+                  <option value="Hungarian">Hungarian (Magyar)</option>
+                  <option value="Turkish">Turkish (Türkçe)</option>
+                  <option value="Ukrainian">Ukrainian (Українська)</option>
+                </optgroup>
+                <optgroup label="Asian Languages">
+                  <option value="Thai">Thai (ไทย)</option>
+                  <option value="Vietnamese">Vietnamese (Tiếng Việt)</option>
+                  <option value="Indonesian">Indonesian (Bahasa Indonesia)</option>
+                  <option value="Malay">Malay (Bahasa Melayu)</option>
+                  <option value="Tagalog">Tagalog (Filipino)</option>
+                  <option value="Bengali">Bengali (বাংলা)</option>
+                  <option value="Urdu">Urdu (اردو)</option>
+                  <option value="Persian">Persian (فارسی)</option>
+                </optgroup>
+                <optgroup label="Other Languages">
+                  <option value="Hebrew">Hebrew (עברית)</option>
+                  <option value="Swahili">Swahili (Kiswahili)</option>
+                  <option value="Afrikaans">Afrikaans</option>
+                  <option value="Catalan">Catalan (Català)</option>
+                  <option value="Croatian">Croatian (Hrvatski)</option>
+                  <option value="Serbian">Serbian (Српски)</option>
+                  <option value="Bulgarian">Bulgarian (Български)</option>
+                  <option value="Slovak">Slovak (Slovenčina)</option>
+                  <option value="Slovenian">Slovenian (Slovenščina)</option>
+                  <option value="Lithuanian">Lithuanian (Lietuvių)</option>
+                  <option value="Latvian">Latvian (Latviešu)</option>
+                  <option value="Estonian">Estonian (Eesti)</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div>
+              <label for="newClientNotes" style="display: block; color: #9ca3af; margin: 0 0 8px 0; font-size: 12px; font-weight: 500;">Notes</label>
+              <textarea id="newClientNotes" name="notes" rows="4" placeholder="Add any additional notes about this client..." style="width: 100%; padding: 12px 16px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; font-size: 14px; resize: vertical; font-family: inherit;"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div style="display: flex; justify-content: flex-end; gap: 12px; padding: 20px 0 0 0; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+          <button type="button" class="btn-calc-ghost" onclick="closeAddClientModal()">Cancel</button>
+          <button type="submit" class="btn-calc">Add Client</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- CLIENT MODAL - END --> q
+  <!-- ============================================ -->
+
+  <!-- Notification Component - Toast Notifications -->
+  <style>
+    /* Notification Styles - Modern Toast Design */
+    .notification {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      transform: translateX(400px);
+      background: #1e172e;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 12px;
+      padding: 20px 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(168, 85, 247, 0.1);
+      z-index: 9999;
+      min-width: 320px;
+      max-width: 420px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .notification.show {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: all;
+    }
+
+    .notification-icon {
+      font-size: 28px;
+      min-width: 28px;
+      text-align: center;
+      filter: drop-shadow(0 0 8px currentColor);
+    }
+
+    .notification-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .notification-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #f3f4f6;
+      line-height: 1.3;
+    }
+
+    .notification-message {
+      font-size: 14px;
+      color: #9ca3af;
+      line-height: 1.4;
+    }
+
+    .notification-close {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      line-height: 1;
+      opacity: 0.6;
+    }
+
+    .notification-close:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #f3f4f6;
+      opacity: 1;
+    }
+
+    /* Success variant */
+    .notification.success {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(30, 23, 46, 0.95) 50%);
+    }
+
+    .notification.success .notification-icon {
+      color: #10b981;
+    }
+
+    /* Error variant */
+    .notification.error {
+      border-color: rgba(239, 68, 68, 0.4);
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(30, 23, 46, 0.95) 50%);
+    }
+
+    .notification.error .notification-icon {
+      color: #ef4444;
+    }
+
+    /* Warning variant */
+    .notification.warning {
+      border-color: rgba(245, 158, 11, 0.4);
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(30, 23, 46, 0.95) 50%);
+    }
+
+    .notification.warning .notification-icon {
+      color: #f59e0b;
+    }
+
+    /* Progress bar animation */
+    .notification::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #a855f7, #c084fc);
+      border-radius: 0 0 12px 12px;
+      animation: notificationProgress 3s linear forwards;
+    }
+
+    .notification.success::after {
+      background: linear-gradient(90deg, #10b981, #34d399);
+    }
+
+    .notification.error::after {
+      background: linear-gradient(90deg, #ef4444, #f87171);
+    }
+
+    .notification.warning::after {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    }
+
+    @keyframes notificationProgress {
+      from {
+        width: 100%;
+      }
+      to {
+        width: 0%;
+      }
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      .notification {
+        top: 12px;
+        right: 12px;
+        left: 12px;
+        min-width: auto;
+        max-width: none;
+      }
+    }
+  </style>
+
+  <!-- Confirm Modal -->
+  <div id="adminConfirmModal" class="modal-overlay" style="display: none; z-index: 10002;">
+    <div class="modal-card" style="max-width: 500px;">
+      <h3 id="adminConfirmTitle" style="color: #ffffff; margin: 0 0 16px 0;">Confirm Action</h3>
+      <p id="adminConfirmMessage" style="color: #9ca3af; margin-bottom: 24px;"></p>
+      <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <button id="adminConfirmCancel" class="secondary-button" style="padding: 10px 24px;">Cancel</button>
+        <button id="adminConfirmOk" class="primary-button" style="padding: 10px 24px;">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prompt Modal -->
+  <div id="adminPromptModal" class="modal-overlay" style="display: none; z-index: 10002;">
+    <div class="modal-card" style="max-width: 500px;">
+      <h3 id="adminPromptTitle" style="color: #ffffff; margin: 0 0 16px 0;">Enter Value</h3>
+      <p id="adminPromptMessage" style="color: #9ca3af; margin-bottom: 16px;"></p>
+      <input type="text" id="adminPromptInput" style="width: 100%; padding: 10px; background: rgba(36, 29, 53, 0.6); border: 1px solid #2d2e3a; border-radius: 8px; color: #ffffff; margin-bottom: 24px;">
+      <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <button id="adminPromptCancel" class="secondary-button" style="padding: 10px 24px;">Cancel</button>
+        <button id="adminPromptOk" class="primary-button" style="padding: 10px 24px;">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification HTML -->
+  <div id="customNotification" class="notification">
+    <div class="notification-icon">✓</div>
+    <div class="notification-content">
+      <div class="notification-title">Success!</div>
+      <div class="notification-message"></div>
+    </div>
+    <button class="notification-close" onclick="hideNotification()">×</button>
+  </div>
+
+  <!-- Define notification functions BEFORE loading external scripts -->
+  <script>
+    /**
+     * Show a toast notification
+     * @param {string} message - The notification message
+     * @param {string} type - 'success', 'error', or 'warning' (default: 'success')
+     * @param {string} title - Optional custom title
+     */
+    window.showNotification = function(message, type = 'success', title = '') {
+      const notification = document.getElementById('customNotification');
+      
+      // Remove previous type classes
+      notification.classList.remove('success', 'error', 'warning');
+      
+      // Set icon and title based on type
+      let icon = '✓';
+      let notificationTitle = title || 'Success!';
+      
+      if (type === 'error') {
+        icon = '✕';
+        notificationTitle = title || 'Error';
+      } else if (type === 'warning') {
+        icon = '⚠';
+        notificationTitle = title || 'Warning';
+      }
+      
+      // Update content
+      notification.querySelector('.notification-icon').textContent = icon;
+      notification.querySelector('.notification-title').textContent = notificationTitle;
+      notification.querySelector('.notification-message').textContent = message;
+      
+      // Add type class and show
+      notification.classList.add(type);
+      notification.classList.add('show');
+      
+      // Auto-hide after 5 seconds (longer so it's visible after modal closes)
+      setTimeout(() => {
+        hideNotification();
+      }, 5000);
+    }
+
+    /**
+     * Manually hide the notification
+     */
+    window.hideNotification = function() {
+      const notification = document.getElementById('customNotification');
+      notification.classList.remove('show');
+    }
+  </script>
 
   <!-- Upload Model Script -->
   <script src="../js/upload-model.js" defer></script>
